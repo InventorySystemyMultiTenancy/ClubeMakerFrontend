@@ -30,9 +30,6 @@ interface ManagementReportSummary {
   successRate: number;
   cancellationRate: number;
   pendingRate: number;
-  totalToPayGiraKids: number;
-  totalPaidToGiraKids: number;
-  totalGiraKidsAccrued: number;
 }
 
 interface ProductManagementReport {
@@ -43,7 +40,6 @@ interface ProductManagementReport {
   minStock?: number;
   quantitySold: number;
   revenue: number;
-  giraKidsValue: number;
 }
 
 interface ProductVolumeAnalyticsItem {
@@ -479,9 +475,6 @@ const AdminManagementReportPage: React.FC = () => {
               Imprimir Estoque/Sugestão
             </button>
           </div>
-          <p className="text-slate-600 mt-2">
-            Visao financeira para admin com base na logica de repasse GiraKids
-          </p>
         </div>
         <button
           type="button"
@@ -680,7 +673,7 @@ const AdminManagementReportPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="bg-white rounded-xl shadow border-l-4 border-[var(--color-primary)] p-4">
               <p className="text-xs uppercase tracking-wide text-slate-500">
                 Quantidade de vendas
@@ -703,25 +696,6 @@ const AdminManagementReportPage: React.FC = () => {
               </p>
             </div>
 
-            <div className="bg-white rounded-xl shadow border-l-4 border-[var(--color-accent)] p-4">
-              <p className="text-xs uppercase tracking-wide text-slate-500">
-                Falta pagar GiraKids
-              </p>
-              <p className="text-2xl font-bold text-[var(--color-dark)] mt-2">
-                {formatCurrency(report.summary.totalToPayGiraKids)}
-              </p>
-              <p className="text-sm text-slate-500 mt-1">Pendencia atual</p>
-            </div>
-
-            <div className="bg-white rounded-xl shadow border-l-4 border-green-600 p-4">
-              <p className="text-xs uppercase tracking-wide text-slate-500">
-                Ja pago para GiraKids
-              </p>
-              <p className="text-2xl font-bold text-green-700 mt-2">
-                {formatCurrency(report.summary.totalPaidToGiraKids)}
-              </p>
-              <p className="text-sm text-slate-500 mt-1">Historico acumulado</p>
-            </div>
           </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -1326,12 +1300,6 @@ const AdminManagementReportPage: React.FC = () => {
               <h2 className="text-xl md:text-2xl font-bold text-slate-900">
                 Quanto saiu de cada produto
               </h2>
-              <div className="text-sm text-slate-500">
-                Total geral GiraKids:{" "}
-                <span className="font-semibold text-slate-700">
-                  {formatCurrency(report.summary.totalGiraKidsAccrued)}
-                </span>
-              </div>
             </div>
 
             {products.length === 0 ? (
@@ -1351,9 +1319,6 @@ const AdminManagementReportPage: React.FC = () => {
                       <th className="text-right p-3 font-semibold">
                         Faturamento
                       </th>
-                      <th className="text-right p-3 font-semibold">
-                        Valor GiraKids
-                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1371,9 +1336,6 @@ const AdminManagementReportPage: React.FC = () => {
                         </td>
                         <td className="p-3 text-right font-semibold text-slate-800">
                           {formatCurrency(product.revenue)}
-                        </td>
-                        <td className="p-3 text-right font-semibold text-[var(--color-dark)]">
-                          {formatCurrency(product.giraKidsValue)}
                         </td>
                       </tr>
                     ))}

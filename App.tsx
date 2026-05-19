@@ -16,7 +16,6 @@ import StoreNotFound from "./pages/StoreNotFound";
 import MenuPage from "./pages/MenuPage";
 import PaymentPage from "./pages/PaymentPage";
 import OrderHistoryPage from "./pages/OrderHistoryPage";
-import SuperAdminPage from "./pages/SuperAdminPage";
 import AdminPage from "./pages/AdminPage";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import AdminReportsPage from "./pages/AdminReportsPage";
@@ -126,19 +125,6 @@ const RouterBody: React.FC = () => {
       <Header />
       <main className="p-4 md:p-8 bg-[var(--color-page-bg)]">
         <Routes>
-          <Route path="/superadmin/login" element={<SuperAdminPage />} />
-          {/* Rota protegida para detalhamento do superadmin */}
-          <Route
-            path="/superadmin/detalhes"
-            element={
-              <RoleProtectedRoute
-                allowedRoles={["superadmin"]}
-                redirectTo="/superadmin/login"
-              >
-                <SuperAdminPage />
-              </RoleProtectedRoute>
-            }
-          />
           <Route path="/" element={<LoginPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />

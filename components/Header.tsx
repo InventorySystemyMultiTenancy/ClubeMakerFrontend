@@ -114,21 +114,6 @@ const Header: React.FC = () => {
                 >
                   Relatórios IA
                 </NavLink>
-                {/* SuperAdmin button: text on desktop, crown emoji on mobile */}
-                <NavLink
-                  to="/superadmin/login"
-                  className="bg-[var(--color-secondary)] text-white font-bold py-1 px-4 rounded-lg ml-2 hover:bg-red-700 transition-colors shadow-md superadmin-btn"
-                  title="SuperAdmin"
-                >
-                  <span className="superadmin-btn-label">SuperAdmin</span>
-                  <span
-                    className="superadmin-btn-icon"
-                    role="img"
-                    aria-label="SuperAdmin"
-                  >
-                    👑
-                  </span>
-                </NavLink>
               </>
             )}
           </nav>
@@ -292,12 +277,6 @@ const Header: React.FC = () => {
                 >
                   Relatórios IA
                 </NavLink>
-                <NavLink
-                  to="/superadmin/login"
-                  className="text-stone-700 hover:text-[var(--color-primary)] font-medium"
-                >
-                  SuperAdmin
-                </NavLink>
               </>
             )}
 
@@ -350,3 +329,4 @@ const Header: React.FC = () => {
 };
 
 export default Header;
+

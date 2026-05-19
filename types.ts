@@ -58,7 +58,6 @@ export type UserRole =
   | "customer"
   | "kitchen"
   | "admin"
-  | "superadmin"
   | "admincustomer";
 
 export interface User {

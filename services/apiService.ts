@@ -91,12 +91,12 @@ export async function deleteOrderFromHistory(
 
 /**
  * Tenta fazer login e salva o token se for bem-sucedido.
- * @param role - 'admin', 'kitchen' ou 'superadmin'
+ * @param role - 'admin' ou 'kitchen'
  * @param password - A senha correspondente
  * @returns True se o login foi bem-sucedido, false caso contrário.
  */
 export async function login(
-  role: "admin" | "kitchen" | "superadmin",
+  role: "admin" | "kitchen",
   password: string,
 ): Promise<boolean> {
   try {
