@@ -3,7 +3,7 @@
   "outputDirectory": "dist",
   "framework": "vite",
   "env": {
-    "VITE_API_URL": "https://backendclubsmaker.onrender.com",
+    "VITE_API_URL": "https://clubemakerbackend.onrender.com",
     "VITE_DEFAULT_STORE_ID": "clubsmaker_01"
   },
   "redirects": [
