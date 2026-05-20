@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useStore } from "../contexts/StoreContext"; // 🏪 MULTI-TENANT
-import Chatbot from "./Chatbot";
 import logo from "../assets/clubsmaker-logo.png";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
@@ -88,10 +87,6 @@ const Header: React.FC = () => {
                 ClubsMaker
               </span>
             </NavLink>
-            {/* Chatbot ao lado do logo no mobile */}
-            <span className="block md:hidden ml-2">
-              <Chatbot />
-            </span>
           </div>
 
           {/* Navegação Central (Desktop) */}
@@ -179,11 +174,6 @@ const Header: React.FC = () => {
             <div className="flex items-center gap-4 max-[1100px]:hidden">
               {currentUser ? (
                 <>
-                  {/* Chatbot só desktop aqui */}
-                  <span className="hidden md:block">
-                    <Chatbot />
-                  </span>
-                  <div className="h-6 w-px bg-stone-200 mx-1"></div>
                   <div className="flex items-center gap-3">
                     <div className="hidden sm:block text-right leading-tight">
                       <p className="text-xs text-white font-medium">Olá,</p>
