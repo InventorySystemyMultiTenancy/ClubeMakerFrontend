@@ -24,24 +24,31 @@ const processSteps = [
   {
     title: "Faca o login",
     text: "Acesse sua conta com CPF ou CNPJ em um ambiente seguro.",
-    icon: (
-      <path d="M9 11V8a3 3 0 0 1 6 0v3m-8 0h10v8H7v-8Zm4 4h2" />
-    ),
+    icon: "login",
   },
   {
     title: "Envie o arquivo",
     text: "Suba seu modelo 3D, como STL ou OBJ, e escolha os detalhes do pedido.",
-    icon: <path d="M12 16V5m0 0 4 4m-4-4-4 4M5 18h14" />,
+    icon: "upload",
   },
   {
     title: "Receba em casa",
     text: "A equipe prepara, imprime e acompanha o envio ate o destino.",
-    icon: <path d="M4 8h10v8H4V8Zm10 3h3l3 3v2h-6v-5ZM7 18a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Zm10 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />,
+    icon: "delivery",
   },
 ];
 
-const MiniIcon: React.FC<{ children: React.ReactNode; color?: string }> = ({
-  children,
+const iconPaths = {
+  login: "M9 11V8a3 3 0 0 1 6 0v3m-8 0h10v8H7v-8Zm4 4h2",
+  upload: "M12 16V5m0 0 4 4m-4-4-4 4M5 18h14",
+  delivery:
+    "M4 8h10v8H4V8Zm10 3h3l3 3v2h-6v-5ZM7 18a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Zm10 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z",
+} as const;
+
+type IconName = keyof typeof iconPaths;
+
+const MiniIcon: React.FC<{ name: IconName; color?: string }> = ({
+  name,
   color = "var(--color-primary)",
 }) => (
   <svg
@@ -54,7 +61,7 @@ const MiniIcon: React.FC<{ children: React.ReactNode; color?: string }> = ({
     strokeLinejoin="round"
     aria-hidden="true"
   >
-    {children}
+    <path d={iconPaths[name]} />
   </svg>
 );
 
@@ -105,19 +112,6 @@ const LandingPage: React.FC = () => {
                   alt="Clube Maker 3D"
                   className="mx-auto aspect-square w-full max-w-sm object-contain"
                 />
-              </div>
-              <div className="mt-5 grid grid-cols-3 gap-3">
-                {["0.12 mm", "STL/OBJ", "CPF/CNPJ"].map((item) => (
-                  <div
-                    key={item}
-                    className="rounded-lg border border-white/12 bg-white/10 px-3 py-4 text-center"
-                  >
-                    <p className="text-sm font-bold text-[var(--color-accent)]">
-                      {item}
-                    </p>
-                    <p className="mt-1 text-xs text-blue-50">pronto</p>
-                  </div>
-                ))}
               </div>
             </div>
           </div>
@@ -178,6 +172,7 @@ const LandingPage: React.FC = () => {
                     Passo {index + 1}
                   </span>
                   <MiniIcon
+                    name={step.icon as IconName}
                     color={
                       index === 0
                         ? "var(--color-primary)"
@@ -185,9 +180,7 @@ const LandingPage: React.FC = () => {
                           ? "var(--color-secondary)"
                           : "var(--color-success)"
                     }
-                  >
-                    {step.icon}
-                  </MiniIcon>
+                  />
                 </div>
                 <h3 className="mt-5 text-xl font-bold text-[#071a3d]">
                   {step.title}
