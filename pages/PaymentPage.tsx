@@ -15,8 +15,8 @@ import type { Order, CartItem } from "../types";
 import PaymentOnline from "../components/PaymentOnline";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
-const CONTACT_WHATSAPP = "5511942058445";
-const CONTACT_PHONE_LABEL = "(11) 94205-8445";
+const CONTACT_WHATSAPP = "5511947094271";
+const CONTACT_PHONE_LABEL = "(11) 94709-4271";
 
 // Helper para requisições padrão (single-tenant)
 const fetchStandard = async (url: string, options: RequestInit = {}) => {
@@ -260,7 +260,7 @@ const PaymentPage: React.FC = () => {
         });
 
       // Gera link do WhatsApp com o PDF
-      const whatsappNumber = 11989009259; // ajuste conforme seu modelo de usuário
+      const whatsappNumber = 11947094271; // ajuste conforme seu modelo de usuário
       const whatsappMsg = encodeURIComponent(
         `Olá! Segue o comprovante do seu pedido: ${pdfUrl}`,
       );

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import type { Order } from "../types";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
-const CONTACT_WHATSAPP = "5511942058445";
+const CONTACT_WHATSAPP = "5511947094271";
 
 const CustomerOrdersPage: React.FC = () => {
   const { currentUser } = useAuth();

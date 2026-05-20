@@ -33,12 +33,12 @@ const Footer = () => {
     <div ref={footerRef} className="site-footer minimal-footer">
       <div className="footer-row">
         <span>
-          <a href="https://wa.me/5511942058445" target="_blank" rel="noopener noreferrer">WhatsApp: 11 94205-8445</a>
+          <a href="https://wa.me/5511947094271" target="_blank" rel="noopener noreferrer">WhatsApp: 11 94205-8445</a>
         </span>
         <span>
-          <a href="mailto:orcamento@girakids.com">orcamento@girakids.com</a>
+          <a href="mailto:clubemaker@gmail.com">clubemaker@gmail.com</a>
         </span>
-        <span>Av. Cachoeira Paulista, 17</span>
+        <span></span>
         <span>ClubsMaker 2026</span>
         <span>Todos os direitos reservados</span>
       </div>
