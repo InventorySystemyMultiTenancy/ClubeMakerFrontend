@@ -192,8 +192,11 @@ const CPFLogin: React.FC<CPFLoginProps> = ({ onBack, onLoginSuccess }) => {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-8rem)] flex-col items-center justify-center bg-gradient-to-br from-stone-100 to-blue-50 p-4 animate-fade-in-down">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8">
+    <div
+      className="relative -m-4 flex min-h-[calc(100vh-4.3125rem)] flex-col items-center justify-center overflow-hidden bg-[#071a3d] bg-cover bg-center p-4 animate-fade-in-down md:-m-8"
+      style={{ backgroundImage: "url('/fundoLogin.png')" }}
+    >
+      <div className="relative w-full max-w-md bg-white/95 rounded-2xl shadow-2xl p-8 ring-1 ring-white/30">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
             {requiresRegistration ? "Cadastrar Conta" : showPassword ? "Digite sua senha" : "Fazer Login"}
