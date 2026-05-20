@@ -12,6 +12,7 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
 import { StoreProvider, useStore } from "./contexts/StoreContext"; // 🏪 MULTI-TENANT
 import LoginPage from "./pages/LoginPage";
+import LandingPage from "./pages/LandingPage";
 import StoreNotFound from "./pages/StoreNotFound";
 import MenuPage from "./pages/MenuPage";
 import PaymentPage from "./pages/PaymentPage";
@@ -125,7 +126,7 @@ const RouterBody: React.FC = () => {
       <Header />
       <main className="p-4 md:p-8 bg-[var(--color-page-bg)]">
         <Routes>
-          <Route path="/" element={<LoginPage />} />
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 

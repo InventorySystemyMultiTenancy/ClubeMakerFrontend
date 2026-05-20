@@ -192,7 +192,7 @@ const CPFLogin: React.FC<CPFLoginProps> = ({ onBack, onLoginSuccess }) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-stone-100 to-blue-50 p-4">
+    <div className="flex min-h-[calc(100vh-8rem)] flex-col items-center justify-center bg-gradient-to-br from-stone-100 to-blue-50 p-4 animate-fade-in-down">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">

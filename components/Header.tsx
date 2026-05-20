@@ -263,7 +263,12 @@ const Header: React.FC = () => {
                   </div>
                 </>
               ) : (
-                <span className="text-sm text-white">Bem-vindo!</span>
+                <button
+                  onClick={() => navigate("/login")}
+                  className="rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-bold text-[#071a3d] shadow-md transition-colors hover:bg-yellow-300"
+                >
+                  Entrar na plataforma
+                </button>
               )}
             </div>
           </div>
@@ -357,7 +362,12 @@ const Header: React.FC = () => {
                 </button>
               </>
             ) : (
-              <span className="text-sm text-stone-700">Bem-vindo!</span>
+              <button
+                onClick={() => navigate("/login")}
+                className="text-left text-stone-700 hover:text-[var(--color-primary)] font-medium"
+              >
+                Entrar na plataforma
+              </button>
             )}
           </div>
         </div>
