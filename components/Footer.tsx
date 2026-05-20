@@ -1,8 +1,10 @@
 import React, { useEffect, useRef } from "react";
 import "./Footer.css";
+import { useLocation } from "react-router-dom";
 
 const Footer = () => {
   const footerRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
   let lastScrollY = window.scrollY;
 
   useEffect(() => {
@@ -22,6 +24,10 @@ const Footer = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  if (location.pathname === "/menu") {
+    return null;
+  }
 
   return (
     <div ref={footerRef} className="site-footer minimal-footer">

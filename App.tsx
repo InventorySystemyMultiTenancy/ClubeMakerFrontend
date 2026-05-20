@@ -101,6 +101,7 @@ const App: React.FC = () => {
 
 const RouterBody: React.FC = () => {
   const location = useLocation();
+  const isMenuRoute = location.pathname === "/menu";
   const { store, loading, error } = useStore(); // 🏪 MULTI-TENANT
 
   // Loading state enquanto carrega a loja
@@ -124,7 +125,13 @@ const RouterBody: React.FC = () => {
     <div className="min-h-screen bg-[var(--color-page-bg)] text-stone-800">
       {/* <InactivityGuard /> */}
       <Header />
-      <main className="p-4 md:p-8 bg-[var(--color-page-bg)]">
+      <main
+        className={
+          isMenuRoute
+            ? "h-[calc(100dvh-69px)] overflow-hidden bg-[#0a1220]"
+            : "p-4 md:p-8 bg-[var(--color-page-bg)]"
+        }
+      >
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />

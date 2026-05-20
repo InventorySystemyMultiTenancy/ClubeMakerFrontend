@@ -73,6 +73,32 @@
       .animate-fade-in-down {
         animation: fade-in-down 0.5s ease-out forwards;
       }
+
+      .neon-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: #22d3ee #050914;
+      }
+
+      .neon-scrollbar::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+
+      .neon-scrollbar::-webkit-scrollbar-track {
+        background: #050914;
+        border-left: 1px solid rgba(34, 211, 238, 0.16);
+      }
+
+      .neon-scrollbar::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #67e8f9, #0ea5e9);
+        border: 2px solid #050914;
+        border-radius: 999px;
+        box-shadow: 0 0 12px rgba(34, 211, 238, 0.55);
+      }
+
+      .neon-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, #a3e635, #22d3ee);
+      }
     </style>
   </head>
   <body class="bg-stone-50">

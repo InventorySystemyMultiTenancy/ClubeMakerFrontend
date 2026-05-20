@@ -88,7 +88,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   return (
     <div
-      className={`group relative flex h-full min-h-[410px] flex-col overflow-hidden rounded-lg border border-cyan-300/20 bg-[#050914] shadow-[0_0_28px_rgba(0,229,255,0.08)] transition duration-300 hover:-translate-y-1 hover:border-cyan-300/60 hover:shadow-[0_0_34px_rgba(0,229,255,0.24)] ${
+      className={`group relative flex h-full min-h-[420px] w-full max-w-[300px] flex-col overflow-hidden rounded-lg border border-cyan-300/20 bg-[#050914] shadow-[0_0_28px_rgba(0,229,255,0.08)] transition duration-300 hover:-translate-y-1 hover:border-cyan-300/60 hover:shadow-[0_0_34px_rgba(0,229,255,0.24)] ${
         isOutOfStock ? "opacity-60 grayscale" : ""
       }`}
     >
@@ -100,7 +100,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       )}
 
       {/* Mídia (Imagem ou Vídeo) */}
-      <div className="relative h-48 bg-[#09111f] md:h-56">
+      <div className="relative h-56 bg-[#09111f] md:h-60">
         {primaryImage ? (
           <img
             src={primaryImage}
@@ -119,13 +119,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
       {/* Conteúdo */}
       <div className="flex flex-grow flex-col justify-between border-t border-cyan-300/10 bg-[#050914] p-4">
-        <div className="rounded-md bg-white px-3 py-3 shadow-[0_0_18px_rgba(255,255,255,0.06)]">
-          <h3 className="line-clamp-2 min-h-[3rem] text-base font-bold leading-tight text-[#071a3d]">
+        <div className="rounded-md bg-white px-4 py-3 shadow-[0_0_18px_rgba(255,255,255,0.06)]">
+          <h3 className="line-clamp-2 min-h-[2.75rem] text-base font-bold leading-snug text-[#071a3d]">
             {product.name}
           </h3>
         </div>
 
-        <div className="mt-4 flex flex-col gap-3">
+        <div className="mt-3 flex flex-col gap-2">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-2xl font-black text-white">
               R$ {product.price.toFixed(2)}
@@ -204,7 +204,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
 
   const containerClass = isMobile
     ? "fixed inset-x-0 bottom-0 z-[200] flex max-h-[90vh] translate-y-0 transform flex-col rounded-t-3xl border-t border-cyan-300/20 bg-[#030712] shadow-[0_-10px_60px_rgba(0,229,255,0.22)] transition-transform duration-300 ease-out"
-    : "flex h-full flex-col border-l border-cyan-300/20 bg-[#030712] shadow-[0_0_30px_rgba(0,229,255,0.12)]";
+    : "flex h-full flex-col overflow-hidden border-l border-cyan-300/20 bg-[#030712] shadow-[0_0_30px_rgba(0,229,255,0.12)]";
 
   // Lógica para encontrar o produto sugerido
   const suggestedProduct = useMemo(() => {
@@ -278,11 +278,15 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
 
       {/* Lista de Itens com Scroll */}
       <div
-        className="min-h-0 flex-1 space-y-4 overflow-y-auto bg-[#030712] p-4"
+        className={`min-h-0 flex-1 space-y-4 bg-[#030712] p-4 ${
+          cartItems.length === 0
+            ? "overflow-hidden"
+            : "neon-scrollbar overflow-y-auto"
+        }`}
         style={isMobile ? { paddingBottom: 60 } : {}}
       >
         {cartItems.length === 0 ? (
-          <div className="flex h-full min-h-[420px] flex-col items-center justify-center text-center text-slate-400">
+          <div className="flex h-full flex-col items-center justify-center text-center text-cyan-100/80">
             <span className="text-6xl mb-4">🛍️</span>
             <p className="text-xl">Seu carrinho está vazio.</p>
           </div>
@@ -444,17 +448,17 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
   return (
     <aside className="z-40 flex h-full w-[112px] shrink-0 flex-col overflow-hidden border-r border-cyan-300/20 bg-[#030712] shadow-[0_0_30px_rgba(0,229,255,0.12)] md:w-48">
       {/* Logo Area */}
-      <div className="hidden h-20 items-center justify-center border-b border-cyan-300/20 bg-[#101827] md:flex">
-        <h1 className="rounded-md border border-white/10 bg-white/5 px-6 py-3 text-2xl font-black tracking-wide text-white">
+      <div className="hidden h-16 items-center justify-center border-b border-cyan-300/20 bg-[#101827] md:flex">
+        <h1 className="rounded-md border border-white/10 bg-white/5 px-5 py-2 text-2xl font-black tracking-wide text-white">
           MENU
         </h1>
       </div>
 
       {/* Menu Items Container */}
-      <nav className="flex-1 space-y-2 overflow-y-auto py-4 pb-20">
+      <nav className="neon-scrollbar flex-1 space-y-2 overflow-y-auto py-3 pb-6">
         <button
           onClick={() => onSelectCategory(null)}
-          className={`flex w-full flex-col items-center gap-2 border-l-4 px-2 py-5 text-center transition-all duration-200 md:px-6 ${
+          className={`flex w-full flex-col items-center gap-2 border-l-4 px-2 py-4 text-center transition-all duration-200 md:px-6 ${
             selectedCategory === null
               ? "border-cyan-400 bg-cyan-400/10 text-white shadow-[inset_0_0_24px_rgba(34,211,238,0.12)]"
               : "border-transparent text-slate-400 hover:bg-white/5 hover:text-white"
@@ -482,7 +486,7 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
             <button
               key={category}
               onClick={() => onSelectCategory(category)}
-              className={`flex w-full flex-col items-center gap-2 border-l-4 px-2 py-5 text-center transition-all duration-200 md:px-6 ${
+              className={`flex w-full flex-col items-center gap-2 border-l-4 px-2 py-4 text-center transition-all duration-200 md:px-6 ${
                 isSelected
                   ? "border-cyan-400 bg-cyan-400/10 text-white shadow-[inset_0_0_24px_rgba(34,211,238,0.12)]"
                   : "border-transparent text-slate-400 hover:bg-white/5 hover:text-white"
@@ -778,7 +782,7 @@ const MenuPage: React.FC = () => {
       : 0;
 
   return (
-    <div className="-m-4 -mb-12 flex h-[calc(100vh-4.3125rem+3rem)] w-[calc(100%+2rem)] overflow-hidden bg-[#0a1220] font-sans text-white md:-m-8 md:-mb-12 md:h-[calc(100vh-5.75rem+3rem)] md:w-[calc(100%+4rem)]">
+    <div className="flex h-full w-full overflow-hidden bg-[#0a1220] font-sans text-white">
       {/* 1. SIDEBAR ESQUERDA */}
       <CategorySidebar
         categories={displayCategories} // 🆕 Usa categorias dinâmicas ordenadas
@@ -790,17 +794,14 @@ const MenuPage: React.FC = () => {
       {/* 2. ÁREA CENTRAL */}
       <main className="relative flex h-full flex-1 flex-col overflow-hidden bg-[#0d1728]">
         {/* Scroll Container */}
-        <div className="flex-1 overflow-y-auto p-4 pb-48 scroll-smooth md:p-8 md:pb-8">
+        <div className="neon-scrollbar flex-1 overflow-y-auto p-3 pb-20 scroll-smooth md:p-5 md:pb-5">
           {/* Mensagens IA */}
 
           {/* Grid de Produtos */}
-          <div className="mx-auto min-h-[101%] max-w-7xl">
+          <div className="mx-auto max-w-7xl">
             {selectedCategory === null ? (
               <>
-                <h2 className="mb-8 text-center text-3xl font-black text-white md:text-4xl">
-                  Chaveiros de Furia da Noite 3D
-                </h2>
-                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid grid-cols-1 justify-items-center gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {[...menu]
                   .sort((a, b) => {
                     const aOOS = a.stock === 0 ? 1 : 0;
@@ -824,10 +825,10 @@ const MenuPage: React.FC = () => {
               </>
             ) : (
               <div className="animate-fadeIn">
-                <h3 className="mb-8 text-center text-3xl font-black text-white md:text-4xl">
+                <h3 className="mb-4 text-center text-2xl font-black text-white md:text-3xl">
                   {selectedCategory}
                 </h3>
-                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid grid-cols-1 justify-items-center gap-5 sm:grid-cols-2 lg:grid-cols-3">
                   {[...(categorizedMenu[selectedCategory] || [])]
                     .sort((a, b) => {
                       const aOOS = a.stock === 0 ? 1 : 0;
@@ -873,7 +874,7 @@ const MenuPage: React.FC = () => {
       </main>
 
       {/* 4. COLUNA DIREITA (Carrinho Desktop) */}
-      <div className="hidden xl:block w-[380px] h-full shadow-2xl z-20">
+      <div className="z-20 hidden h-full w-[360px] shadow-2xl xl:block">
         <CartSidebar
           cartItems={cartItems}
           cartTotal={cartTotal}
