@@ -12,6 +12,73 @@ const CustomerOrdersPage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [actionOrderId, setActionOrderId] = useState<string | null>(null);
+
+  const handleContactOrder = (orderId: string) => {
+    const message = encodeURIComponent(
+      `Olá, gostaria de falar sobre o pedido #${orderId}.`,
+    );
+    const appUrl = `whatsapp://send?phone=${CONTACT_WHATSAPP}&text=${message}`;
+    const webUrl = `https://wa.me/${CONTACT_WHATSAPP}?text=${message}`;
+    const isMobile =
+      /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent) ||
+      window.matchMedia("(max-width: 768px)").matches;
+
+    if (isMobile) {
+      window.location.href = appUrl;
+      return;
+    }
+
+    window.open(webUrl, "_blank", "noopener,noreferrer");
+  };
+
+  const deletePendingOrder = async (orderId: string) => {
+    if (!currentUser || actionOrderId) return;
+    if (!window.confirm("Deseja excluir este pedido?")) return;
+
+    setActionOrderId(orderId);
+    try {
+      const resp = await fetch(
+        `${BACKEND_URL}/api/users/${currentUser.id}/orders/${orderId}`,
+        { method: "DELETE" },
+      );
+
+      if (!resp.ok) {
+        throw new Error("Erro ao excluir pedido");
+      }
+
+      setOrders((prev) => prev.filter((order) => order.id !== orderId));
+    } catch (err) {
+      alert("Nao foi possivel excluir o pedido. Tente novamente.");
+    } finally {
+      setActionOrderId(null);
+    }
+  };
+
+  const confirmPresencialPayment = async (orderId: string) => {
+    if (!currentUser || actionOrderId) return;
+
+    setActionOrderId(orderId);
+    try {
+      const resp = await fetch(
+        `${BACKEND_URL}/api/users/${currentUser.id}/orders/${orderId}/confirm-presencial`,
+        { method: "PUT" },
+      );
+
+      if (!resp.ok) {
+        throw new Error("Erro ao confirmar pagamento presencial");
+      }
+
+      const updatedOrder = await resp.json();
+      setOrders((prev) =>
+        prev.map((order) => (order.id === orderId ? updatedOrder : order)),
+      );
+    } catch (err) {
+      alert("Nao foi possivel confirmar o pagamento presencial. Tente novamente.");
+    } finally {
+      setActionOrderId(null);
+    }
+  };
 
   useEffect(() => {
     if (!currentUser) {
@@ -48,7 +115,12 @@ const CustomerOrdersPage: React.FC = () => {
         <p>Você ainda não fez nenhum pedido.</p>
       ) : (
         <ul className="space-y-4">
-          {orders.map((order) => (
+          {orders.map((order) => {
+            const isPending = order.paymentStatus === "pending";
+            const isPresencial = order.paymentType === "presencial";
+            const isProcessing = actionOrderId === order.id;
+
+            return (
             <li
               key={order.id}
               className="bg-white rounded-xl shadow p-4 border border-stone-200"
@@ -76,20 +148,40 @@ const CustomerOrdersPage: React.FC = () => {
                   </li>
                 ))}
               </ul>
+              {isPending && (
+                <div className="mt-4 flex flex-col sm:flex-row justify-end gap-2">
+                  {!isPresencial && (
+                    <button
+                      type="button"
+                      onClick={() => confirmPresencialPayment(order.id)}
+                      disabled={isProcessing}
+                      className="inline-flex items-center justify-center rounded-lg bg-[var(--color-primary)] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[var(--color-primary-active)] disabled:opacity-60"
+                    >
+                      {isProcessing ? "Confirmando..." : "Pagar presencialmente"}
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => deletePendingOrder(order.id)}
+                    disabled={isProcessing}
+                    className="inline-flex items-center justify-center rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-700 disabled:opacity-60"
+                  >
+                    {isProcessing ? "Processando..." : "Excluir pedido"}
+                  </button>
+                </div>
+              )}
               <div className="mt-4 flex justify-end">
-                <a
-                  href={`https://wa.me/${CONTACT_WHATSAPP}?text=${encodeURIComponent(
-                    `Olá, gostaria de falar sobre o pedido #${order.id}.`,
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  type="button"
+                  onClick={() => handleContactOrder(order.id)}
                   className="inline-flex items-center justify-center rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-green-700"
                 >
                   Entrar em contato
-                </a>
+                </button>
               </div>
             </li>
-          ))}
+            );
+          })}
         </ul>
       )}
     </div>
@@ -97,3 +189,4 @@ const CustomerOrdersPage: React.FC = () => {
 };
 
 export default CustomerOrdersPage;
+
