@@ -20,6 +20,7 @@ const OrderHistoryPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [showUndeliveredOnly, setShowUndeliveredOnly] = useState(false);
   const [showUnpaidOnly, setShowUnpaidOnly] = useState(false);
   const [deletingOrderId, setDeletingOrderId] = useState<string | null>(null);
@@ -115,10 +116,19 @@ const OrderHistoryPage: React.FC = () => {
   }, [startDate, endDate]);
 
   const filteredOrders = orders.filter((order) => {
+    const normalizedSearch = searchTerm.trim().toLowerCase();
+    const matchesSearch =
+      !normalizedSearch ||
+      order.id.toLowerCase().includes(normalizedSearch) ||
+      (order.userName || "").toLowerCase().includes(normalizedSearch);
     const isUndelivered = !order.entregueCliente;
     const isUnpaid = !["paid", "authorized"].includes(
       order.paymentStatus ?? "pending",
     );
+
+    if (!matchesSearch) {
+      return false;
+    }
 
     if (showUndeliveredOnly && !isUndelivered) {
       return false;
@@ -150,6 +160,18 @@ const OrderHistoryPage: React.FC = () => {
         </button>
       </div>
       <div className="bg-white rounded-xl shadow-md p-4 mb-6 flex flex-wrap gap-4 items-end">
+        <div className="w-full sm:w-72">
+          <label className="block text-sm font-medium text-stone-700 mb-1">
+            Buscar
+          </label>
+          <input
+            type="search"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Nome do cliente ou ID do pedido"
+            className="w-full border rounded px-3 py-2"
+          />
+        </div>
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-1">
             Data Inicial
@@ -200,6 +222,7 @@ const OrderHistoryPage: React.FC = () => {
           onClick={() => {
             setStartDate("");
             setEndDate("");
+            setSearchTerm("");
             setShowUndeliveredOnly(false);
             setShowUnpaidOnly(false);
           }}

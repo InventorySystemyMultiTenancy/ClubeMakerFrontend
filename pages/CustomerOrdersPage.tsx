@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import type { Order } from "../types";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const CONTACT_WHATSAPP = "5511942058445";
 
 const CustomerOrdersPage: React.FC = () => {
   const { currentUser } = useAuth();
@@ -52,7 +53,7 @@ const CustomerOrdersPage: React.FC = () => {
               key={order.id}
               className="bg-white rounded-xl shadow p-4 border border-stone-200"
             >
-              <div className="flex justify-between items-center mb-2">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-2">
                 <span className="font-bold text-lg">Pedido #{order.id}</span>
                 <span className="text-sm text-stone-500">
                   {new Date(order.timestamp).toLocaleString()}
@@ -75,6 +76,18 @@ const CustomerOrdersPage: React.FC = () => {
                   </li>
                 ))}
               </ul>
+              <div className="mt-4 flex justify-end">
+                <a
+                  href={`https://wa.me/${CONTACT_WHATSAPP}?text=${encodeURIComponent(
+                    `Olá, gostaria de falar sobre o pedido #${order.id}.`,
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-green-700"
+                >
+                  Entrar em contato
+                </a>
+              </div>
             </li>
           ))}
         </ul>
