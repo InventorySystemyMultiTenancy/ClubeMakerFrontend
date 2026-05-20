@@ -160,6 +160,17 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
   // 🆕 Estado para categorias dinâmicas
   const [categories, setCategories] = useState<Array<{ name: string }>>([]);
+  const categoryOptions = React.useMemo(() => {
+    const options = [...categories];
+    const currentCategory = product?.category || formData.category;
+    if (
+      currentCategory &&
+      !options.some((cat) => cat.name === currentCategory)
+    ) {
+      options.unshift({ name: currentCategory });
+    }
+    return options;
+  }, [categories, formData.category, product?.category]);
 
   // 🆕 Carrega categorias ao montar componente
   useEffect(() => {
@@ -231,7 +242,16 @@ const ProductForm: React.FC<ProductFormProps> = ({
       });
       setImageUrls([""]);
     }
-  }, [product, categories]);
+  }, [product]);
+
+  useEffect(() => {
+    if (!product && categories.length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        category: prev.category || categories[0].name,
+      }));
+    }
+  }, [categories, product]);
 
   // Atualiza campos do formulário. Convertendo price para número quando necessário.
   const handleChange = (
@@ -394,8 +414,8 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-md border-stone-300 shadow-sm focus:border-[var(--color-primary)] focus:ring-[var(--color-primary-light)]"
               >
-                {categories.length > 0 ? (
-                  categories.map((cat) => (
+                {categoryOptions.length > 0 ? (
+                  categoryOptions.map((cat) => (
                     <option key={cat.name} value={cat.name}>
                       {cat.name}
                     </option>
