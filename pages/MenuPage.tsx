@@ -778,7 +778,7 @@ const MenuPage: React.FC = () => {
       : 0;
 
   return (
-    <div className="-m-4 flex h-[calc(100vh-4.3125rem)] w-[calc(100%+2rem)] overflow-hidden bg-[#0a1220] font-sans text-white md:-m-8 md:h-[calc(100vh-5.75rem)] md:w-[calc(100%+4rem)]">
+    <div className="-m-4 -mb-12 flex h-[calc(100vh-4.3125rem+3rem)] w-[calc(100%+2rem)] overflow-hidden bg-[#0a1220] font-sans text-white md:-m-8 md:-mb-12 md:h-[calc(100vh-5.75rem+3rem)] md:w-[calc(100%+4rem)]">
       {/* 1. SIDEBAR ESQUERDA */}
       <CategorySidebar
         categories={displayCategories} // 🆕 Usa categorias dinâmicas ordenadas
