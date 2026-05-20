@@ -5,16 +5,56 @@ import { useStore } from "../contexts/StoreContext"; // 🏪 MULTI-TENANT
 import Chatbot from "./Chatbot";
 import logo from "../assets/clubsmaker-logo.png";
 
+const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+
 const Header: React.FC = () => {
   const { currentUser, logout } = useAuth();
   const { store } = useStore(); // 🏪 Obtém configurações da loja
   const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [hasUndeliveredOrder, setHasUndeliveredOrder] = useState(false);
 
   useEffect(() => {
     setIsMenuOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (!currentUser || currentUser.role === "admin" || currentUser.role === "kitchen") {
+      setHasUndeliveredOrder(false);
+      return;
+    }
+
+    let isMounted = true;
+
+    const fetchCustomerOrders = async () => {
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/users/${currentUser.id}/orders`);
+        if (!response.ok) {
+          throw new Error("Erro ao buscar pedidos");
+        }
+
+        const data = await response.json();
+        const hasPendingDelivery =
+          Array.isArray(data) &&
+          data.some((order) => !order.entregueCliente);
+
+        if (isMounted) {
+          setHasUndeliveredOrder(hasPendingDelivery);
+        }
+      } catch (error) {
+        if (isMounted) {
+          setHasUndeliveredOrder(false);
+        }
+      }
+    };
+
+    fetchCustomerOrders();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [currentUser, location.pathname]);
 
   const handleLogout = () => {
     logout();
@@ -190,7 +230,11 @@ const Header: React.FC = () => {
                     </button>
                     <NavLink
                       to="/meus-pedidos"
-                      className="bg-[var(--color-accent)] text-[var(--color-dark)] font-bold py-1 px-3 rounded-lg ml-2 hover:bg-yellow-300 transition-colors shadow-md text-xs flex items-center gap-2"
+                      className={`bg-[var(--color-accent)] text-[var(--color-dark)] font-bold py-1 px-3 rounded-lg ml-2 hover:bg-yellow-300 transition-colors shadow-md text-xs flex items-center gap-2 ${
+                        hasUndeliveredOrder
+                          ? "animate-pulse ring-2 ring-white ring-offset-2 ring-offset-[var(--color-primary)]"
+                          : ""
+                      }`}
                       title="Meus Pedidos"
                     >
                       <span>📦</span>
@@ -297,7 +341,11 @@ const Header: React.FC = () => {
                 </button>
                 <NavLink
                   to="/meus-pedidos"
-                  className="text-stone-700 hover:text-[var(--color-primary)] font-medium"
+                  className={`text-stone-700 hover:text-[var(--color-primary)] font-medium ${
+                    hasUndeliveredOrder
+                      ? "animate-pulse rounded-lg bg-[var(--color-accent)] px-3 py-2 text-[var(--color-dark)] shadow"
+                      : ""
+                  }`}
                 >
                   Meus Pedidos
                 </NavLink>

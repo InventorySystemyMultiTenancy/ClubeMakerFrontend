@@ -15,6 +15,8 @@ import type { Order, CartItem } from "../types";
 import PaymentOnline from "../components/PaymentOnline";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const CONTACT_WHATSAPP = "5511942058445";
+const CONTACT_PHONE_LABEL = "(11) 94205-8445";
 
 // Helper para requisições padrão (single-tenant)
 const fetchStandard = async (url: string, options: RequestInit = {}) => {
@@ -454,6 +456,20 @@ const PaymentPage: React.FC = () => {
               </li>
             ))}
           </ul>
+          <div className="border-t pt-4 mb-4 text-sm text-stone-700">
+            <span className="font-semibold">Frete:</span> entrar em contato para
+            calcular{" "}
+            <a
+              href={`https://wa.me/${CONTACT_WHATSAPP}?text=${encodeURIComponent(
+                "Olá, gostaria de calcular o frete do meu pedido.",
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-bold text-green-700 underline underline-offset-2"
+            >
+              {CONTACT_PHONE_LABEL}
+            </a>
+          </div>
           <div className="border-t pt-4 flex justify-between items-center">
             <span className="text-lg text-stone-500">Total a pagar:</span>
             <span className="text-3xl font-bold text-[var(--color-primary)]">
