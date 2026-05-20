@@ -26,6 +26,8 @@ interface ManagementReportSummary {
   pendingOrders: number;
   totalItemsSold: number;
   totalRevenue: number;
+  totalCost: number;
+  netProfit: number;
   averageTicket: number;
   successRate: number;
   cancellationRate: number;
@@ -40,6 +42,8 @@ interface ProductManagementReport {
   minStock?: number;
   quantitySold: number;
   revenue: number;
+  cost: number;
+  netProfit: number;
 }
 
 interface ProductVolumeAnalyticsItem {
@@ -634,13 +638,61 @@ const AdminManagementReportPage: React.FC = () => {
 
             <div className="bg-white rounded-xl shadow border-l-4 border-[var(--color-primary)] p-4">
               <p className="text-xs uppercase tracking-wide text-slate-500">
-                Ticket Medio
+                Custo Total
               </p>
               <p className="text-2xl font-bold text-[var(--color-primary)] mt-2">
+                {formatCurrency(report.summary.totalCost)}
+              </p>
+              <p className="text-sm text-slate-500 mt-1">
+                Soma dos custos dos itens vendidos
+              </p>
+            </div>
+
+            <div className="bg-white rounded-xl shadow border-l-4 border-violet-600 p-4">
+              <p className="text-xs uppercase tracking-wide text-slate-500">
+                Lucro Liquido
+              </p>
+              <p className="text-2xl font-bold text-violet-700 mt-2">
+                {formatCurrency(report.summary.netProfit)}
+              </p>
+              <p className="text-sm text-slate-500 mt-1">
+                Faturamento bruto menos custo total
+              </p>
+            </div>
+
+            <div className="bg-white rounded-xl shadow border-l-4 border-rose-500 p-4">
+              <p className="text-xs uppercase tracking-wide text-slate-500">
+                Ticket Medio
+              </p>
+              <p className="text-2xl font-bold text-rose-600 mt-2">
                 {formatCurrency(report.summary.averageTicket)}
               </p>
               <p className="text-sm text-slate-500 mt-1">
                 Media por pedido pago
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            <div className="bg-white rounded-xl shadow border-l-4 border-[var(--color-primary)] p-4">
+              <p className="text-xs uppercase tracking-wide text-slate-500">
+                Quantidade de vendas
+              </p>
+              <p className="text-2xl font-bold text-slate-900 mt-2">
+                {formatInteger(report.summary.totalOrders)}
+              </p>
+              <p className="text-sm text-slate-500 mt-1">Pedidos pagos</p>
+            </div>
+
+            <div className="bg-white rounded-xl shadow border-l-4 border-indigo-500 p-4">
+              <p className="text-xs uppercase tracking-wide text-slate-500">
+                Itens vendidos
+              </p>
+              <p className="text-2xl font-bold text-slate-900 mt-2">
+                {formatInteger(report.summary.totalItemsSold)}
+              </p>
+              <p className="text-sm text-slate-500 mt-1">
+                Soma de unidades de produtos
               </p>
             </div>
 
@@ -669,30 +721,6 @@ const AdminManagementReportPage: React.FC = () => {
               <p className="text-sm text-slate-500 mt-1">
                 Cancelados: {formatPercent(report.summary.cancellationRate)} |
                 Pendentes: {formatPercent(report.summary.pendingRate)}
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="bg-white rounded-xl shadow border-l-4 border-[var(--color-primary)] p-4">
-              <p className="text-xs uppercase tracking-wide text-slate-500">
-                Quantidade de vendas
-              </p>
-              <p className="text-2xl font-bold text-slate-900 mt-2">
-                {formatInteger(report.summary.totalOrders)}
-              </p>
-              <p className="text-sm text-slate-500 mt-1">Pedidos pagos</p>
-            </div>
-
-            <div className="bg-white rounded-xl shadow border-l-4 border-indigo-500 p-4">
-              <p className="text-xs uppercase tracking-wide text-slate-500">
-                Itens vendidos
-              </p>
-              <p className="text-2xl font-bold text-slate-900 mt-2">
-                {formatInteger(report.summary.totalItemsSold)}
-              </p>
-              <p className="text-sm text-slate-500 mt-1">
-                Soma de unidades de produtos
               </p>
             </div>
 
@@ -1308,7 +1336,7 @@ const AdminManagementReportPage: React.FC = () => {
               </p>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[720px] text-sm">
+                <table className="w-full min-w-[900px] text-sm">
                   <thead>
                     <tr className="bg-slate-100 text-slate-700">
                       <th className="text-left p-3 font-semibold">#</th>
@@ -1318,6 +1346,12 @@ const AdminManagementReportPage: React.FC = () => {
                       </th>
                       <th className="text-right p-3 font-semibold">
                         Faturamento
+                      </th>
+                      <th className="text-right p-3 font-semibold">
+                        Custo Total
+                      </th>
+                      <th className="text-right p-3 font-semibold">
+                        Lucro Liquido
                       </th>
                     </tr>
                   </thead>
@@ -1336,6 +1370,12 @@ const AdminManagementReportPage: React.FC = () => {
                         </td>
                         <td className="p-3 text-right font-semibold text-slate-800">
                           {formatCurrency(product.revenue)}
+                        </td>
+                        <td className="p-3 text-right text-slate-700">
+                          {formatCurrency(product.cost)}
+                        </td>
+                        <td className="p-3 text-right font-semibold text-emerald-700">
+                          {formatCurrency(product.netProfit)}
                         </td>
                       </tr>
                     ))}

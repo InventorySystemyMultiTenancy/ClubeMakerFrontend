@@ -337,7 +337,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 htmlFor="priceRaw"
                 className="block text-sm font-medium text-stone-700"
               >
-                Preço Bruto
+                Custo
               </label>
               <input
                 type="number"
@@ -1006,7 +1006,7 @@ const AdminPage: React.FC = () => {
                     R${Number(product.price)?.toFixed(2) ?? "-"}
                   </div>
                   <div className="text-[10px] sm:text-xs text-stone-500">
-                    Bruto: R${Number(product.priceRaw)?.toFixed(2) ?? "-"}
+                    Custo: R${Number(product.priceRaw)?.toFixed(2) ?? "-"}
                   </div>
                 </td>
                 <td className="px-2 sm:px-4 py-2 whitespace-nowrap">
@@ -1194,3 +1194,4 @@ const AdminPage: React.FC = () => {
 };
 
 export default AdminPage;
+

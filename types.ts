@@ -16,7 +16,7 @@ export interface Product {
   id: string;
   name: string;
   price: number;
-  priceRaw: number; // Preço bruto
+  priceRaw: number; // Custo unitario
   category: string;
   imageUrl?: string;
   images?: string[];
@@ -74,3 +74,4 @@ export interface User {
 export interface CartItem extends Product {
   quantity: number;
 }
+
