@@ -88,7 +88,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   return (
     <div
-      className={`group relative flex h-full min-h-[420px] w-full max-w-[300px] flex-col overflow-hidden rounded-lg border border-cyan-300/20 bg-[#050914] shadow-[0_0_28px_rgba(0,229,255,0.08)] transition duration-300 hover:-translate-y-1 hover:border-cyan-300/60 hover:shadow-[0_0_34px_rgba(0,229,255,0.24)] ${
+      className={`energy-card group relative flex h-full min-h-[420px] w-full max-w-[300px] flex-col overflow-hidden rounded-lg border border-cyan-300/20 bg-[#050914] shadow-[0_0_28px_rgba(0,229,255,0.08)] transition duration-300 hover:-translate-y-1 hover:border-cyan-300/60 hover:shadow-[0_0_34px_rgba(0,229,255,0.24)] ${
         isOutOfStock ? "opacity-60 grayscale" : ""
       }`}
     >
@@ -105,7 +105,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <img
             src={primaryImage}
             alt={product.name}
-            className="h-full w-full cursor-zoom-in object-cover transition-transform duration-500 group-hover:scale-105"
+            className="h-full w-full cursor-zoom-in object-cover transition-transform duration-700 group-hover:scale-110"
             loading="lazy"
             onClick={() => onOpenImage(product)}
           />
@@ -149,7 +149,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             <button
               onClick={() => onAddToCart(product)}
               disabled={isOutOfStock}
-              className={`inline-flex min-h-12 w-full items-center justify-center rounded-lg px-4 py-3 text-base font-bold transition ${
+              className={`energy-cta inline-flex min-h-12 w-full items-center justify-center rounded-lg px-4 py-3 text-base font-bold transition ${
                 isOutOfStock
                   ? "cursor-not-allowed bg-slate-700 text-slate-400"
                   : "bg-cyan-500 text-white shadow-[0_0_20px_rgba(6,182,212,0.42)] hover:bg-cyan-400 active:scale-[0.98]"
@@ -263,7 +263,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
             isMobile ? "text-white" : "text-white"
           }`}
         >
-          <span>🛒</span> Minha Cesta (
+          <LineIcon name="cart" className="h-7 w-7 text-cyan-300" /> Minha Cesta (
           {cartItems.reduce((acc, i) => acc + i.quantity, 0)})
         </h2>
         {isMobile && onClose && (
@@ -287,8 +287,10 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
       >
         {cartItems.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center text-center text-cyan-100/80">
-            <span className="text-6xl mb-4">🛍️</span>
-            <p className="text-xl">Seu carrinho está vazio.</p>
+            <div className="mb-5 flex h-28 w-28 items-center justify-center rounded-full border border-cyan-300/20 bg-cyan-300/5 text-cyan-200 shadow-[0_0_34px_rgba(34,211,238,0.2)]">
+              <LineIcon name="bag" className="h-16 w-16" />
+            </div>
+            <p className="text-base font-medium">Seu carrinho esta vazio.</p>
           </div>
         ) : (
           <>
@@ -460,7 +462,7 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
           onClick={() => onSelectCategory(null)}
           className={`flex w-full flex-col items-center gap-2 border-l-4 px-2 py-4 text-center transition-all duration-200 md:px-6 ${
             selectedCategory === null
-              ? "border-cyan-400 bg-cyan-400/10 text-white shadow-[inset_0_0_24px_rgba(34,211,238,0.12)]"
+              ? "energy-active border-cyan-400 bg-cyan-400/10 text-white shadow-[inset_0_0_24px_rgba(34,211,238,0.12)]"
               : "border-transparent text-slate-400 hover:bg-white/5 hover:text-white"
           }`}
         >
@@ -488,7 +490,7 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
               onClick={() => onSelectCategory(category)}
               className={`flex w-full flex-col items-center gap-2 border-l-4 px-2 py-4 text-center transition-all duration-200 md:px-6 ${
                 isSelected
-                  ? "border-cyan-400 bg-cyan-400/10 text-white shadow-[inset_0_0_24px_rgba(34,211,238,0.12)]"
+                  ? "energy-active border-cyan-400 bg-cyan-400/10 text-white shadow-[inset_0_0_24px_rgba(34,211,238,0.12)]"
                   : "border-transparent text-slate-400 hover:bg-white/5 hover:text-white"
               }`}
             >
@@ -801,6 +803,15 @@ const MenuPage: React.FC = () => {
           <div className="mx-auto max-w-7xl">
             {selectedCategory === null ? (
               <>
+                <div className="mb-6 flex justify-center">
+                  <div className="relative inline-flex items-center gap-3 rounded-full border border-cyan-300/25 bg-[#050914]/80 px-6 py-3 shadow-[0_0_28px_rgba(34,211,238,0.14)]">
+                    <span className="h-2 w-2 rounded-full bg-lime-400 shadow-[0_0_14px_rgba(163,230,53,0.8)]" />
+                    <h2 className="text-center text-xl font-black uppercase tracking-[0.14em] text-white drop-shadow-[0_0_12px_rgba(34,211,238,0.55)] md:text-2xl">
+                      Catalogo 3D
+                    </h2>
+                    <span className="h-px w-12 bg-gradient-to-r from-cyan-300 to-transparent" />
+                  </div>
+                </div>
                 <div className="grid grid-cols-1 justify-items-center gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {[...menu]
                   .sort((a, b) => {
@@ -825,9 +836,15 @@ const MenuPage: React.FC = () => {
               </>
             ) : (
               <div className="animate-fadeIn">
-                <h3 className="mb-4 text-center text-2xl font-black text-white md:text-3xl">
-                  {selectedCategory}
-                </h3>
+                <div className="mb-6 flex justify-center">
+                  <div className="relative inline-flex items-center gap-3 rounded-full border border-cyan-300/25 bg-[#050914]/80 px-6 py-3 shadow-[0_0_28px_rgba(34,211,238,0.14)]">
+                    <span className="h-2 w-2 rounded-full bg-lime-400 shadow-[0_0_14px_rgba(163,230,53,0.8)]" />
+                    <h3 className="text-center text-xl font-black uppercase tracking-[0.14em] text-white drop-shadow-[0_0_12px_rgba(34,211,238,0.55)] md:text-2xl">
+                      {selectedCategory}
+                    </h3>
+                    <span className="h-px w-12 bg-gradient-to-r from-cyan-300 to-transparent" />
+                  </div>
+                </div>
                 <div className="grid grid-cols-1 justify-items-center gap-5 sm:grid-cols-2 lg:grid-cols-3">
                   {[...(categorizedMenu[selectedCategory] || [])]
                     .sort((a, b) => {

@@ -69,13 +69,7 @@ const Header: React.FC = () => {
 
   return (
     <>
-      <header
-        className="border-b border-[var(--color-accent)] sticky top-0 z-50 h-16 shadow-sm"
-        style={{
-          background:
-            "linear-gradient(90deg, #050914 0%, #00377f 52%, #e51b23 100%)",
-        }}
-      >
+      <header className="energy-header border-b border-[var(--color-accent)] sticky top-0 z-50 h-16 shadow-sm">
         <div className="container mx-auto px-4 h-full flex items-center justify-between">
           {/* Logo e Chatbot lado a lado no mobile */}
           <div className="flex items-center gap-2 relative">
@@ -86,11 +80,10 @@ const Header: React.FC = () => {
               <img
                 src={logo}
                 alt="ClubsMaker logo"
-                className="w-12 h-12 rounded-lg group-hover:scale-105 transition-transform object-cover"
+                className="energy-logo w-12 h-12 rounded-lg group-hover:scale-110 transition-transform object-cover"
               />
               <span
-                className="text-xl font-bold tracking-tight"
-                style={{ color: "#00377f" }}
+                className="text-xl font-bold tracking-tight text-white drop-shadow-[0_0_10px_rgba(34,211,238,0.75)]"
               >
                 ClubsMaker
               </span>
@@ -107,7 +100,7 @@ const Header: React.FC = () => {
               (!currentUser.role || currentUser.role === "customer") && (
                 <NavLink
                   to="/menu"
-                  className="text-white transition-colors font-medium"
+                  className="energy-link text-white transition-colors font-medium hover:text-[var(--color-accent)]"
                 >
                   Catálogo
                 </NavLink>
@@ -119,7 +112,7 @@ const Header: React.FC = () => {
                 style={({ isActive }) =>
                   isActive ? activeLinkStyle : undefined
                 }
-                className="text-white hover:text-[var(--color-accent)] transition-colors font-medium"
+                className="energy-link text-white hover:text-[var(--color-accent)] transition-colors font-medium"
               >
                 Pedidos Cozinha
               </NavLink>
@@ -128,7 +121,7 @@ const Header: React.FC = () => {
             {currentUser?.role === "admincustomer" && (
               <NavLink
                 to="/admin/login"
-                className="text-white hover:text-[var(--color-accent)] transition-colors font-medium"
+                className="energy-link text-white hover:text-[var(--color-accent)] transition-colors font-medium"
               >
                 Ir para Admin
               </NavLink>
@@ -138,19 +131,19 @@ const Header: React.FC = () => {
               <>
                 <NavLink
                   to="/admin"
-                  className="text-white hover:text-[var(--color-accent)] transition-colors font-medium"
+                  className="energy-link text-white hover:text-[var(--color-accent)] transition-colors font-medium"
                 >
                   Produtos
                 </NavLink>
                 <NavLink
                   to="/admin/management-report"
-                  className="text-[var(--color-accent)] hover:text-white transition-colors font-medium"
+                  className="energy-link text-[var(--color-accent)] hover:text-white transition-colors font-medium"
                 >
                   Relatorio Gestao
                 </NavLink>
                 <NavLink
                   to="/admin/reports"
-                  className="text-[var(--color-accent)] hover:text-white transition-colors font-medium"
+                  className="energy-link text-[var(--color-accent)] hover:text-white transition-colors font-medium"
                 >
                   Relatórios IA
                 </NavLink>
@@ -203,7 +196,7 @@ const Header: React.FC = () => {
                     </div>
                     <button
                       onClick={() => navigate("/register?edit=1")}
-                      className="edit-btn bg-[var(--color-primary)] text-white font-bold py-1 px-3 rounded-lg ml-2 hover:bg-[var(--color-primary-hover)] transition-colors shadow-md text-xs"
+                      className="edit-btn energy-cta bg-[var(--color-primary)] text-white font-bold py-1 px-3 rounded-lg ml-2 hover:bg-[var(--color-primary-hover)] transition-colors shadow-md text-xs"
                       title="Editar meus dados"
                     >
                       <span className="edit-btn-label">Editar meus dados</span>
@@ -230,7 +223,7 @@ const Header: React.FC = () => {
                     </button>
                     <NavLink
                       to="/meus-pedidos"
-                      className={`bg-[var(--color-accent)] text-[var(--color-dark)] font-bold py-1 px-3 rounded-lg ml-2 hover:bg-yellow-300 transition-colors shadow-md text-xs flex items-center gap-2 ${
+                      className={`energy-cta bg-[var(--color-accent)] text-[var(--color-dark)] font-bold py-1 px-3 rounded-lg ml-2 hover:bg-yellow-300 transition-colors shadow-md text-xs flex items-center gap-2 ${
                         hasUndeliveredOrder
                           ? "animate-pulse ring-2 ring-white ring-offset-2 ring-offset-[var(--color-primary)]"
                           : ""
@@ -265,7 +258,7 @@ const Header: React.FC = () => {
               ) : (
                 <button
                   onClick={() => navigate("/login")}
-                  className="rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-bold text-[#071a3d] shadow-md transition-colors hover:bg-yellow-300"
+                  className="energy-cta rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-bold text-[#071a3d] shadow-md transition-colors hover:bg-yellow-300"
                 >
                   Entrar na plataforma
                 </button>
@@ -374,14 +367,7 @@ const Header: React.FC = () => {
       )}
 
       {/* Traço laranja embaixo do header */}
-      <div
-        style={{
-          height: "5px",
-          background:
-            "linear-gradient(90deg, var(--color-secondary), var(--color-accent), var(--color-success), var(--color-primary))",
-          width: "100%",
-        }}
-      />
+      <div className="energy-strip" />
     </>
   );
 };

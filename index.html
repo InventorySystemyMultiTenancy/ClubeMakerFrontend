@@ -99,6 +99,149 @@
       .neon-scrollbar::-webkit-scrollbar-thumb:hover {
         background: linear-gradient(180deg, #a3e635, #22d3ee);
       }
+
+      @keyframes energy-pan {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+
+      @keyframes energy-sweep {
+        0% {
+          transform: translateX(-120%) skewX(-18deg);
+        }
+        100% {
+          transform: translateX(220%) skewX(-18deg);
+        }
+      }
+
+      @keyframes energy-pulse {
+        0%,
+        100% {
+          opacity: 0.48;
+          box-shadow: 0 0 14px rgba(34, 211, 238, 0.35);
+        }
+        50% {
+          opacity: 1;
+          box-shadow: 0 0 28px rgba(163, 230, 53, 0.52);
+        }
+      }
+
+      .energy-header {
+        position: sticky;
+        isolation: isolate;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 18% 50%, rgba(34, 211, 238, 0.24), transparent 24%),
+          radial-gradient(circle at 84% 40%, rgba(229, 27, 35, 0.28), transparent 22%),
+          linear-gradient(110deg, #030712 0%, #00377f 45%, #0057c8 68%, #e51b23 100%);
+        background-size: 160% 160%;
+        animation: energy-pan 9s ease-in-out infinite;
+      }
+
+      .energy-header::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+          linear-gradient(115deg, transparent 0%, rgba(255,255,255,0.18) 42%, transparent 54%),
+          repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 60px);
+        transform: translateX(-100%) skewX(-18deg);
+        animation: energy-sweep 5.8s ease-in-out infinite;
+        z-index: -1;
+      }
+
+      .energy-logo {
+        filter: drop-shadow(0 0 12px rgba(34, 211, 238, 0.46));
+      }
+
+      .energy-link {
+        position: relative;
+      }
+
+      .energy-link::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -7px;
+        height: 2px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #22d3ee, #a3e635, #ffd900);
+        opacity: 0;
+        transform: scaleX(0.5);
+        transition: opacity 180ms ease, transform 180ms ease;
+      }
+
+      .energy-link:hover::after {
+        opacity: 1;
+        transform: scaleX(1);
+      }
+
+      .energy-strip {
+        height: 5px;
+        width: 100%;
+        background: linear-gradient(90deg, #e51b23, #ffd900, #16b12b, #22d3ee, #0057c8, #e51b23);
+        background-size: 220% 100%;
+        animation: energy-pan 4.5s linear infinite;
+        box-shadow: 0 0 18px rgba(34, 211, 238, 0.42);
+      }
+
+      .energy-card {
+        position: relative;
+        isolation: isolate;
+      }
+
+      .energy-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+          linear-gradient(120deg, transparent 0%, rgba(34, 211, 238, 0.18) 42%, transparent 58%),
+          radial-gradient(circle at 50% 0%, rgba(163, 230, 53, 0.12), transparent 42%);
+        opacity: 0;
+        transform: translateX(-45%);
+        transition: opacity 220ms ease, transform 520ms ease;
+        z-index: 1;
+      }
+
+      .energy-card:hover::before {
+        opacity: 1;
+        transform: translateX(45%);
+      }
+
+      .energy-cta {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .energy-cta::after {
+        content: "";
+        position: absolute;
+        top: -30%;
+        bottom: -30%;
+        left: -45%;
+        width: 32%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.38), transparent);
+        transform: skewX(-18deg);
+        transition: left 520ms ease;
+      }
+
+      .energy-cta:hover::after {
+        left: 120%;
+      }
+
+      .energy-active {
+        animation: energy-pulse 2.2s ease-in-out infinite;
+      }
     </style>
   </head>
   <body class="bg-stone-50">
