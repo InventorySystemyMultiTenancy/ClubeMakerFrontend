@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import type { Order } from "../types";
+import { formatCurrency, getOrderItemPricingInfo } from "../utils/orderPricing";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 const CONTACT_WHATSAPP = "5511947094271";
@@ -144,11 +145,35 @@ const CustomerOrdersPage: React.FC = () => {
                 <span className="font-semibold">Status:</span> {order.status}
               </div>
               <ul className="text-sm text-stone-700">
-                {order.items.map((item, idx) => (
-                  <li key={item.productId || idx}>
-                    {item.name} x {item.quantity} - R$ {item.price.toFixed(2)}
-                  </li>
-                ))}
+                {order.items.map((item, idx) => {
+                  const pricing = getOrderItemPricingInfo(item);
+
+                  return (
+                    <li key={item.productId || item.id || idx} className="mb-2">
+                      <div>
+                        {item.name} x {item.quantity} -{" "}
+                        {formatCurrency(pricing.lineTotal)}
+                      </div>
+                      {pricing.hasPricingDetails && (
+                        <div className="text-xs text-stone-500">
+                          Unit.: {formatCurrency(pricing.unitPrice)}
+                          {pricing.hasCustomPrice &&
+                            ` | Valor admin: ${formatCurrency(
+                              pricing.customUnitPrice,
+                            )}`}
+                          {pricing.hasDiscount &&
+                            ` | Desconto: ${pricing.discountPercent.toFixed(
+                              2,
+                            )}%`}
+                          {pricing.hasOriginalPrice &&
+                            ` | Original: ${formatCurrency(
+                              pricing.originalUnitPrice,
+                            )}`}
+                        </div>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
               {(canCustomerDelete || (isPending && !isPresencial)) && (
                 <div className="mt-4 flex flex-col sm:flex-row justify-end gap-2">
@@ -193,4 +218,3 @@ const CustomerOrdersPage: React.FC = () => {
 };
 
 export default CustomerOrdersPage;
-

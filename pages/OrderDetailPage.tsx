@@ -1,6 +1,7 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import type { Order } from "../types";
+import { formatCurrency, getOrderItemPricingInfo } from "../utils/orderPricing";
 
 const OrderDetailPage: React.FC = () => {
   const location = useLocation();
@@ -82,11 +83,33 @@ const OrderDetailPage: React.FC = () => {
         <div className="mb-2 text-stone-700">
           <span className="font-semibold">Itens:</span>
           <ul className="list-disc ml-6">
-            {order.items.map((item, idx) => (
-              <li key={idx}>
-                {item.quantity}x {item.name}
-              </li>
-            ))}
+            {order.items.map((item, idx) => {
+              const pricing = getOrderItemPricingInfo(item);
+
+              return (
+                <li key={item.productId || item.id || idx} className="mb-2">
+                  <div>
+                    {item.quantity}x {item.name} -{" "}
+                    {formatCurrency(pricing.lineTotal)}
+                  </div>
+                  {pricing.hasPricingDetails && (
+                    <div className="text-xs text-stone-500">
+                      Unit.: {formatCurrency(pricing.unitPrice)}
+                      {pricing.hasCustomPrice &&
+                        ` | Valor admin: ${formatCurrency(
+                          pricing.customUnitPrice,
+                        )}`}
+                      {pricing.hasDiscount &&
+                        ` | Desconto: ${pricing.discountPercent.toFixed(2)}%`}
+                      {pricing.hasOriginalPrice &&
+                        ` | Original: ${formatCurrency(
+                          pricing.originalUnitPrice,
+                        )}`}
+                    </div>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </div>
         {order.observation && (

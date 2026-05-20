@@ -27,6 +27,27 @@ const fetchStandard = async (url: string, options: RequestInit = {}) => {
   return fetch(url, { ...options, headers });
 };
 
+const serializeCartItemForOrder = (item: CartItem) => {
+  const originalUnitPrice =
+    item.originalUnitPrice ??
+    item.compareAtPrice ??
+    item.customUnitPrice ??
+    item.price;
+  const customUnitPrice = item.customUnitPrice ?? item.price;
+  const discountPercent = item.discountPercent ?? 0;
+
+  return {
+    id: item.id,
+    productId: item.id,
+    name: item.name,
+    quantity: item.quantity,
+    price: item.price,
+    originalUnitPrice,
+    customUnitPrice,
+    discountPercent,
+  };
+};
+
 const getCreditFeeByInstallments = (installments: number): number => {
   if (installments === 1) return 2.97;
   if (installments === 2) return 3.1;
@@ -225,12 +246,7 @@ const PaymentPage: React.FC = () => {
         id: orderId,
         userId: currentUser!.id,
         userName: currentUser!.name,
-        items: cartItems.map((i) => ({
-          productId: i.id,
-          name: i.name,
-          price: i.price,
-          quantity: i.quantity,
-        })),
+        items: cartItems.map(serializeCartItemForOrder),
         total: cartTotal,
         timestamp: new Date().toISOString(),
         observation: observation,
@@ -288,12 +304,7 @@ const PaymentPage: React.FC = () => {
       body: JSON.stringify({
         userId: currentUser!.id,
         userName: currentUser!.name,
-        items: cartItems.map((i) => ({
-          id: i.id,
-          name: i.name,
-          quantity: i.quantity,
-          price: i.price,
-        })),
+        items: cartItems.map(serializeCartItemForOrder),
         total:
           paymentType === "presencial" &&
           paymentMethod === "credit" &&
@@ -326,12 +337,7 @@ const PaymentPage: React.FC = () => {
         orderId: orderId,
         email: currentUser?.email,
         payerName: currentUser?.name,
-        items: cartItems.map((i) => ({
-          id: i.id,
-          name: i.name,
-          quantity: i.quantity,
-          price: i.price,
-        })),
+        items: cartItems.map(serializeCartItemForOrder),
         user: {
           email: currentUser?.email,
           name: currentUser?.name,
@@ -370,12 +376,7 @@ const PaymentPage: React.FC = () => {
         orderId: orderId,
         paymentMethod: paymentMethod as "credit" | "debit",
         installments: paymentMethod === "credit" ? selectedInstallments : 1,
-        items: cartItems.map((i) => ({
-          id: i.id,
-          name: i.name,
-          quantity: i.quantity,
-          price: i.price,
-        })),
+        items: cartItems.map(serializeCartItemForOrder),
         user: {
           email: currentUser?.email,
           name: currentUser?.name,
@@ -527,12 +528,7 @@ const PaymentPage: React.FC = () => {
                           body: JSON.stringify({
                             userId: currentUser!.id,
                             userName: currentUser!.name,
-                            items: cartItems.map((i) => ({
-                              id: i.id,
-                              name: i.name,
-                              quantity: i.quantity,
-                              price: i.price,
-                            })),
+                            items: cartItems.map(serializeCartItemForOrder),
                             total: cartTotal,
                             observation,
                             status: "pending",
@@ -566,12 +562,7 @@ const PaymentPage: React.FC = () => {
                 <PaymentOnline
                   orderId={onlineOrderId}
                   total={cartTotal}
-                  items={cartItems.map((i) => ({
-                    id: i.id,
-                    name: i.name,
-                    quantity: i.quantity,
-                    price: i.price,
-                  }))}
+                  items={cartItems.map(serializeCartItemForOrder)}
                   userEmail={currentUser?.email || ""}
                   userName={currentUser?.name || ""}
                   onSuccess={(paymentId) => {
@@ -730,12 +721,7 @@ const PaymentPage: React.FC = () => {
                           body: JSON.stringify({
                             userId: currentUser!.id,
                             userName: currentUser!.name,
-                            items: cartItems.map((i) => ({
-                              id: i.id,
-                              name: i.name,
-                              quantity: i.quantity,
-                              price: i.price,
-                            })),
+                            items: cartItems.map(serializeCartItemForOrder),
                             paymentType: "presencial",
                             paymentMethod,
                             installments:

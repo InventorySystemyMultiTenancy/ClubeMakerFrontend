@@ -30,10 +30,14 @@ export interface Product {
 }
 
 export interface OrderItem {
-  productId: string;
+  id?: string;
+  productId?: string;
   name: string;
   quantity: number;
   price: number;
+  originalUnitPrice?: number | null;
+  customUnitPrice?: number | null;
+  discountPercent?: number | null;
 }
 
 export interface Order {

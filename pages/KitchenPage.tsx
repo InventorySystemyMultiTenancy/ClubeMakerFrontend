@@ -4,6 +4,7 @@ import type { Order } from "../types";
 import { authenticatedFetch } from "../services/apiService";
 import { useAuth } from "../contexts/AuthContext";
 import { getCurrentStoreId } from "../utils/tenantResolver";
+import { formatCurrency, getOrderItemPricingInfo } from "../utils/orderPricing";
 
 // Página de Histórico de Pedidos com filtro por data
 // (OrderHistoryPage)
@@ -140,12 +141,33 @@ const OrderHistoryPage: React.FC = () => {
                 {order.userName || "-"}
               </div>
               <ul className="mb-2">
-                {order.items.map((item, idx) => (
-                  <li key={idx} className="text-stone-800">
-                    <span className="font-semibold">{item.quantity}x</span>{" "}
-                    {item.name}
-                  </li>
-                ))}
+                {order.items.map((item, idx) => {
+                  const pricing = getOrderItemPricingInfo(item);
+
+                  return (
+                    <li key={item.productId || item.id || idx} className="text-stone-800 mb-1">
+                      <span className="font-semibold">{item.quantity}x</span>{" "}
+                      {item.name} - {formatCurrency(pricing.lineTotal)}
+                      {pricing.hasPricingDetails && (
+                        <div className="text-xs text-stone-500 ml-5">
+                          Unit.: {formatCurrency(pricing.unitPrice)}
+                          {pricing.hasCustomPrice &&
+                            ` | Valor admin: ${formatCurrency(
+                              pricing.customUnitPrice,
+                            )}`}
+                          {pricing.hasDiscount &&
+                            ` | Desconto: ${pricing.discountPercent.toFixed(
+                              2,
+                            )}%`}
+                          {pricing.hasOriginalPrice &&
+                            ` | Original: ${formatCurrency(
+                              pricing.originalUnitPrice,
+                            )}`}
+                        </div>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
               {order.observation && (
                 <div className="mb-2 text-yellow-800 bg-yellow-100 rounded p-2">
