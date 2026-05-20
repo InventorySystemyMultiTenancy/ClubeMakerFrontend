@@ -118,6 +118,7 @@ const CustomerOrdersPage: React.FC = () => {
           {orders.map((order) => {
             const isPending = order.paymentStatus === "pending";
             const isPresencial = order.paymentType === "presencial";
+            const canCustomerDelete = isPending && order.status !== "active";
             const isProcessing = actionOrderId === order.id;
 
             return (
@@ -148,7 +149,7 @@ const CustomerOrdersPage: React.FC = () => {
                   </li>
                 ))}
               </ul>
-              {isPending && (
+              {(canCustomerDelete || (isPending && !isPresencial)) && (
                 <div className="mt-4 flex flex-col sm:flex-row justify-end gap-2">
                   {!isPresencial && (
                     <button
@@ -160,14 +161,16 @@ const CustomerOrdersPage: React.FC = () => {
                       {isProcessing ? "Confirmando..." : "Pagar presencialmente"}
                     </button>
                   )}
-                  <button
-                    type="button"
-                    onClick={() => deletePendingOrder(order.id)}
-                    disabled={isProcessing}
-                    className="inline-flex items-center justify-center rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-700 disabled:opacity-60"
-                  >
-                    {isProcessing ? "Processando..." : "Excluir pedido"}
-                  </button>
+                  {canCustomerDelete && (
+                    <button
+                      type="button"
+                      onClick={() => deletePendingOrder(order.id)}
+                      disabled={isProcessing}
+                      className="inline-flex items-center justify-center rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-700 disabled:opacity-60"
+                    >
+                      {isProcessing ? "Processando..." : "Excluir pedido"}
+                    </button>
+                  )}
                 </div>
               )}
               <div className="mt-4 flex justify-end">
