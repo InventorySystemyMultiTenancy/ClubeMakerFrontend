@@ -119,8 +119,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
       {/* Conteúdo */}
       <div className="flex flex-grow flex-col justify-between border-t border-cyan-300/10 bg-[#050914] p-4">
-        <div className="rounded-md bg-white px-4 py-3 shadow-[0_0_18px_rgba(255,255,255,0.06)]">
-          <h3 className="line-clamp-2 min-h-[2.75rem] text-base font-bold leading-snug text-[#071a3d]">
+        <div className="px-1 py-1">
+          <h3 className="line-clamp-2 min-h-[2.75rem] text-base font-bold leading-snug text-white">
             {product.name}
           </h3>
         </div>

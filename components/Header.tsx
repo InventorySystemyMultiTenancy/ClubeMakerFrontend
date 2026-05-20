@@ -73,7 +73,7 @@ const Header: React.FC = () => {
         className="border-b border-[var(--color-accent)] sticky top-0 z-50 h-16 shadow-sm"
         style={{
           background:
-            "linear-gradient(90deg, #ffffff 0%, #0057c8 34%, #00377f 72%, #e51b23 100%)",
+            "linear-gradient(90deg, #050914 0%, #00377f 52%, #e51b23 100%)",
         }}
       >
         <div className="container mx-auto px-4 h-full flex items-center justify-between">
