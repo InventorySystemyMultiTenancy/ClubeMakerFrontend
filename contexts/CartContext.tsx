@@ -22,6 +22,8 @@ interface CartContextType {
   addToCart: (product: Product) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
+  updateUnitPrice: (productId: string, unitPrice: number) => void;
+  updateDiscountPercent: (productId: string, discountPercent: number) => void;
   clearCart: () => void;
   cartTotal: number;
   observation: string;
@@ -107,7 +109,16 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
           item.id === product.id ? { ...item, quantity: novaQuantidade } : item,
         );
       }
-      return [...prevItems, { ...product, quantity: addQuantidade }];
+      return [
+        ...prevItems,
+        {
+          ...product,
+          quantity: addQuantidade,
+          originalUnitPrice: product.price,
+          customUnitPrice: product.price,
+          discountPercent: 0,
+        },
+      ];
     });
   };
 
@@ -155,6 +166,53 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
     });
   };
 
+  const calculateAdjustedUnitPrice = (
+    unitPrice: number,
+    discountPercent: number,
+  ) => {
+    const safeUnitPrice = Math.max(0, Number(unitPrice) || 0);
+    const safeDiscount = Math.min(
+      100,
+      Math.max(0, Number(discountPercent) || 0),
+    );
+    return Number((safeUnitPrice * (1 - safeDiscount / 100)).toFixed(2));
+  };
+
+  const updateUnitPrice = (productId: string, unitPrice: number) => {
+    setCartItems((prevItems) =>
+      prevItems.map((item) => {
+        if (item.id !== productId) return item;
+        const discountPercent = item.discountPercent ?? 0;
+        return {
+          ...item,
+          customUnitPrice: Math.max(0, Number(unitPrice) || 0),
+          price: calculateAdjustedUnitPrice(unitPrice, discountPercent),
+        };
+      }),
+    );
+  };
+
+  const updateDiscountPercent = (
+    productId: string,
+    discountPercent: number,
+  ) => {
+    setCartItems((prevItems) =>
+      prevItems.map((item) => {
+        if (item.id !== productId) return item;
+        const customUnitPrice = item.customUnitPrice ?? item.price;
+        return {
+          ...item,
+          customUnitPrice,
+          discountPercent: Math.min(
+            100,
+            Math.max(0, Number(discountPercent) || 0),
+          ),
+          price: calculateAdjustedUnitPrice(customUnitPrice, discountPercent),
+        };
+      }),
+    );
+  };
+
   // Limpa o carrinho, definindo a lista de itens como vazia
   // O useEffect atualizará o localStorage automaticamente
   const clearCart = () => {
@@ -176,6 +234,8 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
         addToCart,
         removeFromCart,
         updateQuantity,
+        updateUnitPrice,
+        updateDiscountPercent,
         clearCart,
         cartTotal,
         observation,

@@ -74,5 +74,8 @@ export interface User {
 
 export interface CartItem extends Product {
   quantity: number;
+  originalUnitPrice?: number;
+  customUnitPrice?: number;
+  discountPercent?: number;
 }
 

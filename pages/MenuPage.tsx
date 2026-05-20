@@ -172,6 +172,8 @@ interface CartSidebarProps {
   cartItems: CartItem[];
   cartTotal: number;
   updateQuantity: (id: string, q: number) => void;
+  updateUnitPrice: (id: string, unitPrice: number) => void;
+  updateDiscountPercent: (id: string, discountPercent: number) => void;
   onCheckout: () => void;
   isPlacingOrder: boolean;
   cartSuggestion?: string;
@@ -188,6 +190,8 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
   cartItems,
   cartTotal,
   updateQuantity,
+  updateUnitPrice,
+  updateDiscountPercent,
   onCheckout,
   isPlacingOrder,
   cartSuggestion,
@@ -201,6 +205,8 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
 }) => {
   const [showObservationSaved, setShowObservationSaved] = useState(false);
   const observationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const canEditCartPricing =
+    currentUser?.role === "admin" || currentUser?.role === "admincustomer";
 
   const containerClass = isMobile
     ? "fixed inset-x-0 bottom-0 z-[200] flex max-h-[90vh] translate-y-0 transform flex-col rounded-t-3xl border-t border-cyan-300/20 bg-[#030712] shadow-[0_-10px_60px_rgba(0,229,255,0.22)] transition-transform duration-300 ease-out"
@@ -298,55 +304,87 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
             {cartItems.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center justify-between rounded-lg border border-cyan-300/15 bg-[#07111f] p-3 shadow-[0_0_18px_rgba(0,229,255,0.08)]"
+                className="flex flex-col gap-3 rounded-lg border border-cyan-300/15 bg-[#07111f] p-3 shadow-[0_0_18px_rgba(0,229,255,0.08)]"
               >
-                <div className="flex-1 pr-3">
-                  <p className="mb-1 text-base font-bold leading-tight text-white md:text-lg">
-                    {item.name}
-                  </p>
-                  <p className="text-sm font-semibold text-cyan-200/75 md:text-base">
-                    R$ {item.price.toFixed(2)}
-                  </p>
-                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0 flex-1 pr-1">
+                    <p className="mb-1 text-base font-bold leading-tight text-white md:text-lg">
+                      {item.name}
+                    </p>
+                    <p className="text-sm font-semibold text-cyan-200/75 md:text-base">
+                      R$ {item.price.toFixed(2)}
+                    </p>
+                  </div>
 
-                {/* CONTROLES DE QUANTIDADE GRANDES */}
-                <div className="flex h-10 items-center overflow-hidden rounded-lg border border-cyan-300/20 bg-black/40 shadow-inner md:h-11">
-                  <button
-                    onClick={() => {
-                      const step = item.quantidadeVenda ?? 1;
-                      updateQuantity(item.id, item.quantity - step);
-                    }}
-                    className="flex h-full w-9 items-center justify-center text-xl font-bold text-slate-300 transition-colors hover:bg-cyan-400/10 hover:text-cyan-300 md:w-10"
-                  >
-                    -
-                  </button>
-                  {currentUser?.role === "admincustomer" ? (
-                    <input
-                      type="number"
-                      min={1}
-                      max={item.stock ?? 99}
-                      value={item.quantity}
-                      onChange={(e) => {
-                        const q = parseInt(e.target.value);
-                        if (!isNaN(q) && q > 0) updateQuantity(item.id, q);
+                  <div className="flex h-10 items-center overflow-hidden rounded-lg border border-cyan-300/20 bg-black/40 shadow-inner md:h-11">
+                    <button
+                      onClick={() => {
+                        const step = item.quantidadeVenda ?? 1;
+                        updateQuantity(item.id, item.quantity - step);
                       }}
-                      className="h-full w-12 border-x border-cyan-300/20 bg-[#07111f] text-center text-base font-bold text-white md:w-14 md:text-lg"
-                    />
-                  ) : (
-                    <span className="flex h-full w-9 items-center justify-center border-x border-cyan-300/20 bg-[#07111f] text-base font-bold text-white md:w-10 md:text-lg">
-                      {item.quantity}
-                    </span>
-                  )}
-                  <button
-                    onClick={() => {
-                      const step = item.quantidadeVenda ?? 1;
-                      updateQuantity(item.id, item.quantity + step);
-                    }}
-                    className="flex h-full w-9 items-center justify-center bg-cyan-500 text-xl font-bold text-white transition-colors hover:bg-cyan-400 md:w-10"
-                  >
-                    +
-                  </button>
+                      className="flex h-full w-9 items-center justify-center text-xl font-bold text-slate-300 transition-colors hover:bg-cyan-400/10 hover:text-cyan-300 md:w-10"
+                    >
+                      -
+                    </button>
+                    {currentUser?.role === "admincustomer" ? (
+                      <input
+                        type="number"
+                        min={1}
+                        max={item.stock ?? 99}
+                        value={item.quantity}
+                        onChange={(e) => {
+                          const q = parseInt(e.target.value);
+                          if (!isNaN(q) && q > 0) updateQuantity(item.id, q);
+                        }}
+                        className="h-full w-12 border-x border-cyan-300/20 bg-[#07111f] text-center text-base font-bold text-white md:w-14 md:text-lg"
+                      />
+                    ) : (
+                      <span className="flex h-full w-9 items-center justify-center border-x border-cyan-300/20 bg-[#07111f] text-base font-bold text-white md:w-10 md:text-lg">
+                        {item.quantity}
+                      </span>
+                    )}
+                    <button
+                      onClick={() => {
+                        const step = item.quantidadeVenda ?? 1;
+                        updateQuantity(item.id, item.quantity + step);
+                      }}
+                      className="flex h-full w-9 items-center justify-center bg-cyan-500 text-xl font-bold text-white transition-colors hover:bg-cyan-400 md:w-10"
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
+                {canEditCartPricing && (
+                  <div className="grid grid-cols-2 gap-2 border-t border-cyan-300/10 pt-3">
+                    <label className="text-xs font-bold uppercase tracking-wide text-cyan-100/70">
+                      Valor unit.
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={item.customUnitPrice ?? item.price}
+                        onChange={(e) =>
+                          updateUnitPrice(item.id, Number(e.target.value))
+                        }
+                        className="mt-1 w-full rounded-md border border-cyan-300/20 bg-black/30 px-2 py-2 text-sm font-bold text-white outline-none focus:border-cyan-300"
+                      />
+                    </label>
+                    <label className="text-xs font-bold uppercase tracking-wide text-cyan-100/70">
+                      Desconto %
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="0.01"
+                        value={item.discountPercent ?? 0}
+                        onChange={(e) =>
+                          updateDiscountPercent(item.id, Number(e.target.value))
+                        }
+                        className="mt-1 w-full rounded-md border border-cyan-300/20 bg-black/30 px-2 py-2 text-sm font-bold text-white outline-none focus:border-cyan-300"
+                      />
+                    </label>
+                  </div>
+                )}
               </div>
             ))}
           </>
@@ -553,6 +591,8 @@ const MenuPage: React.FC = () => {
     addToCart,
     cartTotal,
     updateQuantity,
+    updateUnitPrice,
+    updateDiscountPercent,
     clearCart,
     observation,
     setObservation,
@@ -896,6 +936,8 @@ const MenuPage: React.FC = () => {
           cartItems={cartItems}
           cartTotal={cartTotal}
           updateQuantity={updateQuantity}
+          updateUnitPrice={updateUnitPrice}
+          updateDiscountPercent={updateDiscountPercent}
           onCheckout={handleCheckout}
           isPlacingOrder={isPlacingOrder}
           cartSuggestion={cartSuggestion}
@@ -919,6 +961,8 @@ const MenuPage: React.FC = () => {
             cartItems={cartItems}
             cartTotal={cartTotal}
             updateQuantity={updateQuantity}
+            updateUnitPrice={updateUnitPrice}
+            updateDiscountPercent={updateDiscountPercent}
             onCheckout={handleCheckout}
             isPlacingOrder={isPlacingOrder}
             cartSuggestion={cartSuggestion}
