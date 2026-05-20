@@ -118,7 +118,8 @@ const CustomerOrdersPage: React.FC = () => {
           {orders.map((order) => {
             const isPending = order.paymentStatus === "pending";
             const isPresencial = order.paymentType === "presencial";
-            const canCustomerDelete = isPending && order.status !== "active";
+            const canCustomerDelete =
+              isPending && order.status !== "active" && !isPresencial;
             const isProcessing = actionOrderId === order.id;
 
             return (
