@@ -4,43 +4,43 @@ import logo from "../assets/clubsmaker-logo.png";
 
 const serviceCards = [
   {
-    title: "Prototipagem rapida",
-    text: "Modelos conceituais, provas de encaixe e testes de engenharia com ciclos curtos.",
+    title: "Produtos autorais em 3D",
+    text: "Chaveiros, miniaturas e itens colecionaveis criados e fabricados pela ClubsMaker.",
     accent: "var(--color-accent)",
   },
   {
-    title: "Pecas finais e lotes",
-    text: "Producao sob demanda para pecas personalizadas, reposicao e pequenas series.",
+    title: "Acabamento de vitrine",
+    text: "Pecas pensadas para venda, presente e colecao, com visual caprichado e pronta entrega conforme estoque.",
     accent: "var(--color-secondary)",
   },
   {
-    title: "Materiais avancados",
-    text: "Filamentos tecnicos para aplicacoes rigidas, flexiveis e resistentes.",
+    title: "Novidades por categoria",
+    text: "Linhas tematicas, personagens, acessorios e produtos especiais organizados no catalogo.",
     accent: "var(--color-success)",
   },
 ];
 
 const processSteps = [
   {
-    title: "Faca o login",
-    text: "Acesse sua conta com CPF ou CNPJ em um ambiente seguro.",
+    title: "Entre na loja",
+    text: "Acesse a plataforma com CPF ou CNPJ para ver o catalogo disponivel.",
     icon: "login",
   },
   {
-    title: "Envie o arquivo",
-    text: "Suba seu modelo 3D, como STL ou OBJ, e escolha os detalhes do pedido.",
-    icon: "upload",
+    title: "Escolha seus produtos",
+    text: "Navegue pelas categorias, adicione os itens ao carrinho e confira os detalhes.",
+    icon: "shop",
   },
   {
-    title: "Receba em casa",
-    text: "A equipe prepara, imprime e acompanha o envio ate o destino.",
+    title: "Finalize a compra",
+    text: "Nos separamos os produtos fabricados pela ClubsMaker e cuidamos do envio.",
     icon: "delivery",
   },
 ];
 
 const iconPaths = {
   login: "M9 11V8a3 3 0 0 1 6 0v3m-8 0h10v8H7v-8Zm4 4h2",
-  upload: "M12 16V5m0 0 4 4m-4-4-4 4M5 18h14",
+  shop: "M6 8h12l-1 12H7L6 8Zm3 0a3 3 0 0 1 6 0M5 8l1-4h12l1 4",
   delivery:
     "M4 8h10v8H4V8Zm10 3h3l3 3v2h-6v-5ZM7 18a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Zm10 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z",
 } as const;
@@ -77,22 +77,22 @@ const LandingPage: React.FC = () => {
         <div className="relative mx-auto grid min-h-[calc(100vh-5.25rem)] max-w-7xl items-center gap-10 px-5 py-16 md:grid-cols-[1.04fr_0.96fr] md:px-8 lg:px-10">
           <div className="max-w-3xl">
             <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-blue-50">
-              Impressao 3D sob demanda
+              Loja oficial de produtos 3D
             </span>
             <h1 className="mt-6 max-w-4xl text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">
-              Transforme suas ideias em realidade digital e fisica.
+              Produtos 3D criados, fabricados e vendidos pela ClubsMaker.
             </h1>
             <p className="mt-6 max-w-2xl text-base leading-8 text-blue-50 sm:text-lg">
-              Impressao 3D de alta precisao a poucos cliques. Do prototipo
-              industrial a peca personalizada, gerencie pedidos, envie arquivos
-              e acompanhe a producao em tempo real.
+              Chaveiros, miniaturas, colecionaveis e acessorios com identidade
+              maker. Entre na plataforma, escolha no catalogo e acompanhe seus
+              pedidos em um so lugar.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
                 to="/login"
                 className="inline-flex min-h-12 items-center justify-center rounded-lg bg-[var(--color-secondary)] px-6 py-3 text-base font-bold text-white shadow-lg shadow-red-950/25 transition hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-white/30"
               >
-                Enviar meu projeto
+                Ver catalogo
               </Link>
               <a
                 href="#como-funciona"
@@ -124,7 +124,7 @@ const LandingPage: React.FC = () => {
             O que fazemos
           </p>
           <h2 className="mt-3 text-3xl font-bold text-[#071a3d] sm:text-4xl">
-            Solucoes para tirar projetos do arquivo e colocar na mao.
+            Uma vitrine de produtos 3D prontos para comprar.
           </h2>
         </div>
 
@@ -157,7 +157,7 @@ const LandingPage: React.FC = () => {
               Jornada simples
             </p>
             <h2 className="mt-3 text-3xl font-bold text-[#071a3d] sm:text-4xl">
-              Da ideia ao envio em tres etapas.
+              Comprar na ClubsMaker e simples.
             </h2>
           </div>
 
@@ -194,8 +194,8 @@ const LandingPage: React.FC = () => {
             <div>
               <h3 className="text-2xl font-bold">Pronto para comecar?</h3>
               <p className="mt-2 text-blue-50">
-                Entre na plataforma e envie seu projeto para orcamento e
-                producao.
+                Entre na plataforma e escolha os produtos fabricados pela
+                ClubsMaker.
               </p>
             </div>
             <Link
