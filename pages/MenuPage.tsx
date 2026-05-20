@@ -13,6 +13,49 @@ import type { Product, CartItem } from "../types";
 // URL da API
 const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
+type IconName =
+  | "bear"
+  | "box"
+  | "rocket"
+  | "cart"
+  | "bag"
+  | "lock"
+  | "plus"
+  | "minus"
+  | "close";
+
+const iconPaths: Record<IconName, string> = {
+  bear: "M8 8a2 2 0 1 1-3-1.7 6 6 0 0 1 14 0A2 2 0 1 1 16 8m-8 1h8a4 4 0 0 1 4 4v2a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-2a4 4 0 0 1 4-4Zm2 5h.01M14 14h.01M11 17h2",
+  box: "M4 7.5 12 3l8 4.5-8 4.5-8-4.5Zm0 0V16l8 5m0-9v9m0-9 8-4.5V16l-8 5",
+  rocket:
+    "M13 4c3.5.4 5.8 2.7 6.2 6.2L15 14.4 9.6 9 13 4Zm-4.8 7.2-2.7 1.1L3 18l5.7-2.5 1.1-2.7m3.2 4.2 3.5 3.5 1.1-4.9M7 11 3.5 7.5 8.4 6.4M15 9h.01",
+  cart: "M4 5h2l1.2 9.2a2 2 0 0 0 2 1.8h6.9a2 2 0 0 0 1.9-1.4L20 8H7M10 20h.01M17 20h.01",
+  bag: "M6 8h12l-1 12H7L6 8Zm3 0a3 3 0 0 1 6 0",
+  lock: "M7 11V8a5 5 0 0 1 10 0v3m-11 0h12v10H6V11Zm6 4v2",
+  plus: "M12 5v14M5 12h14",
+  minus: "M5 12h14",
+  close: "M6 6l12 12M18 6 6 18",
+};
+
+const LineIcon: React.FC<{
+  name: IconName;
+  className?: string;
+  strokeWidth?: number;
+}> = ({ name, className = "h-5 w-5", strokeWidth = 1.9 }) => (
+  <svg
+    viewBox="0 0 24 24"
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d={iconPaths[name]} />
+  </svg>
+);
+
 // ==========================================
 // 1. COMPONENTE: PRODUCT CARD (Produtos maiores)
 // ==========================================
@@ -32,64 +75,84 @@ const ProductCard: React.FC<ProductCardProps> = ({
   // Lógica ajustada: Se for null é ilimitado. Se for 0 é esgotado.
   const isOutOfStock = product.stock === 0;
   const primaryImage = product.images?.[0] || product.imageUrl;
+  const compareAtPrice =
+    product.compareAtPrice && product.compareAtPrice > product.price
+      ? product.compareAtPrice
+      : null;
+  const discount = compareAtPrice
+    ? Math.max(
+        0,
+        Math.round(((compareAtPrice - product.price) / compareAtPrice) * 100),
+      )
+    : 0;
 
   return (
     <div
-      className={`bg-white w-60 rounded-2xl shadow-md overflow-hidden flex flex-col relative h-full transition-transform hover:shadow-xl ${
+      className={`group relative flex h-full min-h-[410px] flex-col overflow-hidden rounded-lg border border-cyan-300/20 bg-[#050914] shadow-[0_0_28px_rgba(0,229,255,0.08)] transition duration-300 hover:-translate-y-1 hover:border-cyan-300/60 hover:shadow-[0_0_34px_rgba(0,229,255,0.24)] ${
         isOutOfStock ? "opacity-60 grayscale" : ""
       }`}
     >
       {/* Badges - Apenas ESGOTADO agora */}
       {isOutOfStock && (
-        <div className="absolute top-3 right-3 z-10 bg-[var(--color-secondary)] text-white font-bold px-3 py-1 rounded text-sm shadow-sm">
+        <div className="absolute right-3 top-3 z-10 rounded bg-[var(--color-secondary)] px-3 py-1 text-sm font-bold text-white shadow-sm">
           ESGOTADO
         </div>
       )}
 
       {/* Mídia (Imagem ou Vídeo) */}
-      <div className="relative h-40 md:h-52 bg-gray-100">
+      <div className="relative h-48 bg-[#09111f] md:h-56">
         {primaryImage ? (
           <img
             src={primaryImage}
             alt={product.name}
-            className="w-full h-full object-cover hover:scale-105 transition-transform cursor-zoom-in"
+            className="h-full w-full cursor-zoom-in object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
             onClick={() => onOpenImage(product)}
           />
-        ) : null}
+        ) : (
+          <div className="flex h-full items-center justify-center text-cyan-200/40">
+            <LineIcon name="box" className="h-16 w-16" />
+          </div>
+        )}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#050914] via-transparent to-transparent opacity-70" />
       </div>
 
       {/* Conteúdo */}
-      <div className="p-4 flex flex-col flex-grow justify-between">
-        <div>
-          <h3 className="font-bold text-lg md:text-xl text-gray-800 leading-tight mb-2">
+      <div className="flex flex-grow flex-col justify-between border-t border-cyan-300/10 bg-[#050914] p-4">
+        <div className="rounded-md bg-white px-3 py-3 shadow-[0_0_18px_rgba(255,255,255,0.06)]">
+          <h3 className="line-clamp-2 min-h-[3rem] text-base font-bold leading-tight text-[#071a3d]">
             {product.name}
           </h3>
-          <p className="hidden md:block text-sm text-stone-600 line-clamp-2 mb-3">
-            {product.description}
-          </p>
         </div>
 
-        <div className="mt-2">
-          <div className="flex flex-col gap-3">
-            <span className="text-xl md:text-2xl font-bold text-stone-800">
+        <div className="mt-4 flex flex-col gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-2xl font-black text-white">
               R$ {product.price.toFixed(2)}
             </span>
+            {compareAtPrice && (
+              <>
+                <span className="text-sm font-semibold text-slate-500 line-through">
+                  R$ {compareAtPrice.toFixed(2)}
+                </span>
+                <span className="rounded bg-lime-400 px-2 py-1 text-xs font-black text-[#06110a] shadow-[0_0_14px_rgba(163,230,53,0.55)]">
+                  {discount}% OFF
+                </span>
+              </>
+            )}
+          </div>
             {product.quantidadeVenda && product.quantidadeVenda > 1 && (
-              <span
-                className="text-xs text-black mt-1 block"
-                style={{ fontSize: "12px", opacity: 0.7 }}
-              >
+              <span className="text-xs font-semibold text-cyan-100/70">
                 Mínimo: {product.quantidadeVenda} por compra
               </span>
             )}
             <button
               onClick={() => onAddToCart(product)}
               disabled={isOutOfStock}
-              className={`w-full font-bold py-3 px-4 rounded-xl text-base md:text-lg transition-colors shadow-sm ${
+              className={`inline-flex min-h-12 w-full items-center justify-center rounded-lg px-4 py-3 text-base font-bold transition ${
                 isOutOfStock
-                  ? "bg-stone-300 text-stone-500 cursor-not-allowed"
-                  : "bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] active:bg-[var(--color-primary-active)]"
+                  ? "cursor-not-allowed bg-slate-700 text-slate-400"
+                  : "bg-cyan-500 text-white shadow-[0_0_20px_rgba(6,182,212,0.42)] hover:bg-cyan-400 active:scale-[0.98]"
               }`}
             >
               {quantityInCart > 0
@@ -99,7 +162,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </div>
         </div>
       </div>
-    </div>
   );
 };
 
@@ -141,8 +203,8 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
   const observationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const containerClass = isMobile
-    ? "fixed inset-x-0 bottom-0 z-[200] bg-white rounded-t-3xl shadow-[0_-10px_60px_rgba(0,0,0,0.4)] flex flex-col max-h-[90vh] transition-transform duration-300 ease-out transform translate-y-0 border-t border-stone-200"
-    : "flex flex-col h-full border-l border-stone-200";
+    ? "fixed inset-x-0 bottom-0 z-[200] flex max-h-[90vh] translate-y-0 transform flex-col rounded-t-3xl border-t border-cyan-300/20 bg-[#030712] shadow-[0_-10px_60px_rgba(0,229,255,0.22)] transition-transform duration-300 ease-out"
+    : "flex h-full flex-col border-l border-cyan-300/20 bg-[#030712] shadow-[0_0_30px_rgba(0,229,255,0.12)]";
 
   // Lógica para encontrar o produto sugerido
   const suggestedProduct = useMemo(() => {
@@ -187,21 +249,18 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
     }, 2000); // Oculta a mensagem após 2 segundos
   };
   return (
-    <div
-      className={containerClass}
-      style={isMobile ? undefined : { background: "#e8c88c" }}
-    >
+    <div className={containerClass}>
       {/* Header do Carrinho */}
       <div
         className={`p-5 flex items-center justify-between ${
           isMobile
-            ? "bg-[var(--color-dark)] text-white rounded-t-3xl"
-            : "bg-white border-b border-stone-100"
+            ? "bg-[#071a3d] text-white rounded-t-3xl"
+            : "bg-[#050914] border-b border-cyan-300/20"
         }`}
       >
         <h2
           className={`text-xl md:text-2xl font-bold flex items-center gap-2 ${
-            isMobile ? "text-white" : "text-gray-800"
+            isMobile ? "text-white" : "text-white"
           }`}
         >
           <span>🛒</span> Minha Cesta (
@@ -210,7 +269,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
         {isMobile && onClose && (
           <button
             onClick={onClose}
-            className="text-stone-400 hover:text-white bg-stone-800 p-2 rounded-full w-10 h-10 flex items-center justify-center text-xl font-bold"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 p-2 text-slate-400 transition hover:text-white"
           >
             ✕
           </button>
@@ -219,11 +278,11 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
 
       {/* Lista de Itens com Scroll */}
       <div
-        className="flex-1 overflow-y-auto p-3 space-y-4 bg-stone-50 min-h-0"
+        className="min-h-0 flex-1 space-y-4 overflow-y-auto bg-[#030712] p-4"
         style={isMobile ? { paddingBottom: 60 } : {}}
       >
         {cartItems.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-64 text-stone-400">
+          <div className="flex h-full min-h-[420px] flex-col items-center justify-center text-center text-slate-400">
             <span className="text-6xl mb-4">🛍️</span>
             <p className="text-xl">Seu carrinho está vazio.</p>
           </div>
@@ -233,25 +292,25 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
             {cartItems.map((item) => (
               <div
                 key={item.id}
-                className="flex bg-white p-3 rounded-lg shadow-sm border border-stone-200 items-center justify-between"
+                className="flex items-center justify-between rounded-lg border border-cyan-300/15 bg-[#07111f] p-3 shadow-[0_0_18px_rgba(0,229,255,0.08)]"
               >
                 <div className="flex-1 pr-3">
-                  <p className="font-bold text-stone-800 text-base md:text-lg leading-tight mb-1">
+                  <p className="mb-1 text-base font-bold leading-tight text-white md:text-lg">
                     {item.name}
                   </p>
-                  <p className="text-sm md:text-base font-semibold text-stone-500">
+                  <p className="text-sm font-semibold text-cyan-200/75 md:text-base">
                     R$ {item.price.toFixed(2)}
                   </p>
                 </div>
 
                 {/* CONTROLES DE QUANTIDADE GRANDES */}
-                <div className="flex items-center bg-stone-100 rounded-lg border border-stone-300 overflow-hidden h-10 md:h-11 shadow-inner">
+                <div className="flex h-10 items-center overflow-hidden rounded-lg border border-cyan-300/20 bg-black/40 shadow-inner md:h-11">
                   <button
                     onClick={() => {
                       const step = item.quantidadeVenda ?? 1;
                       updateQuantity(item.id, item.quantity - step);
                     }}
-                    className="w-9 md:w-10 h-full flex items-center justify-center text-stone-600 font-bold text-xl hover:bg-[var(--color-primary-light)] hover:text-[var(--color-primary)] transition-colors active:bg-[var(--color-primary-light)]"
+                    className="flex h-full w-9 items-center justify-center text-xl font-bold text-slate-300 transition-colors hover:bg-cyan-400/10 hover:text-cyan-300 md:w-10"
                   >
                     -
                   </button>
@@ -265,10 +324,10 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                         const q = parseInt(e.target.value);
                         if (!isNaN(q) && q > 0) updateQuantity(item.id, q);
                       }}
-                      className="w-12 md:w-14 h-full text-base md:text-lg font-bold text-center bg-white border-x border-stone-200"
+                      className="h-full w-12 border-x border-cyan-300/20 bg-[#07111f] text-center text-base font-bold text-white md:w-14 md:text-lg"
                     />
                   ) : (
-                    <span className="w-9 md:w-10 h-full flex items-center justify-center text-base md:text-lg font-bold bg-white border-x border-stone-200">
+                    <span className="flex h-full w-9 items-center justify-center border-x border-cyan-300/20 bg-[#07111f] text-base font-bold text-white md:w-10 md:text-lg">
                       {item.quantity}
                     </span>
                   )}
@@ -277,7 +336,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                       const step = item.quantidadeVenda ?? 1;
                       updateQuantity(item.id, item.quantity + step);
                     }}
-                    className="w-9 md:w-10 h-full flex items-center justify-center bg-[var(--color-primary)] text-white font-bold text-xl hover:bg-[var(--color-primary-hover)] transition-colors active:bg-[var(--color-primary-active)]"
+                    className="flex h-full w-9 items-center justify-center bg-cyan-500 text-xl font-bold text-white transition-colors hover:bg-cyan-400 md:w-10"
                   >
                     +
                   </button>
@@ -290,12 +349,12 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
 
       {/* Footer / Checkout */}
       {cartItems.length > 0 && (
-        <div className="p-4 bg-white border-t border-stone-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+        <div className="border-t border-cyan-300/20 bg-[#050914] p-4 shadow-[0_-4px_20px_rgba(0,229,255,0.1)]">
           {/* CAMPO DE OBSERVAÇÃO - AGORA CONECTADO AO CONTEXTO */}
           <div className="mb-4">
             <label
               htmlFor="observation"
-              className="block text-base font-bold text-stone-700 mb-2"
+              className="mb-2 block text-base font-bold text-white"
             >
               📝 Alguma observação?
             </label>
@@ -304,7 +363,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
               value={observation}
               onChange={handleObservationChange}
               placeholder="Ex: Em caixa, em sacos..."
-              className="w-full p-2 border-2 border-stone-300 rounded-xl focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary-light)] transition-all text-sm"
+              className="w-full rounded-lg border border-cyan-300/20 bg-[#07111f] p-2 text-sm text-white placeholder:text-slate-500 transition-all focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
               rows={2}
             />
             {showObservationSaved && observation && (
@@ -315,15 +374,15 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
           </div>
 
           <div className="flex justify-between items-center mb-4">
-            <span className="text-stone-500 font-bold text-lg">Total</span>
-            <span className="text-2xl md:text-3xl font-bold text-stone-800">
+            <span className="text-lg font-bold text-slate-400">Total</span>
+            <span className="text-2xl font-bold text-white md:text-3xl">
               R$ {cartTotal.toFixed(2)}
             </span>
           </div>
           <button
             onClick={onCheckout}
             disabled={isPlacingOrder}
-            className="w-full bg-[var(--color-success)] text-white font-bold py-3 md:py-4 text-lg md:text-xl rounded-2xl hover:bg-green-700 transition-colors disabled:bg-stone-300 shadow-lg active:scale-[0.98] flex justify-center items-center gap-2"
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-lime-400 py-3 text-lg font-black text-[#06110a] shadow-[0_0_22px_rgba(163,230,53,0.38)] transition hover:bg-lime-300 active:scale-[0.98] disabled:bg-slate-800 disabled:text-slate-500 md:py-4 md:text-xl"
           >
             {isPlacingOrder ? (
               "Processando..."
@@ -333,6 +392,17 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                 <span className="text-3xl">➜</span>
               </>
             )}
+          </button>
+        </div>
+      )}
+      {cartItems.length === 0 && (
+        <div className="border-t border-cyan-300/20 bg-[#050914] p-4 shadow-[0_-4px_20px_rgba(0,229,255,0.1)]">
+          <button
+            disabled
+            className="flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-lg bg-slate-800 py-4 text-lg font-black text-slate-500"
+          >
+            <LineIcon name="lock" className="h-5 w-5" />
+            Finalizar Compra
           </button>
         </div>
       )}
@@ -372,22 +442,22 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
   };
 
   return (
-    <aside className="w-[100px] md:w-40 bg-white z-40 flex flex-col h-full border-r border-stone-200 shadow-xl overflow-hidden shrink-0">
+    <aside className="z-40 flex h-full w-[112px] shrink-0 flex-col overflow-hidden border-r border-cyan-300/20 bg-[#030712] shadow-[0_0_30px_rgba(0,229,255,0.12)] md:w-48">
       {/* Logo Area */}
-      <div className="h-20 md:h-28 flex items-center justify-center border-b border-stone-100 bg-[var(--color-primary)] hidden md:flex">
-        <h1 className="text-3xl font-extrabold text-white tracking-wide">
+      <div className="hidden h-20 items-center justify-center border-b border-cyan-300/20 bg-[#101827] md:flex">
+        <h1 className="rounded-md border border-white/10 bg-white/5 px-6 py-3 text-2xl font-black tracking-wide text-white">
           MENU
         </h1>
       </div>
 
       {/* Menu Items Container */}
-      <nav className="flex-1 overflow-y-auto py-4 scrollbar-hide gap-4 pb-20">
+      <nav className="flex-1 space-y-2 overflow-y-auto py-4 pb-20">
         <button
           onClick={() => onSelectCategory(null)}
-          className={`w-full py-6 px-2 md:px-6 flex flex-col items-center md:justify-start gap-2 transition-all duration-200 border-l-8 ${
+          className={`flex w-full flex-col items-center gap-2 border-l-4 px-2 py-5 text-center transition-all duration-200 md:px-6 ${
             selectedCategory === null
-              ? "bg-[var(--color-primary-light)] border-[var(--color-primary)] text-[var(--color-primary-active)]"
-              : "border-transparent bg-white text-stone-400 hover:bg-stone-50 hover:text-stone-600"
+              ? "border-cyan-400 bg-cyan-400/10 text-white shadow-[inset_0_0_24px_rgba(34,211,238,0.12)]"
+              : "border-transparent text-slate-400 hover:bg-white/5 hover:text-white"
           }`}
         >
           <span
@@ -397,12 +467,12 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
           >
             🧸
           </span>
-          <span className="text-xs md:text-lg p-2 font-bold uppercase">
+          <span className="text-xs font-black uppercase tracking-wide md:text-base">
             Todos
           </span>
         </button>
 
-        <div className="my-4 border-t border-stone-100 mx-4"></div>
+        <div className="mx-4 my-4 border-t border-cyan-300/10"></div>
 
         {categories.map((category) => {
           const isSelected = selectedCategory === category;
@@ -412,10 +482,10 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
             <button
               key={category}
               onClick={() => onSelectCategory(category)}
-              className={`w-full py-6 px-2 md:px-6 flex flex-col  items-center md:justify-start gap-2 transition-all duration-200 border-l-8 ${
+              className={`flex w-full flex-col items-center gap-2 border-l-4 px-2 py-5 text-center transition-all duration-200 md:px-6 ${
                 isSelected
-                  ? "bg-[var(--color-primary-light)] border-[var(--color-primary)] text-[var(--color-primary-active)]"
-                  : "border-transparent text-stone-400 hover:bg-stone-50 hover:text-stone-600 bg-white"
+                  ? "border-cyan-400 bg-cyan-400/10 text-white shadow-[inset_0_0_24px_rgba(34,211,238,0.12)]"
+                  : "border-transparent text-slate-400 hover:bg-white/5 hover:text-white"
               }`}
             >
               <span
@@ -426,7 +496,7 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
                 {icon}
               </span>
               <span
-                className={`text-xs md:text-xl font-bold text-center md:text-left leading-tight uppercase`}
+                className={`text-xs font-black uppercase leading-tight tracking-wide md:text-base`}
               >
                 {category}
               </span>
@@ -708,10 +778,7 @@ const MenuPage: React.FC = () => {
       : 0;
 
   return (
-    <div
-      className="flex h-screen w-full overflow-hidden font-sans"
-      style={{ background: "var(--color-page-bg)" }}
-    >
+    <div className="-m-4 flex h-[calc(100vh-4.3125rem)] w-[calc(100%+2rem)] overflow-hidden bg-[#0a1220] font-sans text-white md:-m-8 md:h-[calc(100vh-5.75rem)] md:w-[calc(100%+4rem)]">
       {/* 1. SIDEBAR ESQUERDA */}
       <CategorySidebar
         categories={displayCategories} // 🆕 Usa categorias dinâmicas ordenadas
@@ -721,15 +788,19 @@ const MenuPage: React.FC = () => {
       />
 
       {/* 2. ÁREA CENTRAL */}
-      <main className="flex-1 flex flex-col h-full relative overflow-hidden">
+      <main className="relative flex h-full flex-1 flex-col overflow-hidden bg-[#0d1728]">
         {/* Scroll Container */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 pb-48 md:pb-8 scroll-smooth">
+        <div className="flex-1 overflow-y-auto p-4 pb-48 scroll-smooth md:p-8 md:pb-8">
           {/* Mensagens IA */}
 
           {/* Grid de Produtos */}
-          <div className="max-w-6xl mx-auto min-h-[101%]">
+          <div className="mx-auto min-h-[101%] max-w-7xl">
             {selectedCategory === null ? (
-              <div className="flex flex-wrap gap-4 md:gap-6">
+              <>
+                <h2 className="mb-8 text-center text-3xl font-black text-white md:text-4xl">
+                  Chaveiros de Furia da Noite 3D
+                </h2>
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {[...menu]
                   .sort((a, b) => {
                     const aOOS = a.stock === 0 ? 1 : 0;
@@ -749,13 +820,14 @@ const MenuPage: React.FC = () => {
                       }
                     />
                   ))}
-              </div>
+                </div>
+              </>
             ) : (
               <div className="animate-fadeIn">
-                <h3 className="text-2xl md:text-3xl font-bold text-stone-700 mb-6 flex items-center gap-3">
+                <h3 className="mb-8 text-center text-3xl font-black text-white md:text-4xl">
                   {selectedCategory}
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 md:gap-8">
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                   {[...(categorizedMenu[selectedCategory] || [])]
                     .sort((a, b) => {
                       const aOOS = a.stock === 0 ? 1 : 0;

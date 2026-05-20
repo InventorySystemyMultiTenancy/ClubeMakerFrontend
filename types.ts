@@ -16,6 +16,7 @@ export interface Product {
   id: string;
   name: string;
   price: number;
+  compareAtPrice?: number | null;
   priceRaw: number; // Custo unitario
   category: string;
   imageUrl?: string;

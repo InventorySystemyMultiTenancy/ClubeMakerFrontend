@@ -148,6 +148,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
   >({
     name: "",
     price: 0,
+    compareAtPrice: null,
     priceRaw: 0,
     category: "Produtos",
     imageUrl: "",
@@ -220,6 +221,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
       setFormData({
         name: "",
         price: 0,
+        compareAtPrice: null,
         priceRaw: 0,
         category: categories.length > 0 ? categories[0].name : "Produtos",
         imageUrl: "",
@@ -242,8 +244,12 @@ const ProductForm: React.FC<ProductFormProps> = ({
     setFormData((prev) => ({
       ...prev,
       [name]:
-        name === "price" || name === "priceRaw"
-          ? parseFloat(value)
+        name === "compareAtPrice"
+          ? value === ""
+            ? null
+            : parseFloat(value)
+          : name === "price" || name === "priceRaw"
+            ? parseFloat(value)
           : name === "stock" ||
               name === "minStock" ||
               name === "quantidadeVenda"
@@ -331,6 +337,28 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 step="0.01"
                 className="mt-1 block w-full rounded-md border-stone-300 shadow-sm focus:border-[var(--color-primary)] focus:ring-[var(--color-primary-light)]"
               />
+            </div>
+            <div className="flex-1">
+              <label
+                htmlFor="compareAtPrice"
+                className="block text-sm font-medium text-stone-700"
+              >
+                Preco original
+              </label>
+              <input
+                type="number"
+                name="compareAtPrice"
+                id="compareAtPrice"
+                value={formData.compareAtPrice ?? ""}
+                onChange={handleChange}
+                min="0"
+                step="0.01"
+                placeholder="Opcional"
+                className="mt-1 block w-full rounded-md border-stone-300 shadow-sm focus:border-[var(--color-primary)] focus:ring-[var(--color-primary-light)]"
+              />
+              <p className="mt-1 text-xs text-stone-500">
+                Usado para exibir preco riscado e desconto.
+              </p>
             </div>
             <div className="flex-1">
               <label
@@ -1005,6 +1033,13 @@ const AdminPage: React.FC = () => {
                   <div className="text-xs sm:text-sm text-stone-900">
                     R${Number(product.price)?.toFixed(2) ?? "-"}
                   </div>
+                  {product.compareAtPrice &&
+                    product.compareAtPrice > product.price && (
+                      <div className="text-[10px] sm:text-xs text-stone-500">
+                        Original: R$
+                        {Number(product.compareAtPrice)?.toFixed(2) ?? "-"}
+                      </div>
+                    )}
                   <div className="text-[10px] sm:text-xs text-stone-500">
                     Custo: R${Number(product.priceRaw)?.toFixed(2) ?? "-"}
                   </div>
