@@ -19,6 +19,7 @@ const CreateProjectPage: React.FC = () => {
   const [shippingData, setShippingData] = useState("");
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [makerWorldSearch, setMakerWorldSearch] = useState("");
 
   const canSubmit = useMemo(
     () =>
@@ -108,9 +109,49 @@ const CreateProjectPage: React.FC = () => {
     navigate("/meus-orcamentos");
   };
 
+  const handleMakerWorldSearch = (event: React.FormEvent) => {
+    event.preventDefault();
+    const query = makerWorldSearch.trim();
+
+    if (!query) {
+      return;
+    }
+
+    window.open(
+      `https://makerworld.com/en/search/models?keyword=${encodeURIComponent(
+        query,
+      )}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
+  };
+
   return (
     <div className="neon-scrollbar h-full overflow-y-auto bg-[#08111f] px-4 py-8 text-white md:px-8">
       <div className="mx-auto max-w-5xl">
+        <section className="mb-8 rounded-lg border border-cyan-300/20 bg-[#050914] p-5 shadow-[0_0_20px_rgba(0,229,255,0.08)]">
+          <h2 className="mb-4 text-2xl font-black text-white">
+            Pesquise seu projeto no Bambu Studio
+          </h2>
+          <form
+            onSubmit={handleMakerWorldSearch}
+            className="flex flex-col gap-3 sm:flex-row"
+          >
+            <input
+              value={makerWorldSearch}
+              onChange={(event) => setMakerWorldSearch(event.target.value)}
+              placeholder="Ex: chaveiro dragao, suporte celular, miniatura..."
+              className="min-h-12 flex-1 rounded-lg border border-cyan-300/20 bg-[#0b1526] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300"
+            />
+            <button
+              type="submit"
+              className="energy-cta rounded-lg bg-cyan-500 px-5 py-3 text-sm font-black text-white shadow-[0_0_18px_rgba(34,211,238,0.35)] transition hover:bg-cyan-400 active:scale-[0.98]"
+            >
+              Pesquisar no MakerWorld
+            </button>
+          </form>
+        </section>
+
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="mb-2 text-sm font-bold uppercase tracking-[0.18em] text-cyan-300">
