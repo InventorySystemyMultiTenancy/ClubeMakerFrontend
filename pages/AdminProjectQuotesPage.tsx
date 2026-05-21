@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import type { ProjectQuote } from "../types";
+import type { ProjectQuote, ProjectSavedFile } from "../types";
 import { authenticatedFetch } from "../services/apiService";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
@@ -13,8 +13,10 @@ type QuoteDraft = {
 const AdminProjectQuotesPage: React.FC = () => {
   const [quotes, setQuotes] = useState<ProjectQuote[]>([]);
   const [drafts, setDrafts] = useState<Record<string, QuoteDraft>>({});
+  const [savedFiles, setSavedFiles] = useState<ProjectSavedFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [fileActionId, setFileActionId] = useState<string | null>(null);
 
   const fetchQuotes = async () => {
     setLoading(true);
@@ -43,8 +45,17 @@ const AdminProjectQuotesPage: React.FC = () => {
     }
   };
 
+  const fetchSavedFiles = async () => {
+    const response = await authenticatedFetch(
+      `${BACKEND_URL}/api/admin/project-files`,
+    );
+    const data = await response.json();
+    setSavedFiles(Array.isArray(data) ? data : []);
+  };
+
   useEffect(() => {
     fetchQuotes();
+    fetchSavedFiles();
   }, []);
 
   const updateDraft = (
@@ -94,6 +105,94 @@ const AdminProjectQuotesPage: React.FC = () => {
     }
   };
 
+  const downloadBlob = async (url: string, fileName: string) => {
+    const response = await authenticatedFetch(url);
+    if (!response.ok) throw new Error("Erro ao baixar arquivo");
+
+    const blob = await response.blob();
+    const objectUrl = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = objectUrl;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(objectUrl);
+  };
+
+  const downloadFile = async (quote: ProjectQuote) => {
+    try {
+      await downloadBlob(
+        `${BACKEND_URL}/api/admin/project-quotes/${quote.id}/download`,
+        quote.fileName,
+      );
+    } catch {
+      alert("Nao foi possivel baixar o arquivo.");
+    }
+  };
+
+  const saveFileForever = async (quote: ProjectQuote) => {
+    setFileActionId(quote.id);
+    try {
+      const response = await authenticatedFetch(
+        `${BACKEND_URL}/api/admin/project-quotes/${quote.id}/save-file`,
+        { method: "POST", body: JSON.stringify({ note: quote.userName || "" }) },
+      );
+      if (!response.ok) throw new Error("Erro ao salvar arquivo");
+      await fetchSavedFiles();
+      alert("Arquivo salvo na biblioteca permanente.");
+    } catch {
+      alert("Nao foi possivel salvar o arquivo.");
+    } finally {
+      setFileActionId(null);
+    }
+  };
+
+  const deleteQuoteFile = async (quote: ProjectQuote) => {
+    if (!window.confirm("Excluir o arquivo desse orcamento?")) return;
+    setFileActionId(quote.id);
+    try {
+      const response = await authenticatedFetch(
+        `${BACKEND_URL}/api/admin/project-quotes/${quote.id}/file`,
+        { method: "DELETE" },
+      );
+      if (!response.ok) throw new Error("Erro ao excluir arquivo");
+      await fetchQuotes();
+    } catch {
+      alert("Nao foi possivel excluir o arquivo.");
+    } finally {
+      setFileActionId(null);
+    }
+  };
+
+  const downloadSavedFile = async (file: ProjectSavedFile) => {
+    try {
+      await downloadBlob(
+        `${BACKEND_URL}/api/admin/project-files/${file.id}/download`,
+        file.fileName,
+      );
+    } catch {
+      alert("Nao foi possivel baixar o arquivo salvo.");
+    }
+  };
+
+  const deleteSavedFile = async (file: ProjectSavedFile) => {
+    if (!window.confirm("Excluir esse arquivo permanente?")) return;
+    setFileActionId(file.id);
+    try {
+      const response = await authenticatedFetch(
+        `${BACKEND_URL}/api/admin/project-files/${file.id}`,
+        { method: "DELETE" },
+      );
+      if (!response.ok) throw new Error("Erro ao excluir arquivo");
+      await fetchSavedFiles();
+    } catch {
+      alert("Nao foi possivel excluir o arquivo salvo.");
+    } finally {
+      setFileActionId(null);
+    }
+  };
+
   return (
     <div className="container mx-auto min-h-screen bg-stone-100 px-4 py-6">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
@@ -101,12 +200,57 @@ const AdminProjectQuotesPage: React.FC = () => {
           Orcamentos de Projetos
         </h1>
         <button
-          onClick={fetchQuotes}
+          onClick={() => {
+            fetchQuotes();
+            fetchSavedFiles();
+          }}
           className="rounded-lg bg-[var(--color-primary)] px-4 py-2 text-sm font-bold text-white shadow transition hover:bg-[var(--color-primary-active)]"
         >
           Atualizar
         </button>
       </div>
+
+      <section className="mb-6 rounded-xl border border-stone-200 bg-white p-5 shadow-sm">
+        <h2 className="mb-3 text-xl font-black text-stone-900">
+          Biblioteca permanente
+        </h2>
+        {savedFiles.length === 0 ? (
+          <p className="text-sm text-stone-500">
+            Nenhum arquivo salvo para reutilizar depois.
+          </p>
+        ) : (
+          <div className="grid gap-3 md:grid-cols-2">
+            {savedFiles.map((file) => (
+              <div
+                key={file.id}
+                className="rounded-lg border border-stone-200 bg-stone-50 p-3"
+              >
+                <p className="font-bold text-stone-900">{file.fileName}</p>
+                <p className="text-xs text-stone-500">
+                  Salvo em {new Date(file.createdAt).toLocaleString()}
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => downloadSavedFile(file)}
+                    className="rounded-lg bg-[var(--color-primary)] px-3 py-2 text-xs font-bold text-white"
+                  >
+                    Baixar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => deleteSavedFile(file)}
+                    disabled={fileActionId === file.id}
+                    className="rounded-lg bg-red-600 px-3 py-2 text-xs font-bold text-white disabled:opacity-50"
+                  >
+                    Excluir
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
 
       {loading ? (
         <p>Carregando...</p>
@@ -144,6 +288,33 @@ const AdminProjectQuotesPage: React.FC = () => {
                   <span className="h-fit rounded-full bg-slate-100 px-3 py-1 text-xs font-black uppercase text-slate-700">
                     {quote.status}
                   </span>
+                </div>
+
+                <div className="mb-4 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => downloadFile(quote)}
+                    disabled={!quote.hasFile}
+                    className="rounded-lg bg-[var(--color-primary)] px-4 py-2 text-sm font-bold text-white shadow transition hover:bg-[var(--color-primary-active)] disabled:cursor-not-allowed disabled:bg-stone-300 disabled:text-stone-500"
+                  >
+                    Baixar arquivo
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => saveFileForever(quote)}
+                    disabled={!quote.hasFile || fileActionId === quote.id}
+                    className="rounded-lg bg-lime-500 px-4 py-2 text-sm font-black text-[#06110a] shadow transition hover:bg-lime-400 disabled:cursor-not-allowed disabled:bg-stone-300 disabled:text-stone-500"
+                  >
+                    Salvar para sempre
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => deleteQuoteFile(quote)}
+                    disabled={!quote.hasFile || fileActionId === quote.id}
+                    className="rounded-lg bg-red-600 px-4 py-2 text-sm font-bold text-white shadow transition hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-stone-300 disabled:text-stone-500"
+                  >
+                    Excluir arquivo
+                  </button>
                 </div>
 
                 <div className="grid gap-2 text-sm text-stone-700 md:grid-cols-2">

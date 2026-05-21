@@ -89,6 +89,7 @@ export interface ProjectQuote {
   userName?: string;
   fileName: string;
   fileSize: number;
+  hasFile?: boolean;
   size: string;
   height: string;
   width: string;
@@ -104,5 +105,14 @@ export interface ProjectQuote {
   orderId?: string | null;
   createdAt: string;
   updatedAt?: string;
+}
+
+export interface ProjectSavedFile {
+  id: string;
+  sourceQuoteId?: string | null;
+  fileName: string;
+  fileSize: number;
+  note?: string | null;
+  createdAt: string;
 }
 

@@ -5,6 +5,17 @@ import { useAuth } from "../contexts/AuthContext";
 const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 const CONTACT_WHATSAPP = "5511947094271";
 
+const fileToBase64 = (file: File) =>
+  new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = String(reader.result || "");
+      resolve(result.includes(",") ? result.split(",")[1] : result);
+    };
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+
 const CreateProjectPage: React.FC = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
@@ -54,11 +65,20 @@ const CreateProjectPage: React.FC = () => {
       return;
     }
 
+    let fileBase64 = "";
+    try {
+      fileBase64 = await fileToBase64(file);
+    } catch {
+      setError("Nao foi possivel ler o arquivo selecionado.");
+      return;
+    }
+
     const quote = {
       userId: currentUser?.id,
       userName: currentUser?.name,
       fileName: file.name,
       fileSize: file.size,
+      fileBase64,
       size: size.trim(),
       height: height.trim(),
       width: width.trim(),
