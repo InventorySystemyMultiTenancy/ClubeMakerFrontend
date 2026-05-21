@@ -489,9 +489,13 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
     <aside className="z-40 flex h-full w-[112px] shrink-0 flex-col overflow-hidden border-r border-cyan-300/20 bg-[#030712] shadow-[0_0_30px_rgba(0,229,255,0.12)] md:w-48">
       {/* Logo Area */}
       <div className="hidden h-16 items-center justify-center border-b border-cyan-300/20 bg-[#101827] md:flex">
-        <h1 className="rounded-md border border-white/10 bg-white/5 px-5 py-2 text-2xl font-black tracking-wide text-white">
-          MENU
-        </h1>
+        <a
+          href="#/criar-projeto"
+          className="energy-cta rounded-md border border-cyan-300/30 bg-cyan-400/10 px-4 py-2 text-center text-sm font-black uppercase tracking-wide text-white shadow-[0_0_18px_rgba(34,211,238,0.18)] transition hover:border-cyan-300 hover:bg-cyan-400/20"
+          title="Criar projeto"
+        >
+          Criar projeto
+        </a>
       </div>
 
       {/* Menu Items Container */}

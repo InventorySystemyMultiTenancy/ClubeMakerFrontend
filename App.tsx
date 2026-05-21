@@ -16,11 +16,14 @@ import LandingPage from "./pages/LandingPage";
 import StoreNotFound from "./pages/StoreNotFound";
 import MenuPage from "./pages/MenuPage";
 import PaymentPage from "./pages/PaymentPage";
+import CreateProjectPage from "./pages/CreateProjectPage";
+import CustomerQuotesPage from "./pages/CustomerQuotesPage";
 import OrderHistoryPage from "./pages/OrderHistoryPage";
 import AdminPage from "./pages/AdminPage";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import AdminReportsPage from "./pages/AdminReportsPage";
 import AdminManagementReportPage from "./pages/AdminManagementReportPage";
+import AdminProjectQuotesPage from "./pages/AdminProjectQuotesPage";
 import AdminCategoriesPage from "./pages/AdminCategoriesPage"; // 🆕
 import Header from "./components/Header";
 import Chatbot from "./components/Chatbot";
@@ -102,6 +105,7 @@ const App: React.FC = () => {
 const RouterBody: React.FC = () => {
   const location = useLocation();
   const isMenuRoute = location.pathname === "/menu";
+  const isCreateProjectRoute = location.pathname === "/criar-projeto";
   const { store, loading, error } = useStore(); // 🏪 MULTI-TENANT
 
   // Loading state enquanto carrega a loja
@@ -127,7 +131,7 @@ const RouterBody: React.FC = () => {
       <Header />
       <main
         className={
-          isMenuRoute
+          isMenuRoute || isCreateProjectRoute
             ? "h-[calc(100dvh-69px)] overflow-hidden bg-[#0a1220]"
             : "p-4 md:p-8 bg-[var(--color-page-bg)]"
         }
@@ -153,6 +157,24 @@ const RouterBody: React.FC = () => {
             element={
               <ProtectedRoute>
                 <PaymentPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/criar-projeto"
+            element={
+              <ProtectedRoute>
+                <CreateProjectPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/meus-orcamentos"
+            element={
+              <ProtectedRoute>
+                <CustomerQuotesPage />
               </ProtectedRoute>
             }
           />
@@ -237,6 +259,18 @@ const RouterBody: React.FC = () => {
           />
 
           {/* Rota protegida para relatório de gestão (admin) */}
+          <Route
+            path="/admin/orcamentos"
+            element={
+              <RoleProtectedRoute
+                allowedRoles={["admin"]}
+                redirectTo="/admin/login"
+              >
+                <AdminProjectQuotesPage />
+              </RoleProtectedRoute>
+            }
+          />
+
           <Route
             path="/admin/management-report"
             element={

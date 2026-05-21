@@ -101,6 +101,26 @@ const Header: React.FC = () => {
                 </NavLink>
               )}
 
+            {currentUser &&
+              (!currentUser.role || currentUser.role === "customer") && (
+                <NavLink
+                  to="/meus-orcamentos"
+                  className="energy-link text-white transition-colors font-medium hover:text-[var(--color-accent)]"
+                >
+                  Orcamentos
+                </NavLink>
+              )}
+
+            {currentUser &&
+              (!currentUser.role || currentUser.role === "customer") && (
+                <NavLink
+                  to="/meus-orcamentos"
+                  className="text-stone-700 hover:text-[var(--color-primary)] font-medium"
+                >
+                  Orcamentos
+                </NavLink>
+              )}
+
             {currentUser?.role === "kitchen" && (
               <NavLink
                 to="/cozinha"
@@ -129,6 +149,12 @@ const Header: React.FC = () => {
                   className="energy-link text-white hover:text-[var(--color-accent)] transition-colors font-medium"
                 >
                   Produtos
+                </NavLink>
+                <NavLink
+                  to="/admin/orcamentos"
+                  className="energy-link text-white hover:text-[var(--color-accent)] transition-colors font-medium"
+                >
+                  Orcamentos
                 </NavLink>
                 <NavLink
                   to="/admin/management-report"
@@ -296,6 +322,12 @@ const Header: React.FC = () => {
                   className="text-stone-700 hover:text-[var(--color-primary)] font-medium"
                 >
                   Produtos
+                </NavLink>
+                <NavLink
+                  to="/admin/orcamentos"
+                  className="text-stone-700 hover:text-[var(--color-primary)] font-medium"
+                >
+                  Orcamentos
                 </NavLink>
                 <NavLink
                   to="/admin/management-report"

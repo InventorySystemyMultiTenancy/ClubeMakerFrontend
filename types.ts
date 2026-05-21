@@ -51,7 +51,7 @@ export interface Order {
   status: "active" | "completed";
   observation?: string;
   // Novos campos para pagamento
-  paymentType?: "online" | "presencial";
+  paymentType?: "online" | "presencial" | "orcamento";
   paymentMethod?: "credit" | "debit" | "pix";
   installments?: number;
   fee?: number;
@@ -81,5 +81,28 @@ export interface CartItem extends Product {
   originalUnitPrice?: number;
   customUnitPrice?: number;
   discountPercent?: number;
+}
+
+export interface ProjectQuote {
+  id: string;
+  userId: string;
+  userName?: string;
+  fileName: string;
+  fileSize: number;
+  size: string;
+  height: string;
+  width: string;
+  depth: string;
+  colorQuantity: string;
+  colors: string;
+  pieceQuantity: string;
+  shippingData: string;
+  status: "pending" | "sent" | "approved" | "rejected";
+  quotedTotal?: number | null;
+  adminObservation?: string | null;
+  deliveryDeadline?: string | null;
+  orderId?: string | null;
+  createdAt: string;
+  updatedAt?: string;
 }
 
