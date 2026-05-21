@@ -102,20 +102,12 @@ const Header: React.FC = () => {
               )}
 
             {currentUser &&
-              (!currentUser.role || currentUser.role === "customer") && (
+              (!currentUser.role ||
+                currentUser.role === "customer" ||
+                currentUser.role === "admincustomer") && (
                 <NavLink
                   to="/meus-orcamentos"
                   className="energy-link text-white transition-colors font-medium hover:text-[var(--color-accent)]"
-                >
-                  Orcamentos
-                </NavLink>
-              )}
-
-            {currentUser &&
-              (!currentUser.role || currentUser.role === "customer") && (
-                <NavLink
-                  to="/meus-orcamentos"
-                  className="text-stone-700 hover:text-[var(--color-primary)] font-medium"
                 >
                   Orcamentos
                 </NavLink>
