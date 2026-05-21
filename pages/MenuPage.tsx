@@ -306,17 +306,28 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                 key={item.id}
                 className="flex flex-col gap-3 rounded-lg border border-cyan-300/15 bg-[#07111f] p-3 shadow-[0_0_18px_rgba(0,229,255,0.08)]"
               >
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1 pr-1">
-                    <p className="mb-1 text-base font-bold leading-tight text-white md:text-lg">
-                      {item.name}
-                    </p>
+                    <div className="mb-1 flex items-start gap-2">
+                      <p className="text-base font-bold leading-tight text-white md:text-lg">
+                        {item.name}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => updateQuantity(item.id, 0)}
+                        className="mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-red-400/25 bg-red-500/10 text-red-200 transition hover:border-red-300 hover:bg-red-500/20 hover:text-white"
+                        aria-label={`Remover ${item.name} do carrinho`}
+                        title="Remover do carrinho"
+                      >
+                        <LineIcon name="close" className="h-4 w-4" />
+                      </button>
+                    </div>
                     <p className="text-sm font-semibold text-cyan-200/75 md:text-base">
                       R$ {item.price.toFixed(2)}
                     </p>
                   </div>
 
-                  <div className="flex h-10 items-center overflow-hidden rounded-lg border border-cyan-300/20 bg-black/40 shadow-inner md:h-11">
+                  <div className="mt-1 flex h-10 items-center overflow-hidden rounded-lg border border-cyan-300/20 bg-black/40 shadow-inner md:h-11">
                     <button
                       onClick={() => {
                         const step = item.quantidadeVenda ?? 1;
