@@ -3,6 +3,11 @@ import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import type { Order } from "../types";
 import { formatCurrency, getOrderItemPricingInfo } from "../utils/orderPricing";
+import {
+  downloadProjectOrderFile,
+  getProjectOrderDetails,
+  isProjectOrder,
+} from "../utils/projectOrder";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 const CONTACT_WHATSAPP = "5511947094271";
@@ -122,6 +127,7 @@ const CustomerOrdersPage: React.FC = () => {
             const canCustomerDelete =
               isPending && order.status !== "active" && !isPresencial;
             const isProcessing = actionOrderId === order.id;
+            const projectDetails = getProjectOrderDetails(order);
 
             return (
             <li
@@ -144,6 +150,40 @@ const CustomerOrdersPage: React.FC = () => {
               <div className="mb-2">
                 <span className="font-semibold">Status:</span> {order.status}
               </div>
+              {isProjectOrder(order) && projectDetails && (
+                <div className="mb-3 rounded-lg border border-cyan-200 bg-cyan-50 p-3 text-sm text-stone-800">
+                  <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                    <span className="font-black text-cyan-900">
+                      Pedido de orcamento 3D
+                    </span>
+                    {projectDetails.hasFile && (
+                      <button
+                        type="button"
+                        onClick={() => downloadProjectOrderFile(order.id)}
+                        className="rounded-lg bg-[var(--color-primary)] px-3 py-1.5 text-xs font-bold text-white"
+                      >
+                        Baixar arquivo
+                      </button>
+                    )}
+                  </div>
+                  <div className="grid gap-1 sm:grid-cols-2">
+                    <p>Arquivo: {projectDetails.fileName}</p>
+                    <p>Pecas: {projectDetails.pieceQuantity}</p>
+                    <p>
+                      Medidas: {projectDetails.height} x {projectDetails.width} x{" "}
+                      {projectDetails.depth}
+                    </p>
+                    <p>
+                      Cores: {projectDetails.colorQuantity} -{" "}
+                      {projectDetails.colors}
+                    </p>
+                    <p>Prazo: {projectDetails.deliveryDeadline}</p>
+                    {projectDetails.adminObservation && (
+                      <p>Obs.: {projectDetails.adminObservation}</p>
+                    )}
+                  </div>
+                </div>
+              )}
               <ul className="text-sm text-stone-700">
                 {order.items.map((item, idx) => {
                   const pricing = getOrderItemPricingInfo(item);

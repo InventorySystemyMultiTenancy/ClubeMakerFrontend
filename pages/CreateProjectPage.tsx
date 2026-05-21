@@ -31,6 +31,7 @@ const CreateProjectPage: React.FC = () => {
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [makerWorldSearch, setMakerWorldSearch] = useState("");
+  const [showInstructions, setShowInstructions] = useState(false);
 
   const canSubmit = useMemo(
     () =>
@@ -170,6 +171,15 @@ const CreateProjectPage: React.FC = () => {
               Pesquisar no MakerWorld
             </button>
           </form>
+          <div className="mt-4 flex justify-end">
+            <button
+              type="button"
+              onClick={() => setShowInstructions(true)}
+              className="rounded-lg border border-cyan-300/30 px-4 py-2 text-sm font-bold text-cyan-100 transition hover:border-cyan-300 hover:bg-cyan-300/10"
+            >
+              Ver instruções
+            </button>
+          </div>
         </section>
 
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -330,6 +340,29 @@ const CreateProjectPage: React.FC = () => {
           </div>
         </form>
       </div>
+
+      {showInstructions && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/80 p-4">
+          <div className="w-full max-w-4xl rounded-lg border border-cyan-300/20 bg-[#050914] p-4 shadow-[0_0_40px_rgba(0,229,255,0.22)]">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h2 className="text-xl font-black text-white">Instruções</h2>
+              <button
+                type="button"
+                onClick={() => setShowInstructions(false)}
+                className="rounded-lg border border-white/10 px-3 py-1.5 text-sm font-bold text-white transition hover:bg-white/10"
+              >
+                Fechar
+              </button>
+            </div>
+            <video
+              src="/comobaixar.mp4"
+              controls
+              autoPlay
+              className="max-h-[75vh] w-full rounded-lg bg-black"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

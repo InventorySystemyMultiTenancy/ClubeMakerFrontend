@@ -2,6 +2,11 @@ import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import type { Order } from "../types";
 import { formatCurrency, getOrderItemPricingInfo } from "../utils/orderPricing";
+import {
+  downloadProjectOrderFile,
+  getProjectOrderDetails,
+  isProjectOrder,
+} from "../utils/projectOrder";
 
 const OrderDetailPage: React.FC = () => {
   const location = useLocation();
@@ -26,6 +31,8 @@ const OrderDetailPage: React.FC = () => {
       </div>
     );
   }
+
+  const projectDetails = getProjectOrderDetails(order);
 
   return (
     <div className="container mx-auto px-4 py-6 min-h-screen bg-stone-100">
@@ -80,6 +87,45 @@ const OrderDetailPage: React.FC = () => {
           <span className="font-semibold">Total:</span> R$
           {Number(order.total).toFixed(2) ?? "-"}
         </div>
+        {isProjectOrder(order) && projectDetails && (
+          <div className="mb-4 rounded-lg border border-cyan-200 bg-cyan-50 p-4 text-sm text-stone-800">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+              <span className="text-base font-black text-cyan-900">
+                Pedido criado a partir de orcamento
+              </span>
+              {projectDetails.hasFile && (
+                <button
+                  type="button"
+                  onClick={() => downloadProjectOrderFile(order.id)}
+                  className="rounded-lg bg-[var(--color-primary)] px-3 py-2 text-xs font-bold text-white"
+                >
+                  Baixar arquivo do projeto
+                </button>
+              )}
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <p>Arquivo: {projectDetails.fileName}</p>
+              <p>Tamanho: {projectDetails.size}</p>
+              <p>
+                Medidas: {projectDetails.height} x {projectDetails.width} x{" "}
+                {projectDetails.depth}
+              </p>
+              <p>Pecas: {projectDetails.pieceQuantity}</p>
+              <p>
+                Cores: {projectDetails.colorQuantity} - {projectDetails.colors}
+              </p>
+              <p>Prazo: {projectDetails.deliveryDeadline}</p>
+              <p className="sm:col-span-2">
+                Dados de envio: {projectDetails.shippingData}
+              </p>
+              {projectDetails.adminObservation && (
+                <p className="sm:col-span-2">
+                  Obs. admin: {projectDetails.adminObservation}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
         <div className="mb-2 text-stone-700">
           <span className="font-semibold">Itens:</span>
           <ul className="list-disc ml-6">

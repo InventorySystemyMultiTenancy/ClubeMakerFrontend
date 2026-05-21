@@ -38,6 +38,19 @@ export interface OrderItem {
   originalUnitPrice?: number | null;
   customUnitPrice?: number | null;
   discountPercent?: number | null;
+  projectQuoteId?: string;
+  projectFileName?: string;
+  projectSize?: string;
+  projectHeight?: string;
+  projectWidth?: string;
+  projectDepth?: string;
+  projectColorQuantity?: string;
+  projectColors?: string;
+  projectPieceQuantity?: string;
+  projectShippingData?: string;
+  projectDeliveryDeadline?: string;
+  projectAdminObservation?: string | null;
+  projectHasFile?: boolean;
 }
 
 export interface Order {
@@ -57,6 +70,7 @@ export interface Order {
   fee?: number;
   paymentStatus?: "pending" | "paid" | "authorized" | "canceled";
   entregueCliente?: boolean; // Indica se o pedido foi entregue ao cliente
+  projectQuote?: ProjectQuote;
 }
 
 export type UserRole =
