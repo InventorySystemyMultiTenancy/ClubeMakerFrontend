@@ -13,6 +13,7 @@ const Header: React.FC = () => {
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [hasUndeliveredOrder, setHasUndeliveredOrder] = useState(false);
+  const isCatalogRoute = location.pathname === "/menu";
 
   useEffect(() => {
     setIsMenuOpen(false);
@@ -68,7 +69,13 @@ const Header: React.FC = () => {
 
   return (
     <>
-      <header className="energy-header border-b border-stone-200 sticky top-0 z-50 h-16 shadow-sm">
+      <header
+        className={`sticky top-0 z-50 h-16 border-b shadow-sm ${
+          isCatalogRoute
+            ? "border-blue-600 bg-[#10120f]"
+            : "energy-header border-stone-200"
+        }`}
+      >
         <div className="container mx-auto px-4 h-full flex items-center justify-between">
           {/* Logo e Chatbot lado a lado no mobile */}
           <div className="flex items-center gap-2 relative">
@@ -82,7 +89,9 @@ const Header: React.FC = () => {
                 className="energy-logo w-12 h-12 rounded-lg group-hover:scale-105 transition-transform object-cover"
               />
               <span
-                className="text-xl font-bold tracking-tight text-stone-800 drop-shadow-sm"
+                className={`text-xl font-bold tracking-tight drop-shadow-sm ${
+                  isCatalogRoute ? "text-white uppercase" : "text-stone-800"
+                }`}
               >
                 ClubeMaker
               </span>

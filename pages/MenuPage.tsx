@@ -888,15 +888,15 @@ const MenuPage: React.FC = () => {
       )}
 
       {/* 2. ÁREA CENTRAL */}
-      <main className="relative flex h-full flex-1 flex-col overflow-hidden bg-[#050604]">
-        <div className="border-b border-blue-500/20 bg-[#050604]/95 px-4 py-3 backdrop-blur">
+      <main className="relative flex h-full flex-1 flex-col overflow-hidden bg-[#050604] bg-[radial-gradient(circle_at_20%_20%,rgba(37,99,235,0.16)_0_1px,transparent_2px),linear-gradient(110deg,rgba(37,99,235,0.05)_0_1px,transparent_1px)] [background-size:160px_160px,56px_56px]">
+        <div className="flex justify-center border-b border-blue-500/30 bg-[#071226] px-4 py-5">
           <button
             type="button"
-            className="inline-flex min-h-11 items-center gap-3 rounded-lg bg-blue-600 px-5 py-2 text-sm font-black uppercase tracking-wide text-white shadow-lg shadow-blue-950/30 transition hover:bg-blue-700"
+            className="inline-flex min-h-14 items-center gap-4 border border-blue-400 bg-blue-700 px-7 py-3 text-lg font-black uppercase tracking-wide text-white shadow-[7px_7px_0_rgba(0,0,0,0.55)] transition hover:bg-blue-600"
             onClick={() => setIsCatalogNavOpen((open) => !open)}
           >
-            Ver catalogo
-            <span className="rounded bg-red-600 px-2 py-0.5 text-white">
+            Ver catálogo
+            <span className="bg-blue-500 px-2 py-0.5 text-white">
               {isCatalogNavOpen ? "-" : "+"}
             </span>
           </button>
@@ -937,42 +937,61 @@ const MenuPage: React.FC = () => {
           {/* Mensagens IA */}
 
           {/* Grid de Produtos */}
-          <div className="mx-auto max-w-7xl">
+          <div className="mx-auto max-w-[1600px]">
             {selectedCategory === null ? (
               <>
                 {currentBannerProduct && (
-                  <section className="relative mb-8 grid min-h-[300px] overflow-hidden rounded-2xl border border-blue-500/20 bg-[#071226] shadow-2xl md:grid-cols-[0.95fr_1.05fr]">
-                    <div className="relative z-10 flex flex-col justify-center p-7 text-white md:p-10">
-                      <span className="mb-4 inline-flex w-fit rounded-full bg-red-600 px-4 py-1 text-xs font-black uppercase tracking-wide">
-                        Novidades
+                  <section className="relative mb-10 grid min-h-[360px] overflow-hidden border border-blue-500/40 bg-[#071226] shadow-2xl md:grid-cols-[0.58fr_0.42fr] lg:min-h-[532px]">
+                    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,rgba(96,165,250,0.22)_0_2px,transparent_3px),linear-gradient(105deg,rgba(96,165,250,0.08)_0_1px,transparent_1px)] [background-size:160px_160px,64px_64px]" />
+                    <div className="relative z-10 flex flex-col justify-center p-7 text-white md:p-12 lg:p-14">
+                      <span className="mb-5 inline-flex w-fit bg-blue-600 px-4 py-2 text-sm font-black uppercase tracking-wide text-white shadow-[6px_6px_0_rgba(0,0,0,0.7)]">
+                        Novidades!
                       </span>
-                      <h2 className="text-3xl font-black md:text-5xl">
-                        Ultimos lancamentos
+                      <h2 className="max-w-3xl text-5xl font-black uppercase leading-[0.9] text-white md:text-7xl lg:text-8xl">
+                        Últimos lançamentos!
                       </h2>
-                      <p className="mt-3 text-blue-100">Produto ClubeMaker</p>
-                      <strong className="mt-2 text-xl text-white">
+                      <p className="mt-5 text-2xl font-black uppercase text-blue-200">
+                        Produto ClubeMaker
+                      </p>
+                      <strong className="mt-3 max-w-2xl text-lg font-black text-blue-50 md:text-xl">
                         {currentBannerProduct.name}
                       </strong>
                       <button
                         type="button"
                         onClick={() => openImageViewer(currentBannerProduct)}
-                        className="mt-6 w-fit rounded-lg bg-blue-600 px-5 py-3 font-bold text-white shadow-lg transition hover:bg-blue-700"
+                        className="mt-8 w-fit bg-white px-7 py-4 text-base font-black uppercase text-[#071226] shadow-[7px_7px_0_rgba(0,0,0,0.75)] transition hover:bg-blue-100"
                       >
                         Ver detalhes
                       </button>
                     </div>
-                    <div className="relative min-h-[260px] bg-blue-50">
+                    <div className="relative z-10 flex min-h-[300px] items-center justify-center p-7 md:min-h-full md:p-10">
                       <img
                         src={currentBannerImage}
                         alt={currentBannerProduct.name}
-                        className="h-full w-full object-cover"
+                        className="max-h-[72%] w-[76%] max-w-xl rotate-[-2deg] object-contain shadow-[0_24px_70px_rgba(0,0,0,0.45)]"
                         loading="eager"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-[#071226]/35" />
                     </div>
+                    {latestProducts.length > 1 && (
+                      <div className="absolute bottom-5 left-7 z-20 flex gap-2 md:left-12 lg:left-14">
+                        {latestProducts.map((product, index) => (
+                          <button
+                            type="button"
+                            key={`banner-dot-${product.id}`}
+                            aria-label={`Ver novidade ${index + 1}`}
+                            onClick={() => setCurrentBannerIndex(index)}
+                            className={`h-1.5 transition-all ${
+                              index === currentBannerIndex
+                                ? "w-14 bg-blue-300"
+                                : "w-11 bg-white/30"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    )}
                   </section>
                 )}
-                <h2 className="mb-6 text-2xl font-black uppercase tracking-wide text-white md:text-3xl">
+                <h2 className="mb-6 text-4xl font-black uppercase tracking-wide text-white md:text-5xl">
                   Produtos em destaque
                 </h2>
                 <div className="flex flex-wrap justify-center gap-4 md:gap-6">
@@ -1029,17 +1048,21 @@ const MenuPage: React.FC = () => {
         {cartItems.length > 0 && !isMobileCartOpen && (
           <div className="fixed bottom-6 right-6 z-50 flex">
             <div
-              className="flex h-24 w-24 cursor-pointer flex-col items-center justify-center rounded-full border-4 border-red-500 bg-blue-600 text-white shadow-[0_0_28px_rgba(220,38,38,0.45)] transition hover:scale-105"
+              className="relative flex h-24 w-24 cursor-pointer flex-col items-center justify-center rounded-full border border-white/25 bg-blue-600 text-white shadow-[0_0_36px_rgba(37,99,235,0.55)] transition hover:scale-105"
               onClick={() => setIsMobileCartOpen(true)}
             >
-              <span className="font-bold uppercase tracking-wider flex items-center gap-3 min-[900px]:text-2xl">
+              <span className="absolute -right-1 -top-1 flex h-8 w-8 items-center justify-center rounded-full bg-white text-sm font-black text-blue-700">
+                {cartItems.reduce((acc, i) => acc + i.quantity, 0)}
+              </span>
+              <span className="text-4xl">🛒</span>
+              <span className="hidden">
                 <span className="min-[900px]:text-2xl">🛒</span> Minha Cesta
                 <p>{cartItems.reduce((acc, i) => acc + i.quantity, 0)}</p>
                 <span className="text-sm bg-[var(--color-secondary)] text-white px-2 py-1 rounded-full m-2 animate-pulse">
                   ▲ Ver
                 </span>
               </span>
-              <span className=" font-bold text-[var(--color-accent)] min-[900px]:text-2xl">
+              <span className="mt-1 text-[10px] font-black text-yellow-300">
                 R$ {cartTotal.toFixed(2)}
               </span>
             </div>
