@@ -182,7 +182,14 @@ const RouterBody: React.FC = () => {
 
           {/* Rotas de login especiais */}
           <Route path="/cozinha/login" element={<OrderHistoryPage />} />
-          <Route path="/admin/login" element={<AdminLoginPage />} />
+          <Route
+            path="/admin/login"
+            element={
+              <div className="admin-modern-theme">
+                <AdminLoginPage />
+              </div>
+            }
+          />
 
           {/* Rota protegida para histórico de pedidos */}
           <Route
@@ -228,7 +235,9 @@ const RouterBody: React.FC = () => {
                 allowedRoles={["admin"]}
                 redirectTo="/admin/login"
               >
-                <AdminPage />
+                <div className="admin-modern-theme">
+                  <AdminPage />
+                </div>
               </RoleProtectedRoute>
             }
           />
@@ -241,7 +250,9 @@ const RouterBody: React.FC = () => {
                 allowedRoles={["admin"]}
                 redirectTo="/admin/login"
               >
-                <AdminCategoriesPage />
+                <div className="admin-modern-theme">
+                  <AdminCategoriesPage />
+                </div>
               </RoleProtectedRoute>
             }
           />
@@ -254,7 +265,9 @@ const RouterBody: React.FC = () => {
                 allowedRoles={["admin"]}
                 redirectTo="/admin/login"
               >
-                <AdminReportsPage />
+                <div className="admin-modern-theme">
+                  <AdminReportsPage />
+                </div>
               </RoleProtectedRoute>
             }
           />
@@ -267,7 +280,9 @@ const RouterBody: React.FC = () => {
                 allowedRoles={["admin"]}
                 redirectTo="/admin/login"
               >
-                <AdminProjectQuotesPage />
+                <div className="admin-modern-theme">
+                  <AdminProjectQuotesPage />
+                </div>
               </RoleProtectedRoute>
             }
           />
@@ -279,7 +294,9 @@ const RouterBody: React.FC = () => {
                 allowedRoles={["admin"]}
                 redirectTo="/admin/login"
               >
-                <AdminManagementReportPage />
+                <div className="admin-modern-theme">
+                  <AdminManagementReportPage />
+                </div>
               </RoleProtectedRoute>
             }
           />

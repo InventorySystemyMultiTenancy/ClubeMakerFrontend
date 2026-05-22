@@ -748,14 +748,20 @@ body {
 .admin-modern-theme .text-gray-700,
 .admin-modern-theme .text-gray-800,
 .admin-modern-theme .text-gray-900,
+.admin-modern-theme .text-zinc-500,
+.admin-modern-theme .text-zinc-600,
+.admin-modern-theme .text-zinc-700,
+.admin-modern-theme .text-zinc-800,
 .admin-modern-theme .text-stone-500,
 .admin-modern-theme .text-stone-600,
 .admin-modern-theme .text-stone-700,
 .admin-modern-theme .text-stone-800,
+.admin-modern-theme .text-stone-900,
 .admin-modern-theme .text-slate-500,
 .admin-modern-theme .text-slate-600,
 .admin-modern-theme .text-slate-700,
 .admin-modern-theme .text-slate-800,
+.admin-modern-theme .text-slate-900,
 .checkout-modern-theme .text-gray-600,
 .checkout-modern-theme .text-gray-700,
 .checkout-modern-theme .text-gray-800,
@@ -767,7 +773,8 @@ body {
 .checkout-modern-theme .text-slate-500,
 .checkout-modern-theme .text-slate-600,
 .checkout-modern-theme .text-slate-700,
-.checkout-modern-theme .text-slate-800 {
+.checkout-modern-theme .text-slate-800,
+.checkout-modern-theme .text-slate-900 {
   color: #dbeafe !important;
 }
 
@@ -785,9 +792,21 @@ body {
 .admin-modern-theme .text-purple-600,
 .admin-modern-theme .text-purple-700,
 .admin-modern-theme .text-purple-800,
+.admin-modern-theme .text-violet-600,
+.admin-modern-theme .text-violet-700,
+.admin-modern-theme .text-violet-800,
+.admin-modern-theme .text-indigo-600,
+.admin-modern-theme .text-indigo-700,
+.admin-modern-theme .text-indigo-800,
 .checkout-modern-theme .text-purple-600,
 .checkout-modern-theme .text-purple-700,
-.checkout-modern-theme .text-purple-800 {
+.checkout-modern-theme .text-purple-800,
+.checkout-modern-theme .text-violet-600,
+.checkout-modern-theme .text-violet-700,
+.checkout-modern-theme .text-violet-800,
+.checkout-modern-theme .text-indigo-600,
+.checkout-modern-theme .text-indigo-700,
+.checkout-modern-theme .text-indigo-800 {
   color: #bfdbfe !important;
 }
 
@@ -804,15 +823,25 @@ body {
 
 .admin-modern-theme .text-red-600,
 .admin-modern-theme .text-red-700,
+.admin-modern-theme .text-rose-500,
+.admin-modern-theme .text-rose-600,
+.admin-modern-theme .text-rose-700,
 .checkout-modern-theme .text-red-600,
-.checkout-modern-theme .text-red-700 {
+.checkout-modern-theme .text-red-700,
+.checkout-modern-theme .text-rose-500,
+.checkout-modern-theme .text-rose-600,
+.checkout-modern-theme .text-rose-700 {
   color: #fca5a5 !important;
 }
 
 .admin-modern-theme .text-amber-600,
 .admin-modern-theme .text-orange-600,
+.admin-modern-theme .text-yellow-600,
+.admin-modern-theme .text-yellow-700,
 .checkout-modern-theme .text-amber-600,
-.checkout-modern-theme .text-orange-600 {
+.checkout-modern-theme .text-orange-600,
+.checkout-modern-theme .text-yellow-600,
+.checkout-modern-theme .text-yellow-700 {
   color: #fde68a !important;
 }
 
@@ -820,32 +849,98 @@ body {
 .admin-modern-theme .bg-stone-100,
 .admin-modern-theme .bg-gray-50,
 .admin-modern-theme .bg-gray-100,
+.admin-modern-theme .bg-slate-50,
+.admin-modern-theme .bg-slate-100,
+.admin-modern-theme .bg-zinc-50,
+.admin-modern-theme .bg-zinc-100,
 .admin-modern-theme .bg-blue-50,
 .admin-modern-theme .bg-purple-50,
+.admin-modern-theme .bg-violet-50,
+.admin-modern-theme .bg-indigo-50,
 .admin-modern-theme .bg-green-50,
 .admin-modern-theme .bg-emerald-50,
+.admin-modern-theme .bg-cyan-50,
+.admin-modern-theme .bg-yellow-50,
+.admin-modern-theme .bg-amber-50,
+.admin-modern-theme .bg-orange-50,
+.admin-modern-theme .bg-red-50,
+.admin-modern-theme .bg-rose-50,
 .checkout-modern-theme .bg-stone-50,
 .checkout-modern-theme .bg-stone-100,
 .checkout-modern-theme .bg-gray-50,
 .checkout-modern-theme .bg-gray-100,
+.checkout-modern-theme .bg-slate-50,
+.checkout-modern-theme .bg-slate-100,
 .checkout-modern-theme .bg-blue-50,
 .checkout-modern-theme .bg-purple-50,
 .checkout-modern-theme .bg-green-50,
-.checkout-modern-theme .bg-emerald-50 {
+.checkout-modern-theme .bg-emerald-50,
+.checkout-modern-theme .bg-yellow-50,
+.checkout-modern-theme .bg-amber-50,
+.checkout-modern-theme .bg-red-50,
+.checkout-modern-theme .bg-rose-50 {
   background: rgba(15, 36, 75, 0.78) !important;
   color: #eaf2ff !important;
 }
 
 .admin-modern-theme .bg-blue-100,
 .admin-modern-theme .bg-purple-100,
+.admin-modern-theme .bg-violet-100,
+.admin-modern-theme .bg-indigo-100,
 .admin-modern-theme .bg-green-100,
 .admin-modern-theme .bg-emerald-100,
+.admin-modern-theme .bg-cyan-100,
+.admin-modern-theme .bg-yellow-100,
+.admin-modern-theme .bg-amber-100,
+.admin-modern-theme .bg-red-100,
+.admin-modern-theme .bg-rose-100,
 .checkout-modern-theme .bg-blue-100,
 .checkout-modern-theme .bg-purple-100,
 .checkout-modern-theme .bg-green-100,
-.checkout-modern-theme .bg-emerald-100 {
+.checkout-modern-theme .bg-emerald-100,
+.checkout-modern-theme .bg-yellow-100,
+.checkout-modern-theme .bg-amber-100,
+.checkout-modern-theme .bg-red-100,
+.checkout-modern-theme .bg-rose-100 {
   background: rgba(37, 99, 235, 0.2) !important;
   color: #eaf2ff !important;
+}
+
+.admin-modern-theme .border-stone-100,
+.admin-modern-theme .border-stone-200,
+.admin-modern-theme .border-stone-300,
+.admin-modern-theme .border-slate-100,
+.admin-modern-theme .border-slate-200,
+.admin-modern-theme .border-slate-300,
+.admin-modern-theme .border-gray-100,
+.admin-modern-theme .border-gray-200,
+.admin-modern-theme .border-gray-300,
+.checkout-modern-theme .border-stone-100,
+.checkout-modern-theme .border-stone-200,
+.checkout-modern-theme .border-stone-300,
+.checkout-modern-theme .border-slate-100,
+.checkout-modern-theme .border-slate-200,
+.checkout-modern-theme .border-slate-300,
+.checkout-modern-theme .border-gray-100,
+.checkout-modern-theme .border-gray-200,
+.checkout-modern-theme .border-gray-300 {
+  border-color: rgba(96, 165, 250, 0.28) !important;
+}
+
+.admin-modern-theme .divide-stone-200 > :not([hidden]) ~ :not([hidden]),
+.admin-modern-theme .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+.admin-modern-theme .divide-slate-200 > :not([hidden]) ~ :not([hidden]),
+.checkout-modern-theme .divide-stone-200 > :not([hidden]) ~ :not([hidden]),
+.checkout-modern-theme .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+.checkout-modern-theme .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgba(96, 165, 250, 0.22) !important;
+}
+
+.admin-modern-theme [class*="disabled:bg-stone-"],
+.admin-modern-theme [class*="disabled:text-stone-"],
+.checkout-modern-theme [class*="disabled:bg-stone-"],
+.checkout-modern-theme [class*="disabled:text-stone-"] {
+  opacity: 0.68;
 }
 
 .admin-modern-theme option,
@@ -868,6 +963,29 @@ body {
 .admin-modern-theme table tbody tr:hover,
 .checkout-modern-theme table tbody tr:hover {
   background: rgba(37, 99, 235, 0.18) !important;
+}
+
+.admin-modern-theme .recharts-cartesian-axis-tick-value,
+.admin-modern-theme .recharts-legend-item-text,
+.admin-modern-theme .recharts-text,
+.checkout-modern-theme .recharts-cartesian-axis-tick-value,
+.checkout-modern-theme .recharts-legend-item-text,
+.checkout-modern-theme .recharts-text {
+  fill: #dbeafe !important;
+  color: #dbeafe !important;
+}
+
+.admin-modern-theme .recharts-cartesian-grid line,
+.checkout-modern-theme .recharts-cartesian-grid line {
+  stroke: rgba(147, 197, 253, 0.22) !important;
+}
+
+.admin-modern-theme .recharts-default-tooltip,
+.checkout-modern-theme .recharts-default-tooltip {
+  background: rgba(3, 14, 35, 0.96) !important;
+  border: 1px solid rgba(96, 165, 250, 0.35) !important;
+  color: #eaf2ff !important;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.36) !important;
 }
 
 .admin-modern-theme a,
