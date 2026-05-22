@@ -823,7 +823,7 @@ const MenuPage: React.FC = () => {
                     <div className="latest-banner-copy">
                       <span>Novidades!</span>
                       <h2>Últimos lançamentos!</h2>
-                      <p>Produto 3D</p>
+                      <p>Pelúcia Premium</p>
                       <strong>{currentBannerProduct.name}</strong>
                       <button
                         type="button"
