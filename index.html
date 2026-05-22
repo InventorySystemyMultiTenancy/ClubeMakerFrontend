@@ -2,11 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/assets/clubsmaker-logo.png" />
+    <link rel="icon" type="image/png" href="/assets/clubemaker-logo.png" />
     <link
       rel="alternate icon"
       type="image/png"
-      href="/assets/clubsmaker-logo.png"
+      href="/assets/clubemaker-logo.png"
     />
 
     <meta
@@ -24,10 +24,10 @@
 
     <link rel="manifest" href="/manifest.json" />
 
-    <title>ClubsMaker - Sistema de Clubes</title>
+    <title>ClubeMaker - Sistema de Clubes</title>
     <meta
       name="description"
-      content="ClubsMaker - sistema para gestao de catalogo, pedidos, pagamentos e clubes."
+      content="ClubeMaker - sistema para gestao de catalogo, pedidos, pagamentos e clubes."
     />
     <script src="https://cdn.tailwindcss.com"></script>
     <link
@@ -36,18 +36,18 @@
     />
 
     <style>
-      /* Cores ClubsMaker */
+      /* Cores ClubeMaker com base visual PrimePlush */
       :root {
-        --color-primary: #0057c8; /* azul da logo */
-        --color-secondary: #e51b23; /* vermelho da logo */
-        --color-accent: #ffd900; /* amarelo da logo */
+        --color-primary: #2563eb;
+        --color-secondary: #60a5fa;
+        --color-accent: #0477bf;
         --color-success: #16b12b; /* verde da logo */
-        --color-primary-hover: #0047a6;
-        --color-primary-active: #00377f;
-        --color-primary-light: #e8f2ff;
-        --color-primary-lighter: #f5faff;
-        --color-page-bg: #f5faff;
-        --color-dark: #071a3d;
+        --color-primary-hover: #022859;
+        --color-primary-active: #0477bf;
+        --color-primary-light: #f2f2f2;
+        --color-primary-lighter: #f2f2f2;
+        --color-page-bg: #f2f2f2;
+        --color-dark: #02132f;
       }
 
       body {
@@ -57,6 +57,21 @@
         /* Desabilita seleção de texto para parecer app */
         user-select: none;
         -webkit-user-select: none;
+      }
+
+      html,
+      body,
+      * {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+
+      html::-webkit-scrollbar,
+      body::-webkit-scrollbar,
+      *::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+        display: none;
       }
 
       /* Animações existentes */
@@ -75,29 +90,30 @@
       }
 
       .neon-scrollbar {
-        scrollbar-width: thin;
-        scrollbar-color: #22d3ee #050914;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
       }
 
       .neon-scrollbar::-webkit-scrollbar {
-        width: 10px;
-        height: 10px;
+        width: 0;
+        height: 0;
+        display: none;
       }
 
       .neon-scrollbar::-webkit-scrollbar-track {
-        background: #050914;
-        border-left: 1px solid rgba(34, 211, 238, 0.16);
+        background: #02132f;
+        border-left: 1px solid rgba(96, 165, 250, 0.16);
       }
 
       .neon-scrollbar::-webkit-scrollbar-thumb {
-        background: linear-gradient(180deg, #67e8f9, #0ea5e9);
-        border: 2px solid #050914;
+        background: linear-gradient(180deg, #60a5fa, #2563eb);
+        border: 2px solid #02132f;
         border-radius: 999px;
-        box-shadow: 0 0 12px rgba(34, 211, 238, 0.55);
+        box-shadow: 0 0 12px rgba(96, 165, 250, 0.45);
       }
 
       .neon-scrollbar::-webkit-scrollbar-thumb:hover {
-        background: linear-gradient(180deg, #a3e635, #22d3ee);
+        background: linear-gradient(180deg, #93c5fd, #0477bf);
       }
 
       @keyframes energy-pan {
@@ -125,11 +141,11 @@
         0%,
         100% {
           opacity: 0.48;
-          box-shadow: 0 0 14px rgba(34, 211, 238, 0.35);
+          box-shadow: 0 0 14px rgba(96, 165, 250, 0.32);
         }
         50% {
           opacity: 1;
-          box-shadow: 0 0 28px rgba(163, 230, 53, 0.52);
+          box-shadow: 0 0 28px rgba(37, 99, 235, 0.34);
         }
       }
 
@@ -138,9 +154,9 @@
         isolation: isolate;
         overflow: hidden;
         background:
-          radial-gradient(circle at 18% 50%, rgba(34, 211, 238, 0.24), transparent 24%),
-          radial-gradient(circle at 84% 40%, rgba(229, 27, 35, 0.28), transparent 22%),
-          linear-gradient(110deg, #030712 0%, #00377f 45%, #0057c8 68%, #e51b23 100%);
+          radial-gradient(circle at 18% 50%, rgba(96, 165, 250, 0.22), transparent 24%),
+          radial-gradient(circle at 84% 40%, rgba(4, 119, 191, 0.26), transparent 22%),
+          linear-gradient(110deg, #ffffff 0%, #1e40af 44%, #1e3a8a 100%);
         background-size: 160% 160%;
         animation: energy-pan 9s ease-in-out infinite;
       }
@@ -159,7 +175,7 @@
       }
 
       .energy-logo {
-        filter: drop-shadow(0 0 12px rgba(34, 211, 238, 0.46));
+        filter: drop-shadow(0 0 12px rgba(96, 165, 250, 0.36));
       }
 
       .energy-link {
@@ -174,7 +190,7 @@
         bottom: -7px;
         height: 2px;
         border-radius: 999px;
-        background: linear-gradient(90deg, #22d3ee, #a3e635, #ffd900);
+        background: linear-gradient(90deg, #93c5fd, #60a5fa, #2563eb);
         opacity: 0;
         transform: scaleX(0.5);
         transition: opacity 180ms ease, transform 180ms ease;
@@ -188,10 +204,10 @@
       .energy-strip {
         height: 5px;
         width: 100%;
-        background: linear-gradient(90deg, #e51b23, #ffd900, #16b12b, #22d3ee, #0057c8, #e51b23);
+        background: linear-gradient(90deg, #2563eb, #60a5fa, #0477bf, #2563eb);
         background-size: 220% 100%;
         animation: energy-pan 4.5s linear infinite;
-        box-shadow: 0 0 18px rgba(34, 211, 238, 0.42);
+        box-shadow: 0 0 18px rgba(96, 165, 250, 0.34);
       }
 
       .energy-card {
@@ -205,8 +221,8 @@
         inset: 0;
         pointer-events: none;
         background:
-          linear-gradient(120deg, transparent 0%, rgba(34, 211, 238, 0.18) 42%, transparent 58%),
-          radial-gradient(circle at 50% 0%, rgba(163, 230, 53, 0.12), transparent 42%);
+          linear-gradient(120deg, transparent 0%, rgba(96, 165, 250, 0.18) 42%, transparent 58%),
+          radial-gradient(circle at 50% 0%, rgba(147, 197, 253, 0.14), transparent 42%);
         opacity: 0;
         transform: translateX(-45%);
         transition: opacity 220ms ease, transform 520ms ease;
@@ -241,6 +257,329 @@
 
       .energy-active {
         animation: energy-pulse 2.2s ease-in-out infinite;
+      }
+
+      .club-hero {
+        isolation: isolate;
+        background:
+          radial-gradient(circle at 12% 18%, rgba(96, 165, 250, 0.38), transparent 26rem),
+          radial-gradient(circle at 86% 16%, rgba(4, 119, 191, 0.34), transparent 28rem),
+          radial-gradient(circle at 50% 92%, rgba(37, 99, 235, 0.28), transparent 32rem),
+          linear-gradient(135deg, #030712 0%, #02132f 45%, #0477bf 100%);
+        background-size: 180% 180%;
+        animation: energy-pan 13s ease-in-out infinite;
+      }
+
+      .club-hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background:
+          linear-gradient(115deg, transparent 0%, rgba(255, 255, 255, 0.16) 44%, transparent 56%),
+          repeating-linear-gradient(90deg, rgba(96, 165, 250, 0.08) 0 1px, transparent 1px 72px);
+        transform: translateX(-100%) skewX(-18deg);
+        animation: energy-sweep 6.6s ease-in-out infinite;
+      }
+
+      .club-grid {
+        position: absolute;
+        inset: -12%;
+        z-index: 0;
+        background-image:
+          linear-gradient(rgba(96, 165, 250, 0.08) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(96, 165, 250, 0.08) 1px, transparent 1px);
+        background-size: 58px 58px;
+        opacity: 0.42;
+        transform: perspective(900px) rotateX(62deg) translateY(18%);
+        animation: club-grid-drift 16s linear infinite;
+      }
+
+      .club-scanline {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background: linear-gradient(180deg, transparent, rgba(96, 165, 250, 0.08), transparent);
+        background-size: 100% 18px;
+        mix-blend-mode: screen;
+        opacity: 0.45;
+      }
+
+      .club-marquee {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 20;
+        overflow: hidden;
+        border-bottom: 1px solid rgba(147, 197, 253, 0.24);
+        background: rgba(2, 19, 47, 0.78);
+        box-shadow: 0 0 30px rgba(37, 99, 235, 0.3);
+        backdrop-filter: blur(16px);
+      }
+
+      .club-marquee-track {
+        display: flex;
+        width: max-content;
+        min-width: 200%;
+        gap: 2.2rem;
+        padding: 0.75rem 0;
+        color: #eff6ff;
+        font-weight: 900;
+        text-transform: uppercase;
+        white-space: nowrap;
+        letter-spacing: 0.08em;
+        text-shadow: 0 0 12px rgba(96, 165, 250, 0.9);
+        animation: club-marquee 22s linear infinite;
+      }
+
+      .club-marquee-track span {
+        display: inline-flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .club-marquee-track span::after {
+        content: "✦";
+        color: #60a5fa;
+      }
+
+      .club-logo-stage {
+        position: relative;
+        display: grid;
+        place-items: center;
+        width: min(76vw, 430px);
+        aspect-ratio: 1;
+      }
+
+      .club-logo-stage::before,
+      .club-logo-stage::after {
+        content: "";
+        position: absolute;
+        border-radius: 999px;
+        pointer-events: none;
+      }
+
+      .club-logo-stage::before {
+        inset: 9%;
+        border: 1px solid rgba(147, 197, 253, 0.32);
+        box-shadow:
+          0 0 34px rgba(96, 165, 250, 0.34),
+          inset 0 0 42px rgba(96, 165, 250, 0.12);
+        animation: energy-pulse 2.4s ease-in-out infinite;
+      }
+
+      .club-logo-stage::after {
+        inset: 23%;
+        background: radial-gradient(circle, rgba(96, 165, 250, 0.25), transparent 68%);
+        filter: blur(8px);
+      }
+
+      .club-hero-logo {
+        position: relative;
+        z-index: 3;
+        width: min(62vw, 300px);
+        height: auto;
+        object-fit: contain;
+        filter:
+          drop-shadow(0 0 18px rgba(96, 165, 250, 0.62))
+          drop-shadow(0 0 34px rgba(37, 99, 235, 0.34));
+        animation: club-logo-float 5s ease-in-out infinite;
+      }
+
+      .club-orbit {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        border-radius: 999px;
+        animation: club-orbit-spin 18s linear infinite;
+      }
+
+      .club-orbit-two {
+        inset: 13%;
+        animation-duration: 12s;
+        animation-direction: reverse;
+      }
+
+      .club-orbit span {
+        --angle: 0deg;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        display: grid;
+        width: 3.1rem;
+        height: 3.1rem;
+        place-items: center;
+        border: 1px solid rgba(147, 197, 253, 0.36);
+        border-radius: 999px;
+        background: rgba(2, 19, 47, 0.76);
+        box-shadow: 0 0 20px rgba(37, 99, 235, 0.34);
+        font-size: 1.7rem;
+        transform: rotate(var(--angle)) translateX(min(35vw, 205px)) rotate(calc(-1 * var(--angle)));
+      }
+
+      .club-orbit-two span {
+        width: 2.45rem;
+        height: 2.45rem;
+        font-size: 1.35rem;
+        transform: rotate(var(--angle)) translateX(min(24vw, 126px)) rotate(calc(-1 * var(--angle)));
+      }
+
+      .club-neon-kicker {
+        display: inline-flex;
+        border: 1px solid rgba(147, 197, 253, 0.34);
+        border-radius: 999px;
+        background: rgba(2, 19, 47, 0.72);
+        padding: 0.65rem 1.1rem;
+        color: #bfdbfe;
+        font-size: 0.8rem;
+        font-weight: 900;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        text-shadow: 0 0 12px rgba(96, 165, 250, 0.72);
+        box-shadow: 0 0 28px rgba(37, 99, 235, 0.22);
+      }
+
+      .club-floating-plush {
+        position: absolute;
+        z-index: 1;
+        display: grid;
+        place-items: center;
+        width: 4rem;
+        height: 4rem;
+        border: 1px solid rgba(147, 197, 253, 0.22);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 0 24px rgba(37, 99, 235, 0.22);
+        font-size: 2rem;
+        opacity: 0.78;
+        animation: club-plush-float 7s ease-in-out infinite;
+      }
+
+      .plush-1 { left: 8%; top: 18%; animation-delay: -1s; }
+      .plush-2 { right: 9%; top: 22%; animation-delay: -2.8s; }
+      .plush-3 { left: 14%; bottom: 13%; animation-delay: -4.3s; }
+      .plush-4 { right: 18%; bottom: 15%; animation-delay: -2s; }
+      .plush-5 { left: 44%; top: 12%; animation-delay: -5.2s; }
+      .plush-6 { right: 36%; bottom: 8%; animation-delay: -3.5s; }
+      .plush-7 { left: 2%; top: 54%; animation-delay: -6s; }
+      .plush-8 { right: 3%; top: 58%; animation-delay: -4.8s; }
+
+      .club-plush-river {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.42;
+      }
+
+      .club-plush-river span {
+        position: absolute;
+        top: calc((var(--i, 0) * 7%) + 4%);
+        font-size: clamp(2rem, 5vw, 5rem);
+        filter: drop-shadow(0 0 16px rgba(96, 165, 250, 0.35));
+        animation: club-river 18s linear infinite;
+      }
+
+      .club-plush-river span:nth-child(n) {
+        --i: 1;
+      }
+      .club-plush-river span:nth-child(2n) {
+        --i: 4;
+        animation-delay: -6s;
+      }
+      .club-plush-river span:nth-child(3n) {
+        --i: 8;
+        animation-delay: -11s;
+      }
+      .club-plush-river span:nth-child(4n) {
+        --i: 11;
+        animation-delay: -15s;
+      }
+
+      .club-scroll-reveal {
+        opacity: 0;
+        transform: translateY(36px) scale(0.98);
+        animation: club-reveal both;
+        animation-timeline: view();
+        animation-range: entry 8% cover 32%;
+      }
+
+      @supports not (animation-timeline: view()) {
+        .club-scroll-reveal {
+          opacity: 1;
+          transform: none;
+          animation: none;
+        }
+      }
+
+      @keyframes club-marquee {
+        from { transform: translateX(0); }
+        to { transform: translateX(-50%); }
+      }
+
+      @keyframes club-grid-drift {
+        from { background-position: 0 0; }
+        to { background-position: 58px 58px; }
+      }
+
+      @keyframes club-orbit-spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+
+      @keyframes club-logo-float {
+        0%, 100% { transform: translateY(0) scale(1); }
+        50% { transform: translateY(-12px) scale(1.025); }
+      }
+
+      @keyframes club-plush-float {
+        0%, 100% { transform: translate3d(0, 0, 0) rotate(-4deg); }
+        50% { transform: translate3d(0, -22px, 0) rotate(7deg); }
+      }
+
+      @keyframes club-river {
+        from { transform: translateX(-12vw) rotate(-12deg); }
+        to { transform: translateX(112vw) rotate(24deg); }
+      }
+
+      @keyframes club-reveal {
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      @media (max-width: 700px) {
+        .club-marquee-track {
+          font-size: 0.78rem;
+          animation-duration: 16s;
+        }
+
+        .club-logo-stage {
+          width: min(88vw, 360px);
+        }
+
+        .club-orbit span {
+          width: 2.55rem;
+          height: 2.55rem;
+          font-size: 1.35rem;
+          transform: rotate(var(--angle)) translateX(min(39vw, 165px)) rotate(calc(-1 * var(--angle)));
+        }
+
+        .club-orbit-two span {
+          width: 2rem;
+          height: 2rem;
+          font-size: 1.12rem;
+          transform: rotate(var(--angle)) translateX(min(26vw, 96px)) rotate(calc(-1 * var(--angle)));
+        }
+
+        .club-floating-plush {
+          width: 3rem;
+          height: 3rem;
+          font-size: 1.55rem;
+        }
       }
     </style>
   </head>

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useStore } from "../contexts/StoreContext"; // 🏪 MULTI-TENANT
-import logo from "../assets/clubsmaker-logo.png";
+import logo from "../assets/clubemaker-logo.png";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -68,7 +68,7 @@ const Header: React.FC = () => {
 
   return (
     <>
-      <header className="energy-header border-b border-[var(--color-accent)] sticky top-0 z-50 h-16 shadow-sm">
+      <header className="energy-header border-b border-stone-200 sticky top-0 z-50 h-16 shadow-sm">
         <div className="container mx-auto px-4 h-full flex items-center justify-between">
           {/* Logo e Chatbot lado a lado no mobile */}
           <div className="flex items-center gap-2 relative">
@@ -78,13 +78,13 @@ const Header: React.FC = () => {
             >
               <img
                 src={logo}
-                alt="ClubsMaker logo"
-                className="energy-logo w-12 h-12 rounded-lg group-hover:scale-110 transition-transform object-cover"
+                alt="ClubeMaker logo"
+                className="energy-logo w-12 h-12 rounded-lg group-hover:scale-105 transition-transform object-cover"
               />
               <span
-                className="text-xl font-bold tracking-tight text-white drop-shadow-[0_0_10px_rgba(34,211,238,0.75)]"
+                className="text-xl font-bold tracking-tight text-stone-800 drop-shadow-sm"
               >
-                ClubsMaker
+                ClubeMaker
               </span>
             </NavLink>
           </div>
@@ -95,7 +95,7 @@ const Header: React.FC = () => {
               (!currentUser.role || currentUser.role === "customer") && (
                 <NavLink
                   to="/menu"
-                  className="energy-link text-white transition-colors font-medium hover:text-[var(--color-accent)]"
+                className="energy-link text-white transition-colors font-medium hover:text-blue-200"
                 >
                   Catálogo
                 </NavLink>
@@ -107,7 +107,7 @@ const Header: React.FC = () => {
                 currentUser.role === "admincustomer") && (
                 <NavLink
                   to="/meus-orcamentos"
-                  className="energy-link text-white transition-colors font-medium hover:text-[var(--color-accent)]"
+                  className="energy-link text-white transition-colors font-medium hover:text-blue-200"
                 >
                   Orcamentos
                 </NavLink>
@@ -119,7 +119,7 @@ const Header: React.FC = () => {
                 style={({ isActive }) =>
                   isActive ? activeLinkStyle : undefined
                 }
-                className="energy-link text-white hover:text-[var(--color-accent)] transition-colors font-medium"
+                className="energy-link text-white hover:text-blue-200 transition-colors font-medium"
               >
                 Pedidos Cozinha
               </NavLink>
@@ -128,7 +128,7 @@ const Header: React.FC = () => {
             {currentUser?.role === "admincustomer" && (
               <NavLink
                 to="/admin/login"
-                className="energy-link text-white hover:text-[var(--color-accent)] transition-colors font-medium"
+                className="energy-link text-white hover:text-blue-200 transition-colors font-medium"
               >
                 Ir para Admin
               </NavLink>
@@ -138,25 +138,25 @@ const Header: React.FC = () => {
               <>
                 <NavLink
                   to="/admin"
-                  className="energy-link text-white hover:text-[var(--color-accent)] transition-colors font-medium"
+                  className="energy-link text-white hover:text-blue-200 transition-colors font-medium"
                 >
                   Produtos
                 </NavLink>
                 <NavLink
                   to="/admin/orcamentos"
-                  className="energy-link text-white hover:text-[var(--color-accent)] transition-colors font-medium"
+                  className="energy-link text-white hover:text-blue-200 transition-colors font-medium"
                 >
                   Orcamentos
                 </NavLink>
                 <NavLink
                   to="/admin/management-report"
-                  className="energy-link text-[var(--color-accent)] hover:text-white transition-colors font-medium"
+                  className="energy-link text-blue-200 hover:text-white transition-colors font-medium"
                 >
                   Relatorio Gestao
                 </NavLink>
                 <NavLink
                   to="/admin/reports"
-                  className="energy-link text-[var(--color-accent)] hover:text-white transition-colors font-medium"
+                  className="energy-link text-blue-200 hover:text-white transition-colors font-medium"
                 >
                   Relatórios IA
                 </NavLink>
@@ -168,9 +168,10 @@ const Header: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsMenuOpen((prev) => !prev)}
-              className="hidden max-[1100px]:inline-flex items-center justify-center h-10 w-10 rounded-lg bg-[var(--color-secondary)] text-white hover:bg-red-700 transition-colors"
+              className="hidden max-[1100px]:inline-flex items-center justify-center h-10 w-10 rounded-lg bg-blue-700 text-white hover:bg-blue-800 transition-colors disabled:hidden"
               aria-label="Abrir menu"
               title="Menu"
+              disabled={!currentUser}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -188,6 +189,32 @@ const Header: React.FC = () => {
               </svg>
             </button>
 
+            {!currentUser && (
+              <button
+                onClick={() => navigate("/login")}
+                className="login-shortcut energy-cta inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-md transition-colors hover:bg-blue-700"
+                aria-label="Fazer login"
+                title="Fazer login"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="login-shortcut-icon h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M3 8l9 6 9-6M5 6h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2z"
+                  />
+                </svg>
+                <span className="login-shortcut-label">Fazer login</span>
+              </button>
+            )}
+
             {/* Área do Usuário (Direita) */}
             <div className="flex items-center gap-4 max-[1100px]:hidden">
               {currentUser ? (
@@ -197,14 +224,14 @@ const Header: React.FC = () => {
                       <p className="text-xs text-white font-medium">Olá,</p>
                       <p
                         className="text-sm font-bold max-w-[100px] truncate"
-                        style={{ color: "var(--color-accent)" }}
+                        style={{ color: "#60a5fa" }}
                       >
                         {currentUser.name}
                       </p>
                     </div>
                     <button
                       onClick={() => navigate("/register?edit=1")}
-                      className="edit-btn energy-cta bg-[var(--color-primary)] text-white font-bold py-1 px-3 rounded-lg ml-2 hover:bg-[var(--color-primary-hover)] transition-colors shadow-md text-xs"
+                      className="edit-btn energy-cta bg-blue-600 text-white font-bold py-1 px-3 rounded-lg ml-2 hover:bg-blue-700 transition-colors shadow-md text-xs"
                       title="Editar meus dados"
                     >
                       <span className="edit-btn-label">Editar meus dados</span>
@@ -231,9 +258,9 @@ const Header: React.FC = () => {
                     </button>
                     <NavLink
                       to="/meus-pedidos"
-                      className={`energy-cta bg-[var(--color-accent)] text-[var(--color-dark)] font-bold py-1 px-3 rounded-lg ml-2 hover:bg-yellow-300 transition-colors shadow-md text-xs flex items-center gap-2 ${
+                      className={`energy-cta bg-blue-100 text-blue-700 font-bold py-1 px-3 rounded-lg ml-2 hover:bg-blue-200 transition-colors shadow-md text-xs flex items-center gap-2 ${
                         hasUndeliveredOrder
-                          ? "animate-pulse ring-2 ring-white ring-offset-2 ring-offset-[var(--color-primary)]"
+                          ? "animate-pulse ring-2 ring-white ring-offset-2 ring-offset-blue-700"
                           : ""
                       }`}
                       title="Meus Pedidos"
@@ -243,7 +270,7 @@ const Header: React.FC = () => {
                     </NavLink>
                     <button
                       onClick={handleLogout}
-                      className="text-white hover:text-[var(--color-primary)] hover:bg-white p-2 rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg"
+                      className="text-white hover:text-blue-600 hover:bg-blue-100 p-2 rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg"
                       title="Sair"
                     >
                       <svg
@@ -266,9 +293,9 @@ const Header: React.FC = () => {
               ) : (
                 <button
                   onClick={() => navigate("/login")}
-                  className="energy-cta rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-bold text-[#071a3d] shadow-md transition-colors hover:bg-yellow-300"
+                  className="energy-cta rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-md transition-colors hover:bg-blue-700"
                 >
-                  Entrar na plataforma
+                  Fazer login
                 </button>
               )}
             </div>

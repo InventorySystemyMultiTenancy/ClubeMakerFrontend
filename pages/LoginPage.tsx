@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../assets/animated-gradient.css";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
 
@@ -28,10 +28,10 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onNameSubmit, isLoading =
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen animated-gradient p-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-10">
+      <div className="login-glass-card w-full max-w-md rounded-2xl shadow-2xl p-10">
         <div className="text-center mb-8">
           <img src="/selfMachine.jpg" alt="Self Machine" className="w-48 h-auto mx-auto mb-6 rounded-xl" />
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">ClubsMaker</h1>
+          <h1 className="text-4xl font-bold text-white mb-2">ClubeMaker</h1>
           <p className="text-stone-600">Bem-vindo à nossa deliciosa experiência!</p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -192,17 +192,14 @@ const CPFLogin: React.FC<CPFLoginProps> = ({ onBack, onLoginSuccess }) => {
   };
 
   return (
-    <div
-      className="relative -m-4 flex min-h-[calc(100vh-4.3125rem)] flex-col items-center justify-center overflow-hidden bg-[#071a3d] bg-cover bg-center p-4 animate-fade-in-down md:-m-8"
-      style={{ backgroundImage: "url('/fundoLogin.png')" }}
-    >
-      <div className="relative w-full max-w-md bg-white/95 rounded-2xl shadow-2xl p-8 ring-1 ring-white/30">
+    <div className="flex flex-col items-center justify-center min-h-screen animated-gradient p-4 animate-fade-in-down">
+      <div className="login-glass-card w-full max-w-md rounded-2xl shadow-2xl p-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            {requiresRegistration ? "Cadastrar Conta" : showPassword ? "Digite sua senha" : "Fazer Login"}
+          <h1 className="text-3xl font-bold text-white mb-2">
+            {requiresRegistration ? "Cadastrar Conta" : showPassword ? "Digite sua senha" : "Fazer login ou verificar conta"}
           </h1>
-          <p className="text-stone-600">
-            {requiresRegistration ? "Complete seu cadastro" : showPassword ? `Olá, ${userFound?.name}!` : "CPF ou CNPJ para começar"}
+          <p className="text-blue-100">
+            {requiresRegistration ? "Complete seu cadastro" : showPassword ? `Ola, ${userFound?.name}!` : "Digite seu CPF para entrar ou verificar se voce ja tem uma conta"}
           </p>
         </div>
 
@@ -210,18 +207,18 @@ const CPFLogin: React.FC<CPFLoginProps> = ({ onBack, onLoginSuccess }) => {
         {!requiresRegistration && !showPassword && (
           <form onSubmit={checkDocument} className="space-y-6">
             <div>
-              <label className="block text-sm font-semibold text-stone-700 mb-2">CPF ou CNPJ</label>
+              <label className="block text-sm font-semibold text-blue-100 mb-2">CPF para login ou consulta de conta</label>
               <input
                 type="text"
                 value={documentInput}
                 onChange={handleDocChange}
-                placeholder="000.000.000-00 ou 00.000.000/0000-00"
-                className="w-full px-4 py-3 border-2 border-stone-200 rounded-lg focus:outline-none focus:border-[var(--color-primary)] transition-colors text-lg"
+                placeholder="Digite seu CPF: 000.000.000-00"
+                className="login-input w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-colors text-lg"
               />
-              {error && <p className="text-[var(--color-secondary)] text-sm mt-2">{error}</p>}
+              {error && <p className="text-blue-200 text-sm mt-2">{error}</p>}
             </div>
-            <button type="submit" disabled={isLoading} className="w-full bg-[var(--color-primary)] text-white font-bold py-3 rounded-lg">
-              {isLoading ? "Verificando..." : "Continuar"}
+            <button type="submit" disabled={isLoading} className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors shadow-lg shadow-blue-950/40">
+              {isLoading ? "Verificando CPF..." : "Verificar CPF e continuar"}
             </button>
           </form>
         )}
@@ -230,19 +227,19 @@ const CPFLogin: React.FC<CPFLoginProps> = ({ onBack, onLoginSuccess }) => {
         {showPassword && (
           <form onSubmit={handleLoginWithPassword} className="space-y-6">
             <div>
-              <label className="block text-sm font-semibold text-stone-700 mb-2">Senha</label>
+              <label className="block text-sm font-semibold text-blue-100 mb-2">Senha</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Sua senha"
-                className="w-full px-4 py-3 border-2 border-stone-200 rounded-lg focus:outline-none focus:border-[var(--color-primary)] transition-colors"
+                className="login-input w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-colors"
                 autoFocus
               />
               {error && <p className="text-[var(--color-secondary)] text-sm mt-2">{error}</p>}
             </div>
-            <button type="submit" className="w-full bg-[var(--color-primary)] text-white font-bold py-3 rounded-lg">Entrar</button>
-            <button type="button" onClick={() => setShowPassword(false)} className="w-full text-sm text-stone-500">← Voltar</button>
+            <button type="submit" className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors shadow-lg shadow-blue-950/40">Entrar</button>
+            <button type="button" onClick={() => setShowPassword(false)} className="w-full text-sm text-blue-100 hover:text-white">Voltar</button>
           </form>
         )}
 
@@ -270,15 +267,21 @@ const LoginPage: React.FC = () => {
   const { login, currentUser } = useAuth();
   const { clearCart } = useCart();
   const navigate = useNavigate();
+  const location = useLocation();
+  const redirectParam = new URLSearchParams(location.search).get("redirect");
+  const redirectTo =
+    redirectParam && redirectParam.startsWith("/") && !redirectParam.startsWith("//")
+      ? redirectParam
+      : "/menu";
 
   useEffect(() => {
-    if (currentUser) navigate("/menu");
-  }, [currentUser, navigate]);
+    if (currentUser) navigate(redirectTo);
+  }, [currentUser, navigate, redirectTo]);
 
   const handleLoginSuccess = (user: User) => {
     clearCart();
     login(user);
-    navigate("/menu");
+    navigate(redirectTo);
   };
 
   return <CPFLogin onBack={() => {}} onLoginSuccess={handleLoginSuccess} />;

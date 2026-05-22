@@ -104,9 +104,10 @@ const App: React.FC = () => {
 
 const RouterBody: React.FC = () => {
   const location = useLocation();
+  const { store, loading, error } = useStore(); // 🏪 MULTI-TENANT
+
   const isMenuRoute = location.pathname === "/menu";
   const isCreateProjectRoute = location.pathname === "/criar-projeto";
-  const { store, loading, error } = useStore(); // 🏪 MULTI-TENANT
 
   // Loading state enquanto carrega a loja
   if (loading) {
@@ -133,7 +134,7 @@ const RouterBody: React.FC = () => {
         className={
           isMenuRoute || isCreateProjectRoute
             ? "h-[calc(100dvh-69px)] overflow-hidden bg-[#0a1220]"
-            : "p-4 md:p-8 bg-[var(--color-page-bg)]"
+            : "bg-[var(--color-page-bg)]"
         }
       >
         <Routes>
