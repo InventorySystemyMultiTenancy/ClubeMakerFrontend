@@ -173,7 +173,7 @@ const LandingPage: React.FC = () => {
           </p>
           <h2 className="mt-3 max-w-4xl text-3xl font-black text-white sm:text-5xl">
             Mais que imprimir: a ClubeMaker ajuda a construir a ideia junto com
-            voce.
+            você.
           </h2>
           <p className="mt-5 max-w-3xl text-lg leading-8 text-blue-100">
             Ajustamos medidas, estilo, acabamento e detalhes para cada projeto
