@@ -65,25 +65,25 @@ const CustomerQuotesPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-stone-100 p-4 md:p-8">
+    <div className="min-h-screen bg-[#050604] bg-[radial-gradient(circle_at_16%_8%,rgba(37,99,235,0.24),transparent_24rem),radial-gradient(circle_at_86%_78%,rgba(239,36,36,0.14),transparent_22rem)] p-4 text-white md:p-8">
       <div className="mx-auto max-w-5xl">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-3xl font-black text-[var(--color-primary-active)]">
+          <h1 className="text-3xl font-black text-white">
             Meus Orcamentos
           </h1>
           <button
             onClick={() => navigate("/criar-projeto")}
-            className="rounded-lg bg-[var(--color-primary)] px-4 py-2 text-sm font-bold text-white shadow transition hover:bg-[var(--color-primary-active)]"
+            className="rounded-lg bg-[var(--color-primary)] px-4 py-2 text-sm font-bold text-white shadow transition hover:bg-[var(--color-red)]"
           >
             Criar projeto
           </button>
         </div>
 
         {loading ? (
-          <p>Carregando...</p>
+          <p className="text-blue-100">Carregando...</p>
         ) : quotes.length === 0 ? (
-          <div className="rounded-xl bg-white p-8 text-center shadow">
-            <p className="font-semibold text-stone-700">
+          <div className="rounded-xl border border-blue-500/20 bg-[#071226] p-8 text-center shadow">
+            <p className="font-semibold text-blue-100">
               Voce ainda nao tem orcamentos.
             </p>
           </div>
@@ -92,23 +92,23 @@ const CustomerQuotesPage: React.FC = () => {
             {quotes.map((quote) => (
               <div
                 key={quote.id}
-                className="rounded-xl border border-stone-200 bg-white p-5 shadow-sm"
+                className="rounded-xl border border-blue-500/20 bg-[#071226] p-5 shadow-sm"
               >
                 <div className="mb-3 flex flex-wrap justify-between gap-2">
                   <div>
-                    <h2 className="text-lg font-black text-stone-900">
+                    <h2 className="text-lg font-black text-white">
                       {quote.fileName}
                     </h2>
-                    <p className="text-sm text-stone-500">
+                    <p className="text-sm text-blue-200">
                       {new Date(quote.createdAt).toLocaleString()}
                     </p>
                   </div>
-                  <span className="h-fit rounded-full bg-cyan-100 px-3 py-1 text-xs font-black uppercase text-cyan-800">
+                  <span className="h-fit rounded-full bg-blue-600 px-3 py-1 text-xs font-black uppercase text-white">
                     {statusLabel[quote.status]}
                   </span>
                 </div>
 
-                <div className="grid gap-2 text-sm text-stone-700 md:grid-cols-2">
+                <div className="grid gap-2 text-sm text-blue-100 md:grid-cols-2">
                   <p>Tamanho: {quote.size}</p>
                   <p>Pecas: {quote.pieceQuantity}</p>
                   <p>
@@ -120,7 +120,7 @@ const CustomerQuotesPage: React.FC = () => {
                 </div>
 
                 {quote.status === "sent" && (
-                  <div className="mt-4 rounded-lg bg-lime-50 p-4 text-stone-800">
+                  <div className="mt-4 rounded-lg border border-blue-500/20 bg-[#0b1f3a] p-4 text-blue-50">
                     <p className="text-2xl font-black">
                       R$ {Number(quote.quotedTotal || 0).toFixed(2)}
                     </p>
@@ -152,7 +152,7 @@ const CustomerQuotesPage: React.FC = () => {
                 )}
 
                 {quote.status === "approved" && quote.orderId && (
-                  <p className="mt-4 text-sm font-semibold text-green-700">
+                  <p className="mt-4 text-sm font-semibold text-green-300">
                     Orcamento aprovado. Pedido criado: #{quote.orderId}
                   </p>
                 )}

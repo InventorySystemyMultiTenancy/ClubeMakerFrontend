@@ -201,7 +201,7 @@ const Header: React.FC = () => {
             {!currentUser && (
               <button
                 onClick={() => navigate("/login")}
-                className="login-shortcut energy-cta inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-md transition-colors hover:bg-blue-700"
+                className="login-shortcut energy-cta inline-flex min-[1101px]:hidden items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-md transition-colors hover:bg-blue-700"
                 aria-label="Fazer login"
                 title="Fazer login"
               >
@@ -322,6 +322,18 @@ const Header: React.FC = () => {
                   className="text-stone-700 hover:text-[var(--color-primary)] font-medium"
                 >
                   Catálogo
+                </NavLink>
+              )}
+
+            {currentUser &&
+              (!currentUser.role ||
+                currentUser.role === "customer" ||
+                currentUser.role === "admincustomer") && (
+                <NavLink
+                  to="/meus-orcamentos"
+                  className="text-stone-700 hover:text-[var(--color-primary)] font-medium"
+                >
+                  Orcamentos
                 </NavLink>
               )}
 
