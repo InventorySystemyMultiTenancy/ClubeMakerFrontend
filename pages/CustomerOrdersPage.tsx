@@ -111,14 +111,15 @@ const CustomerOrdersPage: React.FC = () => {
   }, [currentUser, navigate]);
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Meus Pedidos</h1>
+    <div className="min-h-screen bg-[#050604] bg-[radial-gradient(circle_at_16%_8%,rgba(37,99,235,0.24),transparent_24rem),radial-gradient(circle_at_86%_78%,rgba(239,36,36,0.14),transparent_22rem)] px-4 py-8 text-white">
+      <div className="mx-auto max-w-3xl">
+      <h1 className="mb-6 text-3xl font-bold text-white">Meus Pedidos</h1>
       {loading ? (
-        <p>Carregando...</p>
+        <p className="text-blue-100">Carregando...</p>
       ) : error ? (
-        <p className="text-red-600">{error}</p>
+        <p className="text-red-300">{error}</p>
       ) : orders.length === 0 ? (
-        <p>Você ainda não fez nenhum pedido.</p>
+        <p className="text-blue-100">Você ainda não fez nenhum pedido.</p>
       ) : (
         <ul className="space-y-4">
           {orders.map((order) => {
@@ -132,11 +133,11 @@ const CustomerOrdersPage: React.FC = () => {
             return (
             <li
               key={order.id}
-              className="bg-white rounded-xl shadow p-4 border border-stone-200"
+              className="rounded-xl border border-blue-500/20 bg-[#071226] p-4 text-blue-50 shadow-xl shadow-blue-950/25"
             >
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-2">
                 <span className="font-bold text-lg">Pedido #{order.id}</span>
-                <span className="text-sm text-stone-500">
+                <span className="text-sm text-blue-200/70">
                   {new Date(order.timestamp).toLocaleString()}
                 </span>
               </div>
@@ -144,16 +145,16 @@ const CustomerOrdersPage: React.FC = () => {
                 <span className="font-semibold">Total:</span> R${" "}
                 {order.total.toFixed(2)}
                 {order.paymentStatus === "pending" && (
-                  <span className="ml-2 text-red-600 font-bold">A pagar</span>
+                  <span className="ml-2 font-bold text-red-300">A pagar</span>
                 )}
               </div>
               <div className="mb-2">
                 <span className="font-semibold">Status:</span> {order.status}
               </div>
               {isProjectOrder(order) && projectDetails && (
-                <div className="mb-3 rounded-lg border border-cyan-200 bg-cyan-50 p-3 text-sm text-stone-800">
+                <div className="mb-3 rounded-lg border border-blue-400/30 bg-blue-950/35 p-3 text-sm text-blue-50">
                   <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                    <span className="font-black text-cyan-900">
+                    <span className="font-black text-blue-100">
                       Pedido de orcamento 3D
                     </span>
                     {projectDetails.hasFile && (
@@ -184,7 +185,7 @@ const CustomerOrdersPage: React.FC = () => {
                   </div>
                 </div>
               )}
-              <ul className="text-sm text-stone-700">
+              <ul className="text-sm text-blue-100">
                 {order.items.map((item, idx) => {
                   const pricing = getOrderItemPricingInfo(item);
 
@@ -195,7 +196,7 @@ const CustomerOrdersPage: React.FC = () => {
                         {formatCurrency(pricing.lineTotal)}
                       </div>
                       {pricing.hasPricingDetails && (
-                        <div className="text-xs text-stone-500">
+                        <div className="text-xs text-blue-200/65">
                           Unit.: {formatCurrency(pricing.unitPrice)}
                           {pricing.hasCustomPrice &&
                             ` | Valor admin: ${formatCurrency(
@@ -253,6 +254,7 @@ const CustomerOrdersPage: React.FC = () => {
           })}
         </ul>
       )}
+      </div>
     </div>
   );
 };

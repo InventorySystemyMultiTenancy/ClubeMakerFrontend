@@ -163,7 +163,7 @@ export default function PaymentOnline(props: PaymentOnlineProps) {
       <div className="flex items-center justify-center p-12">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Processando pagamento...</p>
+          <p className="text-blue-100">Processando pagamento...</p>
         </div>
       </div>
     );
@@ -171,8 +171,8 @@ export default function PaymentOnline(props: PaymentOnlineProps) {
 
   if (!selectedMethod) {
     return (
-      <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md mx-auto">
-        <h2 className="text-2xl font-bold text-center mb-6 text-[var(--color-primary)]">
+      <div className="mx-auto max-w-md rounded-2xl border border-blue-500/20 bg-[#071226] p-8 text-white shadow-xl shadow-blue-950/25">
+        <h2 className="mb-6 text-center text-2xl font-bold text-white">
           💳 Escolha a forma de pagamento
         </h2>
         <div className="space-y-4">
@@ -228,16 +228,16 @@ export default function PaymentOnline(props: PaymentOnlineProps) {
         {error &&
           typeof error === "string" &&
           !error.includes("Minified React error #321") && (
-            <div className="mt-4 bg-red-50 border-2 border-red-200 text-red-600 p-4 rounded-lg text-center text-sm">
+            <div className="mt-4 rounded-lg border-2 border-red-400/40 bg-red-950/30 p-4 text-center text-sm text-red-200">
               {error}
             </div>
           )}
         <div className="mt-6 text-center">
-          <p className="text-2xl font-bold text-[var(--color-primary)]">
+          <p className="text-2xl font-bold text-blue-200">
             Total: R$ {Number(total).toFixed(2)}
           </p>
           {orderId && (
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="mt-2 text-sm text-blue-200/70">
               Pedido #{orderId.substring(0, 12)}
             </p>
           )}

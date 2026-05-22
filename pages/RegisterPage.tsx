@@ -135,16 +135,16 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-stone-100 to-blue-50 p-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-10">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-[#050604] bg-[radial-gradient(circle_at_16%_8%,rgba(37,99,235,0.24),transparent_24rem),radial-gradient(circle_at_86%_78%,rgba(239,36,36,0.14),transparent_22rem)] p-4 text-white">
+      <div className="w-full max-w-md rounded-2xl border border-blue-500/20 bg-[#071226] p-10 shadow-2xl shadow-blue-950/40">
+        <h1 className="mb-6 text-3xl font-bold text-white">
           {isEdit ? "Editar meus dados" : "Cadastro"}
         </h1>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label
               htmlFor="cpf"
-              className="block text-sm font-semibold text-stone-700 mb-2"
+              className="mb-2 block text-sm font-semibold text-blue-100"
             >
               CPF
             </label>
@@ -154,14 +154,14 @@ const RegisterPage: React.FC = () => {
               value={cpf}
               onChange={(e) => setCpf(e.target.value)}
               placeholder="000.000.000-00"
-              className="w-full px-4 py-3 border-2 border-stone-200 rounded-lg"
+              className="w-full rounded-lg border-2 border-blue-500/20 bg-[#050604] px-4 py-3 text-white placeholder:text-blue-200/45 focus:border-blue-400 focus:outline-none"
               disabled={isLoading}
             />
           </div>
           <div>
             <label
               htmlFor="name"
-              className="block text-sm font-semibold text-stone-700 mb-2"
+              className="mb-2 block text-sm font-semibold text-blue-100"
             >
               Nome Completo
             </label>
@@ -171,14 +171,14 @@ const RegisterPage: React.FC = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Digite seu nome completo"
-              className="w-full px-4 py-3 border-2 border-stone-200 rounded-lg"
+              className="w-full rounded-lg border-2 border-blue-500/20 bg-[#050604] px-4 py-3 text-white placeholder:text-blue-200/45 focus:border-blue-400 focus:outline-none"
               disabled={isLoading}
             />
           </div>
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-semibold text-stone-700 mb-2"
+              className="mb-2 block text-sm font-semibold text-blue-100"
             >
               Email
             </label>
@@ -188,14 +188,14 @@ const RegisterPage: React.FC = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Digite seu email"
-              className="w-full px-4 py-3 border-2 border-stone-200 rounded-lg"
+              className="w-full rounded-lg border-2 border-blue-500/20 bg-[#050604] px-4 py-3 text-white placeholder:text-blue-200/45 focus:border-blue-400 focus:outline-none"
               disabled={isLoading}
             />
           </div>
           <div>
             <label
               htmlFor="cep"
-              className="block text-sm font-semibold text-stone-700 mb-2"
+              className="mb-2 block text-sm font-semibold text-blue-100"
             >
               CEP
             </label>
@@ -205,14 +205,14 @@ const RegisterPage: React.FC = () => {
               value={cep}
               onChange={(e) => setCep(e.target.value)}
               placeholder="00000-000"
-              className="w-full px-4 py-3 border-2 border-stone-200 rounded-lg"
+              className="w-full rounded-lg border-2 border-blue-500/20 bg-[#050604] px-4 py-3 text-white placeholder:text-blue-200/45 focus:border-blue-400 focus:outline-none"
               disabled={isLoading}
             />
           </div>
           <div>
             <label
               htmlFor="address"
-              className="block text-sm font-semibold text-stone-700 mb-2"
+              className="mb-2 block text-sm font-semibold text-blue-100"
             >
               Endereço Completo
             </label>
@@ -222,14 +222,14 @@ const RegisterPage: React.FC = () => {
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               placeholder="Rua, número, bairro, cidade"
-              className="w-full px-4 py-3 border-2 border-stone-200 rounded-lg"
+              className="w-full rounded-lg border-2 border-blue-500/20 bg-[#050604] px-4 py-3 text-white placeholder:text-blue-200/45 focus:border-blue-400 focus:outline-none"
               disabled={isLoading}
             />
           </div>
           <div>
             <label
               htmlFor="phone"
-              className="block text-sm font-semibold text-stone-700 mb-2"
+              className="mb-2 block text-sm font-semibold text-blue-100"
             >
               Telefone
             </label>
@@ -239,14 +239,14 @@ const RegisterPage: React.FC = () => {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="(99) 99999-9999"
-              className="w-full px-4 py-3 border-2 border-stone-200 rounded-lg"
+              className="w-full rounded-lg border-2 border-blue-500/20 bg-[#050604] px-4 py-3 text-white placeholder:text-blue-200/45 focus:border-blue-400 focus:outline-none"
               disabled={isLoading}
             />
           </div>
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-semibold text-stone-700 mb-2"
+              className="mb-2 block text-sm font-semibold text-blue-100"
             >
               Senha
             </label>
@@ -256,11 +256,11 @@ const RegisterPage: React.FC = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Digite uma senha"
-              className="w-full px-4 py-3 border-2 border-stone-200 rounded-lg"
+              className="w-full rounded-lg border-2 border-blue-500/20 bg-[#050604] px-4 py-3 text-white placeholder:text-blue-200/45 focus:border-blue-400 focus:outline-none"
               disabled={isLoading}
             />
           </div>
-          {error && <p className="text-[var(--color-secondary)] text-sm mt-2">{error}</p>}
+          {error && <p className="mt-2 text-sm font-semibold text-red-300">{error}</p>}
           <button
             type="submit"
             disabled={isLoading}

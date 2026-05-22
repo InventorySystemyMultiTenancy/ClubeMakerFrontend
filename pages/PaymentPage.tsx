@@ -400,8 +400,8 @@ const PaymentPage: React.FC = () => {
 
   if (status === "success") {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-green-50 p-4 animate-fade-in-down">
-        <div className="bg-white p-10 rounded-3xl shadow-2xl text-center max-w-md w-full">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#050604] bg-[radial-gradient(circle_at_16%_8%,rgba(37,99,235,0.24),transparent_24rem),radial-gradient(circle_at_86%_78%,rgba(239,36,36,0.14),transparent_22rem)] p-4 text-white animate-fade-in-down">
+        <div className="w-full max-w-md rounded-3xl border border-blue-500/20 bg-[#071226] p-10 text-center shadow-2xl shadow-blue-950/40">
           <img
             src="/selfMachine.jpg"
             alt="Self Machine"
@@ -413,22 +413,23 @@ const PaymentPage: React.FC = () => {
           <h2 className="text-3xl font-bold text-green-800 mb-2">
             Pagamento Aprovado!
           </h2>
-          <p className="text-stone-600 text-lg mb-6">
+          <p className="mb-6 text-lg text-blue-100">
             Pedido enviado.
             <br />
             <span className="block mt-2 text-green-700 font-semibold">
               Comprovante enviado para seu e-mail!
             </span>
           </p>
-          <p className="text-sm text-stone-400">Redirecionando...</p>
+          <p className="text-sm text-blue-200/70">Redirecionando...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
-      <h1 className="text-3xl font-bold text-[var(--color-primary-active)] mb-8 flex items-center gap-2">
+    <div className="min-h-screen bg-[#050604] bg-[radial-gradient(circle_at_16%_8%,rgba(37,99,235,0.24),transparent_24rem),radial-gradient(circle_at_86%_78%,rgba(239,36,36,0.14),transparent_22rem)] px-4 py-8 text-white">
+      <div className="container mx-auto max-w-4xl">
+      <h1 className="mb-8 flex items-center gap-2 text-3xl font-bold text-white">
         <button
           onClick={() => navigate("/menu")}
           className="text-[var(--color-primary)] hover:bg-[var(--color-primary-light)] p-2 rounded-full transition-all duration-300 ease-in-out transform hover:scale-110 shadow-lg"
@@ -441,13 +442,13 @@ const PaymentPage: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* COLUNA ESQUERDA - RESUMO */}
-        <div className="bg-white p-6 rounded-2xl shadow-lg h-fit">
-          <h2 className="text-xl font-bold text-stone-800 mb-4 border-b pb-2">
+        <div className="h-fit rounded-2xl border border-blue-500/20 bg-[#071226] p-6 shadow-xl shadow-blue-950/25">
+          <h2 className="mb-4 border-b border-blue-500/20 pb-2 text-xl font-bold text-white">
             Resumo do Pedido
           </h2>
           <ul className="space-y-3 max-h-64 overflow-y-auto mb-4">
             {cartItems.map((item) => (
-              <li key={item.id} className="flex justify-between text-stone-600">
+              <li key={item.id} className="flex justify-between text-blue-100">
                 <span>
                   {item.quantity}x {item.name}
                 </span>
@@ -457,7 +458,7 @@ const PaymentPage: React.FC = () => {
               </li>
             ))}
           </ul>
-          <div className="border-t pt-4 mb-4 text-sm text-stone-700">
+          <div className="mb-4 border-t border-blue-500/20 pt-4 text-sm text-blue-100">
             <span className="font-semibold">Frete:</span> entrar em contato para
             calcular{" "}
             <a
@@ -471,8 +472,8 @@ const PaymentPage: React.FC = () => {
               {CONTACT_PHONE_LABEL}
             </a>
           </div>
-          <div className="border-t pt-4 flex justify-between items-center">
-            <span className="text-lg text-stone-500">Total a pagar:</span>
+          <div className="flex items-center justify-between border-t border-blue-500/20 pt-4">
+            <span className="text-lg text-blue-200/80">Total a pagar:</span>
             <span className="text-3xl font-bold text-[var(--color-primary)]">
               {(paymentType === "presencial" || paymentType === "online") &&
               paymentMethod === "credit" &&
@@ -493,7 +494,7 @@ const PaymentPage: React.FC = () => {
         <div className="flex flex-col gap-4">
           {!paymentType && (
             <>
-              <h2 className="text-xl font-bold text-stone-800 mb-2">
+              <h2 className="mb-2 text-xl font-bold text-white">
                 Como você quer pagar?
               </h2>
               <button
@@ -593,7 +594,7 @@ const PaymentPage: React.FC = () => {
 
           {/* Pagamento Presencial (Modo Manual/A Pagar) */}
           {paymentType === "presencial" && (
-            <div className="bg-[var(--color-primary-lighter)] border-l-4 border-[var(--color-primary)] p-4 rounded text-center text-[var(--color-primary-active)] font-semibold">
+            <div className="rounded border-l-4 border-[var(--color-primary)] bg-[#071226] p-4 text-center font-semibold text-blue-100 shadow-xl shadow-blue-950/25">
               <span className="block text-2xl mb-2">
                 🏪 Pagamento na Loja Girakids
               </span>
@@ -782,6 +783,7 @@ const PaymentPage: React.FC = () => {
             </div>
           )}
         </div>
+      </div>
       </div>
     </div>
   );

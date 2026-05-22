@@ -134,7 +134,7 @@ const RouterBody: React.FC = () => {
         className={
           isMenuRoute || isCreateProjectRoute
             ? "h-[calc(100dvh-69px)] overflow-hidden bg-[#0a1220]"
-            : "bg-[var(--color-page-bg)]"
+            : "bg-[#050604] bg-[radial-gradient(circle_at_16%_8%,rgba(37,99,235,0.24),transparent_24rem),radial-gradient(circle_at_86%_78%,rgba(239,36,36,0.14),transparent_22rem)]"
         }
       >
         <Routes>

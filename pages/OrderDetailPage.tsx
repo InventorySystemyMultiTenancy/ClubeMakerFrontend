@@ -16,8 +16,8 @@ const OrderDetailPage: React.FC = () => {
 
   if (!order) {
     return (
-      <div className="container mx-auto px-4 py-6 min-h-screen bg-stone-100">
-        <div className="bg-white rounded-xl shadow-md p-6 text-center">
+      <div className="min-h-screen bg-[#050604] bg-[radial-gradient(circle_at_16%_8%,rgba(37,99,235,0.24),transparent_24rem),radial-gradient(circle_at_86%_78%,rgba(239,36,36,0.14),transparent_22rem)] px-4 py-6 text-white">
+        <div className="mx-auto rounded-xl border border-blue-500/20 bg-[#071226] p-6 text-center shadow-xl shadow-blue-950/25">
           <h2 className="text-2xl font-bold mb-4 text-red-600">
             Pedido não encontrado
           </h2>
@@ -35,9 +35,9 @@ const OrderDetailPage: React.FC = () => {
   const projectDetails = getProjectOrderDetails(order);
 
   return (
-    <div className="container mx-auto px-4 py-6 min-h-screen bg-stone-100">
-      <div className="bg-white rounded-xl shadow-md p-6 max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold text-[var(--color-primary-active)] mb-4">
+    <div className="min-h-screen bg-[#050604] bg-[radial-gradient(circle_at_16%_8%,rgba(37,99,235,0.24),transparent_24rem),radial-gradient(circle_at_86%_78%,rgba(239,36,36,0.14),transparent_22rem)] px-4 py-6 text-white">
+      <div className="mx-auto max-w-2xl rounded-xl border border-blue-500/20 bg-[#071226] p-6 shadow-xl shadow-blue-950/25">
+        <h1 className="mb-4 text-3xl font-bold text-white">
           Detalhes do Pedido #{order.id.slice(-4)}
         </h1>
         <button
@@ -53,15 +53,15 @@ const OrderDetailPage: React.FC = () => {
         >
           Gerar PDF do Pedido
         </button>
-        <div className="mb-2 text-stone-700">
+        <div className="mb-2 text-blue-100">
           <span className="font-semibold">Cliente:</span>{" "}
           {order.userName || "-"}
         </div>
-        <div className="mb-2 text-stone-700">
+        <div className="mb-2 text-blue-100">
           <span className="font-semibold">Data/Hora:</span>{" "}
           {new Date(order.timestamp).toLocaleString()}
         </div>
-        <div className="mb-2 text-stone-700">
+        <div className="mb-2 text-blue-100">
           <span className="font-semibold">Forma de Pagamento:</span>{" "}
           {(() => {
             if (!order.paymentType) return "-";
@@ -79,18 +79,18 @@ const OrderDetailPage: React.FC = () => {
             return order.paymentType;
           })()}
         </div>
-        <div className="mb-2 text-stone-700">
+        <div className="mb-2 text-blue-100">
           <span className="font-semibold">Status do Pagamento:</span>{" "}
           {order.paymentStatus || "-"}
         </div>
-        <div className="mb-2 text-stone-700">
+        <div className="mb-2 text-blue-100">
           <span className="font-semibold">Total:</span> R$
           {Number(order.total).toFixed(2) ?? "-"}
         </div>
         {isProjectOrder(order) && projectDetails && (
-          <div className="mb-4 rounded-lg border border-cyan-200 bg-cyan-50 p-4 text-sm text-stone-800">
+          <div className="mb-4 rounded-lg border border-blue-400/30 bg-blue-950/35 p-4 text-sm text-blue-50">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-              <span className="text-base font-black text-cyan-900">
+              <span className="text-base font-black text-blue-100">
                 Pedido criado a partir de orcamento
               </span>
               {projectDetails.hasFile && (
@@ -126,7 +126,7 @@ const OrderDetailPage: React.FC = () => {
             </div>
           </div>
         )}
-        <div className="mb-2 text-stone-700">
+        <div className="mb-2 text-blue-100">
           <span className="font-semibold">Itens:</span>
           <ul className="list-disc ml-6">
             {order.items.map((item, idx) => {
@@ -139,7 +139,7 @@ const OrderDetailPage: React.FC = () => {
                     {formatCurrency(pricing.lineTotal)}
                   </div>
                   {pricing.hasPricingDetails && (
-                    <div className="text-xs text-stone-500">
+                    <div className="text-xs text-blue-200/65">
                       Unit.: {formatCurrency(pricing.unitPrice)}
                       {pricing.hasCustomPrice &&
                         ` | Valor admin: ${formatCurrency(
@@ -159,7 +159,7 @@ const OrderDetailPage: React.FC = () => {
           </ul>
         </div>
         {order.observation && (
-          <div className="mb-2 text-yellow-800 bg-yellow-100 rounded p-2">
+          <div className="mb-2 rounded border border-yellow-300/30 bg-yellow-950/30 p-2 text-yellow-100">
             <span className="font-semibold">Observação:</span>{" "}
             {order.observation}
           </div>
