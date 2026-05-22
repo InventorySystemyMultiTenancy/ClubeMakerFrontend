@@ -94,7 +94,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     >
       {/* Badges - Apenas ESGOTADO agora */}
       {isOutOfStock && (
-        <div className="absolute right-3 top-3 z-10 bg-blue-600 px-3 py-1 text-sm font-bold text-white shadow-sm">
+        <div className="absolute right-3 top-3 z-10 bg-red-600 px-3 py-1 text-sm font-bold text-white shadow-sm">
           ESGOTADO
         </div>
       )}
@@ -134,7 +134,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 <span className="text-sm font-semibold text-slate-400 line-through">
                   R$ {compareAtPrice.toFixed(2)}
                 </span>
-                <span className="rounded bg-blue-100 px-2 py-1 text-xs font-black text-blue-700">
+                <span className="rounded bg-red-100 px-2 py-1 text-xs font-black text-red-700">
                   {discount}% OFF
                 </span>
               </>
@@ -151,7 +151,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               className={`energy-cta inline-flex min-h-12 w-full items-center justify-center rounded-lg px-4 py-3 text-base font-bold transition ${
                 isOutOfStock
                   ? "cursor-not-allowed bg-stone-300 text-stone-500"
-                  : "bg-blue-600 text-white shadow-sm hover:bg-blue-700 active:scale-[0.98]"
+                  : "bg-blue-600 text-white shadow-sm hover:bg-red-600 active:scale-[0.98]"
               }`}
             >
               {quantityInCart > 0
@@ -579,6 +579,8 @@ const MenuPage: React.FC = () => {
   const [isSuggestionLoading, setIsSuggestionLoading] = useState(false);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
+  const [isCatalogNavOpen, setIsCatalogNavOpen] = useState(false);
+  const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
   const [imageViewer, setImageViewer] = useState<{
     isOpen: boolean;
     images: string[];
@@ -625,6 +627,12 @@ const MenuPage: React.FC = () => {
       return [product.imageUrl];
     }
     return [];
+  };
+
+  const getCategoryIcon = (categoryName: string): string => {
+    const dynamicCat = dynamicCategories.find((dc) => dc.name === categoryName);
+    if (dynamicCat) return dynamicCat.icon;
+    return "CM";
   };
 
   const openImageViewer = (product: Product) => {
@@ -796,6 +804,29 @@ const MenuPage: React.FC = () => {
     fetchCartSuggestion();
   }, [cartItems, menu, currentUser]);
 
+  const latestProducts = useMemo(() => {
+    return [...menu]
+      .filter((product) => getProductImages(product).length > 0)
+      .slice(-5)
+      .reverse();
+  }, [menu]);
+
+  useEffect(() => {
+    if (latestProducts.length <= 1) return;
+
+    const interval = window.setInterval(() => {
+      setCurrentBannerIndex((current) => (current + 1) % latestProducts.length);
+    }, 10000);
+
+    return () => window.clearInterval(interval);
+  }, [latestProducts.length]);
+
+  useEffect(() => {
+    if (currentBannerIndex >= latestProducts.length) {
+      setCurrentBannerIndex(0);
+    }
+  }, [currentBannerIndex, latestProducts.length]);
+
   const handleCheckout = () => {
     if (!currentUser || cartItems.length === 0) return;
     navigate("/payment");
@@ -836,37 +867,115 @@ const MenuPage: React.FC = () => {
       ? ((imageViewer.currentIndex % totalViewerImages) + totalViewerImages) %
         totalViewerImages
       : 0;
+  const currentBannerProduct =
+    latestProducts.length > 0
+      ? latestProducts[currentBannerIndex % latestProducts.length]
+      : null;
+  const currentBannerImage = currentBannerProduct
+    ? getProductImages(currentBannerProduct)[0]
+    : "";
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-[#050604] font-sans text-stone-800">
       {/* 1. SIDEBAR ESQUERDA */}
+      {false && (
       <CategorySidebar
         categories={displayCategories} // 🆕 Usa categorias dinâmicas ordenadas
         selectedCategory={selectedCategory}
         onSelectCategory={setSelectedCategory}
         dynamicCategories={dynamicCategories}
       />
+      )}
 
       {/* 2. ÁREA CENTRAL */}
       <main className="relative flex h-full flex-1 flex-col overflow-hidden bg-[#050604]">
+        <div className="border-b border-blue-500/20 bg-[#050604]/95 px-4 py-3 backdrop-blur">
+          <button
+            type="button"
+            className="inline-flex min-h-11 items-center gap-3 rounded-lg bg-blue-600 px-5 py-2 text-sm font-black uppercase tracking-wide text-white shadow-lg shadow-blue-950/30 transition hover:bg-blue-700"
+            onClick={() => setIsCatalogNavOpen((open) => !open)}
+          >
+            Ver catalogo
+            <span className="rounded bg-red-600 px-2 py-0.5 text-white">
+              {isCatalogNavOpen ? "-" : "+"}
+            </span>
+          </button>
+        </div>
+
+        {isCatalogNavOpen && (
+          <nav className="flex gap-2 overflow-x-auto border-b border-blue-500/20 bg-white px-4 py-3">
+            <button
+              type="button"
+              onClick={() => setSelectedCategory(null)}
+              className={`shrink-0 rounded-lg border px-4 py-2 text-sm font-bold transition ${
+                selectedCategory === null
+                  ? "border-red-500 bg-red-50 text-red-700"
+                  : "border-stone-200 bg-white text-stone-600 hover:border-blue-400 hover:text-blue-700"
+              }`}
+            >
+              Todos
+            </button>
+            {displayCategories.map((category) => (
+              <button
+                type="button"
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`shrink-0 rounded-lg border px-4 py-2 text-sm font-bold transition ${
+                  selectedCategory === category
+                    ? "border-red-500 bg-red-50 text-red-700"
+                    : "border-stone-200 bg-white text-stone-600 hover:border-blue-400 hover:text-blue-700"
+                }`}
+              >
+                <span className="mr-2">{getCategoryIcon(category)}</span>
+                {category}
+              </button>
+            ))}
+          </nav>
+        )}
         {/* Scroll Container */}
-        <div className="neon-scrollbar flex-1 overflow-y-auto p-3 pb-20 scroll-smooth md:p-5 md:pb-5">
+        <div className="flex-1 overflow-y-auto p-4 pb-48 scroll-smooth md:p-8 md:pb-8">
           {/* Mensagens IA */}
 
           {/* Grid de Produtos */}
           <div className="mx-auto max-w-7xl">
             {selectedCategory === null ? (
               <>
-                <div className="mb-6 flex justify-center">
-                  <div className="relative inline-flex items-center gap-3 rounded-full border border-blue-500/25 bg-[#02132f]/80 px-6 py-3 shadow-lg">
-                    <span className="h-2 w-2 rounded-full bg-blue-400 shadow-[0_0_14px_rgba(96,165,250,0.8)]" />
-                    <h2 className="text-center text-xl font-black uppercase tracking-[0.14em] text-white md:text-2xl">
-                      Catalogo 3D
-                    </h2>
-                    <span className="h-px w-12 bg-gradient-to-r from-cyan-300 to-transparent" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 justify-items-center gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {currentBannerProduct && (
+                  <section className="relative mb-8 grid min-h-[300px] overflow-hidden rounded-2xl border border-blue-500/20 bg-[#071226] shadow-2xl md:grid-cols-[0.95fr_1.05fr]">
+                    <div className="relative z-10 flex flex-col justify-center p-7 text-white md:p-10">
+                      <span className="mb-4 inline-flex w-fit rounded-full bg-red-600 px-4 py-1 text-xs font-black uppercase tracking-wide">
+                        Novidades
+                      </span>
+                      <h2 className="text-3xl font-black md:text-5xl">
+                        Ultimos lancamentos
+                      </h2>
+                      <p className="mt-3 text-blue-100">Produto ClubeMaker</p>
+                      <strong className="mt-2 text-xl text-white">
+                        {currentBannerProduct.name}
+                      </strong>
+                      <button
+                        type="button"
+                        onClick={() => openImageViewer(currentBannerProduct)}
+                        className="mt-6 w-fit rounded-lg bg-blue-600 px-5 py-3 font-bold text-white shadow-lg transition hover:bg-blue-700"
+                      >
+                        Ver detalhes
+                      </button>
+                    </div>
+                    <div className="relative min-h-[260px] bg-blue-50">
+                      <img
+                        src={currentBannerImage}
+                        alt={currentBannerProduct.name}
+                        className="h-full w-full object-cover"
+                        loading="eager"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-[#071226]/35" />
+                    </div>
+                  </section>
+                )}
+                <h2 className="mb-6 text-2xl font-black uppercase tracking-wide text-white md:text-3xl">
+                  Produtos em destaque
+                </h2>
+                <div className="flex flex-wrap justify-center gap-4 md:gap-6">
                 {[...menu]
                   .sort((a, b) => {
                     const aOOS = a.stock === 0 ? 1 : 0;
@@ -890,16 +999,10 @@ const MenuPage: React.FC = () => {
               </>
             ) : (
               <div className="animate-fadeIn">
-                <div className="mb-6 flex justify-center">
-                  <div className="relative inline-flex items-center gap-3 rounded-full border border-blue-500/25 bg-[#02132f]/80 px-6 py-3 shadow-lg">
-                    <span className="h-2 w-2 rounded-full bg-blue-400 shadow-[0_0_14px_rgba(96,165,250,0.8)]" />
-                    <h3 className="text-center text-xl font-black uppercase tracking-[0.14em] text-white md:text-2xl">
-                      {selectedCategory}
-                    </h3>
-                    <span className="h-px w-12 bg-gradient-to-r from-cyan-300 to-transparent" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 justify-items-center gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <h3 className="mb-6 text-2xl font-black uppercase tracking-wide text-white md:text-3xl">
+                  {selectedCategory}
+                </h3>
+                <div className="flex flex-wrap justify-center gap-4 md:gap-6">
                   {[...(categorizedMenu[selectedCategory] || [])]
                     .sort((a, b) => {
                       const aOOS = a.stock === 0 ? 1 : 0;
@@ -924,9 +1027,9 @@ const MenuPage: React.FC = () => {
           </div>
         </div>
         {cartItems.length > 0 && !isMobileCartOpen && (
-          <div className="xl:hidden fixed bottom-0 right-0 z-50 flex flex-col shadow-[0_-4px_20px_rgba(0,0,0,0.2)] min-[900px]:left-0 min-[900px]:right-0 min-[900px]:w-full">
+          <div className="fixed bottom-6 right-6 z-50 flex">
             <div
-              className="bg-[var(--color-dark)] text-white min-[900px]:px-8 min-[900px]:py-8 px-3 py-3 flex justify-between items-center rounded-tl-2xl min-[900px]:rounded-t-none cursor-pointer active:bg-stone-800 transition-colors"
+              className="flex h-24 w-24 cursor-pointer flex-col items-center justify-center rounded-full border-4 border-red-500 bg-blue-600 text-white shadow-[0_0_28px_rgba(220,38,38,0.45)] transition hover:scale-105"
               onClick={() => setIsMobileCartOpen(true)}
             >
               <span className="font-bold uppercase tracking-wider flex items-center gap-3 min-[900px]:text-2xl">
@@ -945,6 +1048,7 @@ const MenuPage: React.FC = () => {
       </main>
 
       {/* 4. COLUNA DIREITA (Carrinho Desktop) */}
+      {false && (
       <div className="z-20 hidden h-full w-[360px] shadow-2xl xl:block">
         <CartSidebar
           cartItems={cartItems}
@@ -962,12 +1066,13 @@ const MenuPage: React.FC = () => {
           currentUser={currentUser}
         />
       </div>
+      )}
 
       {/* 5. DRAWER MOBILE EXPANDIDO */}
       {isMobileCartOpen && (
         <>
           <div
-            className="fixed inset-0 z-40 bg-transparent"
+            className="fixed inset-0 z-40 bg-black/45 backdrop-blur-sm"
             onClick={() => setIsMobileCartOpen(false)}
           />
 
