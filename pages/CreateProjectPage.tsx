@@ -171,7 +171,17 @@ const CreateProjectPage: React.FC = () => {
               Pesquisar no MakerWorld
             </button>
           </form>
-          <div className="mt-4 flex justify-end">
+          <div className="mt-5">
+            <h3 className="mb-3 text-lg font-black text-white">
+              Como baixar o arquivo
+            </h3>
+            <video
+              src="/comobaixar.mp4"
+              controls
+              className="max-h-[460px] w-full rounded-lg bg-black"
+            />
+          </div>
+          {/*
             <button
               type="button"
               onClick={() => setShowInstructions(true)}
@@ -179,7 +189,7 @@ const CreateProjectPage: React.FC = () => {
             >
               Ver instruções
             </button>
-          </div>
+          */}
         </section>
 
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
