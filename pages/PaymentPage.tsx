@@ -66,9 +66,16 @@ type ActivePaymentState = {
 } | null;
 
 const PaymentPage: React.FC = () => {
-  const { cartItems, cartTotal, clearCart, observation } = useCart();
+  const {
+    cartItems,
+    cartTotal,
+    clearCart,
+    observation,
+    selectedOrderCustomer,
+  } = useCart();
   const { currentUser, addOrderToHistory, logout } = useAuth();
   const navigate = useNavigate();
+  const orderCustomer = selectedOrderCustomer || currentUser;
 
   // Estados de UI
   const [paymentType, setPaymentType] = useState<
@@ -244,8 +251,8 @@ const PaymentPage: React.FC = () => {
 
       const orderData: Order = {
         id: orderId,
-        userId: currentUser!.id,
-        userName: currentUser!.name,
+        userId: orderCustomer!.id,
+        userName: orderCustomer!.name,
         items: cartItems.map(serializeCartItemForOrder),
         total: cartTotal,
         timestamp: new Date().toISOString(),
@@ -253,7 +260,9 @@ const PaymentPage: React.FC = () => {
         status: "active",
       };
 
-      addOrderToHistory(orderData);
+      if (!selectedOrderCustomer) {
+        addOrderToHistory(orderData);
+      }
 
       setActivePayment(null);
       setStatus("success");
@@ -302,8 +311,8 @@ const PaymentPage: React.FC = () => {
     const orderResp = await fetchStandard(`${BACKEND_URL}/api/orders`, {
       method: "POST",
       body: JSON.stringify({
-        userId: currentUser!.id,
-        userName: currentUser!.name,
+        userId: orderCustomer!.id,
+        userName: orderCustomer!.name,
         items: cartItems.map(serializeCartItemForOrder),
         total:
           paymentType === "presencial" &&
@@ -333,14 +342,14 @@ const PaymentPage: React.FC = () => {
 
       const result = await createPixPayment({
         amount: cartTotal,
-        description: `Pedido de ${currentUser!.name}`,
+        description: `Pedido de ${orderCustomer!.name}`,
         orderId: orderId,
-        email: currentUser?.email,
-        payerName: currentUser?.name,
+        email: orderCustomer?.email,
+        payerName: orderCustomer?.name,
         items: cartItems.map(serializeCartItemForOrder),
         user: {
-          email: currentUser?.email,
-          name: currentUser?.name,
+          email: orderCustomer?.email,
+          name: orderCustomer?.name,
         },
       });
 
@@ -372,14 +381,14 @@ const PaymentPage: React.FC = () => {
 
       const result = await createCardPayment({
         amount: valorFinal,
-        description: `Pedido ${currentUser!.name}`,
+        description: `Pedido ${orderCustomer!.name}`,
         orderId: orderId,
         paymentMethod: paymentMethod as "credit" | "debit",
         installments: paymentMethod === "credit" ? selectedInstallments : 1,
         items: cartItems.map(serializeCartItemForOrder),
         user: {
-          email: currentUser?.email,
-          name: currentUser?.name,
+          email: orderCustomer?.email,
+          name: orderCustomer?.name,
         },
       });
 
@@ -446,6 +455,14 @@ const PaymentPage: React.FC = () => {
           <h2 className="mb-4 border-b border-blue-500/20 pb-2 text-xl font-bold text-white">
             Resumo do Pedido
           </h2>
+          {selectedOrderCustomer && (
+            <div className="mb-4 rounded border border-blue-500/20 bg-black/30 p-3 text-sm text-blue-100">
+              Compra para:{" "}
+              <span className="font-bold text-white">
+                {selectedOrderCustomer.name}
+              </span>
+            </div>
+          )}
           <ul className="space-y-3 max-h-64 overflow-y-auto mb-4">
             {cartItems.map((item) => (
               <li key={item.id} className="flex justify-between text-blue-100">
@@ -527,8 +544,8 @@ const PaymentPage: React.FC = () => {
                         {
                           method: "POST",
                           body: JSON.stringify({
-                            userId: currentUser!.id,
-                            userName: currentUser!.name,
+                            userId: orderCustomer!.id,
+                            userName: orderCustomer!.name,
                             items: cartItems.map(serializeCartItemForOrder),
                             total: cartTotal,
                             observation,
@@ -564,8 +581,8 @@ const PaymentPage: React.FC = () => {
                   orderId={onlineOrderId}
                   total={cartTotal}
                   items={cartItems.map(serializeCartItemForOrder)}
-                  userEmail={currentUser?.email || ""}
-                  userName={currentUser?.name || ""}
+                  userEmail={orderCustomer?.email || ""}
+                  userName={orderCustomer?.name || ""}
                   onSuccess={(paymentId) => {
                     Swal.fire({
                       icon: "success",
@@ -720,8 +737,8 @@ const PaymentPage: React.FC = () => {
                         {
                           method: "POST",
                           body: JSON.stringify({
-                            userId: currentUser!.id,
-                            userName: currentUser!.name,
+                            userId: orderCustomer!.id,
+                            userName: orderCustomer!.name,
                             items: cartItems.map(serializeCartItemForOrder),
                             paymentType: "presencial",
                             paymentMethod,

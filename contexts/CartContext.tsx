@@ -7,6 +7,7 @@ import React, {
   useEffect,
 } from "react";
 import type { CartItem, Product } from "../types";
+import type { User } from "../types";
 
 /*
   Define o formato do contexto do carrinho.
@@ -28,6 +29,8 @@ interface CartContextType {
   cartTotal: number;
   observation: string;
   setObservation: (obs: string) => void;
+  selectedOrderCustomer: User | null;
+  setSelectedOrderCustomer: (user: User | null) => void;
 }
 
 // Cria o contexto com tipo opcional (undefined por padrão até o Provider ser usado)
@@ -61,6 +64,17 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
     }
   });
 
+  const [selectedOrderCustomer, setSelectedOrderCustomer] =
+    useState<User | null>(() => {
+      try {
+        const raw = localStorage.getItem("kiosk_selected_order_customer");
+        return raw ? (JSON.parse(raw) as User) : null;
+      } catch (error) {
+        console.error("Erro ao recuperar cliente selecionado:", error);
+        return null;
+      }
+    });
+
   // 2. Efeito de Persistência: Salva no LocalStorage sempre que o carrinho mudar
   useEffect(() => {
     try {
@@ -77,6 +91,21 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
       console.error("Erro ao salvar observação:", error);
     }
   }, [observation]);
+
+  useEffect(() => {
+    try {
+      if (selectedOrderCustomer) {
+        localStorage.setItem(
+          "kiosk_selected_order_customer",
+          JSON.stringify(selectedOrderCustomer),
+        );
+      } else {
+        localStorage.removeItem("kiosk_selected_order_customer");
+      }
+    } catch (error) {
+      console.error("Erro ao salvar cliente selecionado:", error);
+    }
+  }, [selectedOrderCustomer]);
 
   /*
     Adiciona um produto ao carrinho.
@@ -218,6 +247,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
   const clearCart = () => {
     setCartItems([]);
     setObservation("");
+    setSelectedOrderCustomer(null);
   };
 
   // Calcula o total do carrinho somando price * quantity de cada item
@@ -240,6 +270,8 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
         cartTotal,
         observation,
         setObservation,
+        selectedOrderCustomer,
+        setSelectedOrderCustomer,
       }}
     >
       {children}
