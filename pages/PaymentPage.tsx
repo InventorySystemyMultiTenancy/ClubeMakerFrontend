@@ -524,7 +524,7 @@ const PaymentPage: React.FC = () => {
                 className="p-4 rounded-xl border-2 border-[var(--color-primary)] bg-[var(--color-primary-lighter)] text-[var(--color-primary-active)] font-bold text-lg hover:bg-[var(--color-primary-light)] transition-all"
                 onClick={() => setPaymentType("presencial")}
               >
-                🏪 Pagar na Loja Girakids
+                🏪 Pagar na Loja
               </button>
             </>
           )}
