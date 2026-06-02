@@ -7,7 +7,10 @@ import {
   getDynamicCartSuggestion,
   getChefMessage,
 } from "../services/geminiService";
-import { getProducts, getUsers } from "../services/apiService";
+import {
+  getCustomersForAdminCustomer,
+  getProducts,
+} from "../services/apiService";
 import type { Product, CartItem, User } from "../types";
 
 // URL da API
@@ -725,7 +728,7 @@ const MenuPage: React.FC = () => {
       if (currentUser?.role !== "admincustomer") return;
       setIsLoadingCustomers(true);
       try {
-        const data = await getUsers();
+        const data = await getCustomersForAdminCustomer(currentUser.id);
         const users = Array.isArray(data)
           ? data
           : Array.isArray(data?.data)
