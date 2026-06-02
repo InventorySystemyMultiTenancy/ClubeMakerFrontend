@@ -613,7 +613,7 @@ const PaymentPage: React.FC = () => {
           {paymentType === "presencial" && (
             <div className="rounded border-l-4 border-[var(--color-primary)] bg-[#071226] p-4 text-center font-semibold text-blue-100 shadow-xl shadow-blue-950/25">
               <span className="block text-2xl mb-2">
-                🏪 Pagamento na Loja Girakids
+                🏪 Pagamento na Loja
               </span>
 
               {/* Step 1: Seleção do método */}
