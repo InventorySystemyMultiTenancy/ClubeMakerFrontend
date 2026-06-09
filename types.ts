@@ -104,6 +104,7 @@ export interface ProjectQuote {
   fileName: string;
   fileSize: number;
   hasFile?: boolean;
+  projectLink?: string | null;
   size: string;
   height: string;
   width: string;

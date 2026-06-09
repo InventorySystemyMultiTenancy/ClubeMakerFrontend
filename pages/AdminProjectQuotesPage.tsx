@@ -278,6 +278,16 @@ const AdminProjectQuotesPage: React.FC = () => {
                     <h2 className="text-lg font-black text-stone-900">
                       {quote.fileName}
                     </h2>
+                    {quote.projectLink && (
+                      <a
+                        href={quote.projectLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-1 block break-all text-sm font-bold text-blue-700 underline"
+                      >
+                        Abrir link do projeto
+                      </a>
+                    )}
                     <p className="text-sm text-stone-500">
                       Cliente: {quote.userName || quote.userId}
                     </p>
@@ -318,16 +328,17 @@ const AdminProjectQuotesPage: React.FC = () => {
                 </div>
 
                 <div className="grid gap-2 text-sm text-stone-700 md:grid-cols-2">
-                  <p>Tamanho: {quote.size}</p>
-                  <p>Pecas: {quote.pieceQuantity}</p>
+                  <p>Tamanho: {quote.size || "-"}</p>
+                  <p>Pecas: {quote.pieceQuantity || "-"}</p>
                   <p>
-                    Medidas: {quote.height} x {quote.width} x {quote.depth}
+                    Medidas: {quote.height || "-"} x {quote.width || "-"} x{" "}
+                    {quote.depth || "-"}
                   </p>
                   <p>
-                    Cores: {quote.colorQuantity} - {quote.colors}
+                    Cores: {quote.colorQuantity || "-"} - {quote.colors || "-"}
                   </p>
                   <p className="md:col-span-2">
-                    Dados de envio: {quote.shippingData}
+                    Dados de envio: {quote.shippingData || "-"}
                   </p>
                 </div>
 
