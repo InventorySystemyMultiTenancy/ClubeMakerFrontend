@@ -4,6 +4,15 @@ import { authenticatedFetch } from "../services/apiService";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
+const openWhatsApp = (phone: string, message: string) => {
+  const cleanPhone = phone.replace(/\D/g, "");
+  if (!cleanPhone) return;
+  window.open(
+    `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`,
+    "_blank",
+  );
+};
+
 type QuoteDraft = {
   quotedTotal: string;
   adminObservation: string;
@@ -267,6 +276,7 @@ const AdminProjectQuotesPage: React.FC = () => {
               deliveryDeadline: "",
             };
             const canEdit = quote.status === "pending" || quote.status === "sent";
+            const customerPhone = quote.customerPhone || quote.userPhone || "";
 
             return (
               <div
@@ -301,6 +311,31 @@ const AdminProjectQuotesPage: React.FC = () => {
                 </div>
 
                 <div className="mb-4 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      openWhatsApp(
+                        customerPhone,
+                        [
+                          `Ola, ${quote.userName || "tudo bem"}!`,
+                          `Estou entrando em contato sobre seu orcamento ${quote.id}.`,
+                          `Projeto: ${quote.fileName}`,
+                          quote.projectLink ? `Link: ${quote.projectLink}` : "",
+                        ]
+                          .filter(Boolean)
+                          .join("\n"),
+                      )
+                    }
+                    disabled={!customerPhone}
+                    className="rounded-lg bg-green-600 px-4 py-2 text-sm font-bold text-white shadow transition hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-stone-300 disabled:text-stone-500"
+                    title={
+                      customerPhone
+                        ? "Entrar em contato pelo WhatsApp"
+                        : "Cliente sem telefone cadastrado"
+                    }
+                  >
+                    Entrar em contato
+                  </button>
                   <button
                     type="button"
                     onClick={() => downloadFile(quote)}

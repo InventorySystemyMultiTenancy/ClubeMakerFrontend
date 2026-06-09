@@ -101,6 +101,8 @@ export interface ProjectQuote {
   id: string;
   userId: string;
   userName?: string;
+  userPhone?: string | null;
+  customerPhone?: string | null;
   fileName: string;
   fileSize: number;
   hasFile?: boolean;
