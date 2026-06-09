@@ -920,7 +920,7 @@ const MenuPage: React.FC = () => {
           </div>
         )}
         {/* Scroll Container */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 pb-48 md:pb-8 scroll-smooth">
+        <div className="flex-1 overflow-y-auto p-4 md:p-8 pb-48 md:pb-24 scroll-smooth">
           {/* Mensagens IA */}
 
           {/* Grid de Produtos */}
