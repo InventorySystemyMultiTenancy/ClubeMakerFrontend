@@ -338,6 +338,84 @@ const PaymentPage: React.FC = () => {
     return data.id;
   };
 
+  const handleContactOrder = async () => {
+    if (!orderCustomer || cartItems.length === 0) return;
+
+    setStatus("processing");
+    setErrorMessage("");
+
+    try {
+      const serializedItems = cartItems.map(serializeCartItemForOrder);
+      const orderResp = await fetchStandard(`${BACKEND_URL}/api/orders`, {
+        method: "POST",
+        body: JSON.stringify({
+          userId: orderCustomer.id,
+          userName: orderCustomer.name,
+          items: serializedItems,
+          total: cartTotal,
+          paymentType: "contato",
+          paymentMethod: "whatsapp",
+          paymentStatus: "pending",
+          observation,
+          status: "pending",
+        }),
+      });
+
+      if (!orderResp.ok) {
+        throw new Error("Erro ao criar pedido");
+      }
+
+      const orderData = await orderResp.json();
+      const itemsText = serializedItems
+        .map(
+          (item) =>
+            `${item.quantity}x ${item.name} - R$ ${(item.price * item.quantity).toFixed(2)}`,
+        )
+        .join("\n");
+      const message = [
+        `Olá! Acabei de fazer o pedido ${orderData.id}.`,
+        "",
+        `Cliente: ${orderCustomer.name}`,
+        "",
+        "Itens:",
+        itemsText,
+        "",
+        `Total: R$ ${cartTotal.toFixed(2)}`,
+        observation ? `Observação: ${observation}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n");
+
+      clearCart();
+      setPaymentType(null);
+      setPresencialStep(null);
+      setPaymentMethod(null);
+      setStatus("success");
+      window.open(
+        `https://wa.me/${CONTACT_WHATSAPP}?text=${encodeURIComponent(message)}`,
+        "_blank",
+      );
+
+      Swal.fire({
+        icon: "success",
+        title: "Pedido criado!",
+        text: "Agora é só continuar pelo WhatsApp.",
+        confirmButtonText: "OK",
+      }).then(() => {
+        navigate(isAdminSale ? "/admin" : "/meus-pedidos");
+      });
+    } catch (err: any) {
+      setStatus("error");
+      setErrorMessage(err.message || "Erro ao criar pedido para contato.");
+      Swal.fire({
+        icon: "error",
+        title: "Erro ao criar pedido",
+        text: err.message || "Erro desconhecido",
+        confirmButtonText: "OK",
+      });
+    }
+  };
+
   const handlePixPayment = async () => {
     setStatus("processing");
     setPaymentStatusMessage("Gerando QR Code...");
@@ -527,9 +605,10 @@ const PaymentPage: React.FC = () => {
               </button>
               <button
                 className="p-4 rounded-xl border-2 border-[var(--color-primary)] bg-[var(--color-primary-lighter)] text-[var(--color-primary-active)] font-bold text-lg hover:bg-[var(--color-primary-light)] transition-all"
-                onClick={() => setPaymentType("presencial")}
+                onClick={handleContactOrder}
+                disabled={status === "processing"}
               >
-                🏪 Pagar na Loja
+                🏪 Entrar em contato
               </button>
             </>
           )}
@@ -813,3 +892,4 @@ const PaymentPage: React.FC = () => {
 };
 
 export default PaymentPage;
+
