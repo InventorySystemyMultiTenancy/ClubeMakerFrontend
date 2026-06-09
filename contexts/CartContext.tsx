@@ -109,18 +109,12 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
 
   /*
     Adiciona um produto ao carrinho.
-    - Valida se o produto tem estoque disponível (stock > 0)
-    - Se o produto já existir (mesmo id), incrementa a quantidade em 1 (se houver estoque)
+    - Se o produto já existir (mesmo id), incrementa a quantidade em 1.
     - Caso contrário, adiciona o produto com quantity = 1.
     Usa a função de atualização baseada no estado anterior para evitar condições de corrida.
   */
   const { currentUser } = useAuth();
   const addToCart = (product: Product) => {
-    // Validação de estoque
-    if ((product.stock ?? 0) === 0) {
-      alert("Produto esgotado!");
-      return;
-    }
     setCartItems((prevItems) => {
       const existingItem = prevItems.find((item) => item.id === product.id);
       const isAdminCustomer = currentUser?.role === "admincustomer";
@@ -128,12 +122,6 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
       const addQuantidade = isAdminCustomer ? 1 : quantidadeVenda;
       if (existingItem) {
         const novaQuantidade = existingItem.quantity + addQuantidade;
-        if (product.stock !== undefined && novaQuantidade > product.stock) {
-          alert(
-            `Estoque limitado! Máximo de ${product.stock} unidades disponíveis.`,
-          );
-          return prevItems;
-        }
         return prevItems.map((item) =>
           item.id === product.id ? { ...item, quantity: novaQuantidade } : item,
         );
@@ -176,15 +164,6 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
       if (!isAdminCustomer && novaQuantidade > 0) {
         novaQuantidade =
           Math.round(novaQuantidade / quantidadeVenda) * quantidadeVenda;
-        if (item.stock !== undefined && novaQuantidade > item.stock) {
-          novaQuantidade = item.stock;
-        }
-      } else if (
-        isAdminCustomer &&
-        item.stock !== undefined &&
-        novaQuantidade > item.stock
-      ) {
-        novaQuantidade = item.stock;
       }
       if (novaQuantidade <= 0) {
         return prevItems.filter((i) => i.id !== productId);
