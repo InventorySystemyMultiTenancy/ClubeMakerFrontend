@@ -76,6 +76,9 @@ const PaymentPage: React.FC = () => {
   const { currentUser, addOrderToHistory, logout } = useAuth();
   const navigate = useNavigate();
   const orderCustomer = selectedOrderCustomer || currentUser;
+  const isAdminSale = currentUser?.role === "admin";
+  const saleRoute = isAdminSale ? "/admin/nova-venda" : "/menu";
+  const afterOrderRoute = isAdminSale ? "/admin" : "/";
 
   // Estados de UI
   const [paymentType, setPaymentType] = useState<
@@ -295,8 +298,10 @@ const PaymentPage: React.FC = () => {
 
       // Redireciona para a página inicial após 5 segundos
       setTimeout(async () => {
-        await logout();
-        navigate("/", { replace: true });
+        if (!isAdminSale) {
+          await logout();
+        }
+        navigate(afterOrderRoute, { replace: true });
       }, 5000);
     } catch (error) {
       console.error("Erro ao finalizar:", error);
@@ -440,7 +445,7 @@ const PaymentPage: React.FC = () => {
       <div className="container mx-auto max-w-4xl">
       <h1 className="mb-8 flex items-center gap-2 text-3xl font-bold text-white">
         <button
-          onClick={() => navigate("/menu")}
+          onClick={() => navigate(saleRoute)}
           className="text-[var(--color-primary)] hover:bg-[var(--color-primary-light)] p-2 rounded-full transition-all duration-300 ease-in-out transform hover:scale-110 shadow-lg"
           disabled={status === "processing"}
         >
@@ -593,7 +598,7 @@ const PaymentPage: React.FC = () => {
                       clearCart();
                       setOnlineOrderId(null);
                       setPaymentType(null);
-                      navigate("/menu");
+                      navigate(saleRoute);
                     });
                   }}
                   onError={(error) => {
@@ -661,7 +666,8 @@ const PaymentPage: React.FC = () => {
                     PIX
                   </button>
                   {/* Opções extras para admin */}
-                  {currentUser?.role === "admincustomer" && (
+                  {(currentUser?.role === "admincustomer" ||
+                    currentUser?.role === "admin") && (
                     <>
                       <button
                         className={`px-6 py-3 rounded font-bold text-lg transition-all ${
@@ -773,7 +779,7 @@ const PaymentPage: React.FC = () => {
 
                       // Redirecionar para o catálogo após um pequeno delay
                       setTimeout(() => {
-                        navigate("/");
+                        navigate(afterOrderRoute);
                       }, 500);
                     } catch (err: any) {
                       setStatus("error");

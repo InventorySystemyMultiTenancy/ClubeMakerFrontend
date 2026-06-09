@@ -127,6 +127,7 @@ import { useNavigate } from "react-router-dom";
 import type { Product } from "../types";
 import { authenticatedFetch } from "../services/apiService";
 import { useAuth } from "../contexts/AuthContext";
+import { useCart } from "../contexts/CartContext";
 
 // --- Componente de formulário de produto (Modal) ---
 // Props esperadas pelo formulário:
@@ -564,6 +565,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
 const AdminPage: React.FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const { clearCart } = useCart();
 
   // Estado que contém a lista de produtos exibida na tabela
   const [menu, setMenu] = useState<Product[]>([]);
@@ -854,6 +856,15 @@ const AdminPage: React.FC = () => {
           Painel Administrativo
         </h1>
         <div className="flex flex-wrap gap-2 sm:gap-3 w-full sm:w-auto">
+          <button
+            onClick={() => {
+              clearCart();
+              navigate("/admin/nova-venda");
+            }}
+            className="bg-emerald-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-emerald-700 transition-colors shadow-md"
+          >
+            Nova Venda
+          </button>
           <button
             onClick={() => setIsStockModalOpen(true)}
             className="bg-[var(--color-accent)] text-white font-bold py-2 px-6 rounded-lg hover:bg-[var(--color-secondary)] transition-colors shadow-md"

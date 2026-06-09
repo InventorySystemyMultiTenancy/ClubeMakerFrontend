@@ -138,6 +138,8 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
 }) => {
   const [showObservationSaved, setShowObservationSaved] = useState(false);
   const observationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const canManageCustomerSale =
+    currentUser?.role === "admincustomer" || currentUser?.role === "admin";
 
   const containerClass = isMobile
     ? "monster-cart fixed inset-x-0 bottom-0 z-[200] bg-white rounded-t-3xl shadow-[0_-10px_60px_rgba(0,0,0,0.4)] flex flex-col max-h-[90vh] transition-transform duration-300 ease-out transform translate-y-0 border-t border-stone-200"
@@ -255,7 +257,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                     >
                       -
                     </button>
-                    {currentUser?.role === "admincustomer" ? (
+                    {canManageCustomerSale ? (
                       <input
                         type="number"
                         min={1}
@@ -283,7 +285,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                   </div>
                 </div>
 
-                {currentUser?.role === "admincustomer" && (
+                {canManageCustomerSale && (
                   <div className="grid grid-cols-2 gap-2 rounded border border-blue-500/20 bg-black/40 p-2">
                     <label className="flex flex-col gap-1 text-xs font-bold text-blue-100">
                       Valor un.
@@ -326,7 +328,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
       {/* Footer / Checkout */}
       {cartItems.length > 0 && (
         <div className="monster-cart-footer p-4 bg-white border-t border-stone-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
-          {currentUser?.role === "admincustomer" && (
+          {canManageCustomerSale && (
             <div className="mb-4">
               <label
                 htmlFor="orderCustomer"
@@ -553,6 +555,8 @@ const MenuPage: React.FC = () => {
   >([]);
 
   const { currentUser } = useAuth();
+  const canManageCustomerSale =
+    currentUser?.role === "admincustomer" || currentUser?.role === "admin";
 
   // AQUI ESTÁ A MÁGICA: Extraímos observation e setObservation do contexto
   const {
@@ -708,7 +712,7 @@ const MenuPage: React.FC = () => {
 
   useEffect(() => {
     const fetchCustomers = async () => {
-      if (currentUser?.role !== "admincustomer") return;
+      if (!canManageCustomerSale || !currentUser?.id) return;
       setIsLoadingCustomers(true);
       try {
         const data = await getCustomersForAdminCustomer(currentUser.id);
@@ -729,7 +733,7 @@ const MenuPage: React.FC = () => {
     };
 
     fetchCustomers();
-  }, [currentUser?.role]);
+  }, [canManageCustomerSale, currentUser?.id]);
 
   useEffect(() => {
     const fetchSuggestion = async () => {
@@ -809,7 +813,7 @@ const MenuPage: React.FC = () => {
 
   const handleCheckout = () => {
     if (!currentUser || cartItems.length === 0) return;
-    navigate("/payment");
+    navigate(currentUser.role === "admin" ? "/admin/payment" : "/payment");
   };
 
   const categorizedMenu = useMemo(() => {

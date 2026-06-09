@@ -117,9 +117,10 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
   const addToCart = (product: Product) => {
     setCartItems((prevItems) => {
       const existingItem = prevItems.find((item) => item.id === product.id);
-      const isAdminCustomer = currentUser?.role === "admincustomer";
+      const canManageCustomerSale =
+        currentUser?.role === "admincustomer" || currentUser?.role === "admin";
       const quantidadeVenda = product.quantidadeVenda ?? 1;
-      const addQuantidade = isAdminCustomer ? 1 : quantidadeVenda;
+      const addQuantidade = canManageCustomerSale ? 1 : quantidadeVenda;
       if (existingItem) {
         const novaQuantidade = existingItem.quantity + addQuantidade;
         return prevItems.map((item) =>
@@ -158,10 +159,11 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
     setCartItems((prevItems) => {
       const item = prevItems.find((i) => i.id === productId);
       if (!item) return prevItems;
-      const isAdminCustomer = currentUser?.role === "admincustomer";
+      const canManageCustomerSale =
+        currentUser?.role === "admincustomer" || currentUser?.role === "admin";
       const quantidadeVenda = item.quantidadeVenda ?? 1;
       let novaQuantidade = Math.max(quantity, 0);
-      if (!isAdminCustomer && novaQuantidade > 0) {
+      if (!canManageCustomerSale && novaQuantidade > 0) {
         novaQuantidade =
           Math.round(novaQuantidade / quantidadeVenda) * quantidadeVenda;
       }

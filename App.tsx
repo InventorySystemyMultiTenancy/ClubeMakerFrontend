@@ -106,7 +106,8 @@ const RouterBody: React.FC = () => {
   const location = useLocation();
   const { store, loading, error } = useStore(); // 🏪 MULTI-TENANT
 
-  const isMenuRoute = location.pathname === "/menu";
+  const isMenuRoute =
+    location.pathname === "/menu" || location.pathname === "/admin/nova-venda";
   const isCreateProjectRoute = location.pathname === "/criar-projeto";
 
   // Loading state enquanto carrega a loja
@@ -159,6 +160,30 @@ const RouterBody: React.FC = () => {
               <ProtectedRoute>
                 <PaymentPage />
               </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/nova-venda"
+            element={
+              <RoleProtectedRoute
+                allowedRoles={["admin"]}
+                redirectTo="/admin/login"
+              >
+                <MenuPage />
+              </RoleProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/payment"
+            element={
+              <RoleProtectedRoute
+                allowedRoles={["admin"]}
+                redirectTo="/admin/login"
+              >
+                <PaymentPage />
+              </RoleProtectedRoute>
             }
           />
 
