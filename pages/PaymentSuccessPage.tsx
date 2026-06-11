@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { buildReceiptPdfUrl } from "../utils/receiptPdf";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -38,7 +39,7 @@ export default function PaymentSuccessPage() {
             if (!pdfOpenedRef.current) {
               const pdfOrderId = data.orderId || orderId;
               if (pdfOrderId) {
-                const pdfUrl = `${BACKEND_URL}/api/orders/${pdfOrderId}/receipt-pdf`;
+                const pdfUrl = buildReceiptPdfUrl(BACKEND_URL, pdfOrderId);
                 window.open(pdfUrl, "_blank");
                 pdfOpenedRef.current = true;
               }

@@ -2,6 +2,7 @@ import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import type { Order } from "../types";
 import { formatCurrency, getOrderItemPricingInfo } from "../utils/orderPricing";
+import { buildReceiptPdfUrl } from "../utils/receiptPdf";
 import {
   downloadProjectOrderFile,
   getProjectOrderDetails,
@@ -46,7 +47,7 @@ const OrderDetailPage: React.FC = () => {
             const backendUrl =
               import.meta.env.VITE_API_URL || "http://localhost:3001";
             window.open(
-              `${backendUrl}/api/orders/${order.id}/receipt-pdf`,
+              buildReceiptPdfUrl(backendUrl, order.id),
               "_blank",
             );
           }}

@@ -13,6 +13,7 @@ import {
 } from "../services/paymentService";
 import type { Order, CartItem } from "../types";
 import PaymentOnline from "../components/PaymentOnline";
+import { buildReceiptPdfUrl } from "../utils/receiptPdf";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 const CONTACT_WHATSAPP = "5511947094271";
@@ -261,7 +262,7 @@ const PaymentPage: React.FC = () => {
       setQrCodeBase64(null);
 
       // Baixa o PDF automaticamente após sucesso
-      const pdfUrl = `${BACKEND_URL}/api/orders/${orderId}/receipt-pdf`;
+      const pdfUrl = buildReceiptPdfUrl(BACKEND_URL, orderId);
       fetch(pdfUrl)
         .then((res) => res.blob())
         .then((blob) => {
@@ -750,7 +751,10 @@ const PaymentPage: React.FC = () => {
 
                       // Abrir PDF em nova aba se o pedido foi criado com sucesso
                       if (orderData && orderData.id) {
-                        const pdfUrl = `${BACKEND_URL}/api/orders/${orderData.id}/receipt-pdf`;
+                        const pdfUrl = buildReceiptPdfUrl(
+                          BACKEND_URL,
+                          orderData.id,
+                        );
                         window.open(pdfUrl, "_blank");
                       }
 
