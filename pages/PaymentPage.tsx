@@ -67,9 +67,19 @@ type ActivePaymentState = {
 } | null;
 
 const PaymentPage: React.FC = () => {
-  const { cartItems, cartTotal, clearCart, observation } = useCart();
+  const {
+    cartItems,
+    cartTotal,
+    clearCart,
+    observation,
+    selectedOrderCustomer,
+  } = useCart();
   const { currentUser, addOrderToHistory, logout } = useAuth();
   const navigate = useNavigate();
+  const orderCustomer = selectedOrderCustomer || currentUser;
+  const isAdminSale = currentUser?.role === "admin";
+  const saleRoute = isAdminSale ? "/admin/nova-venda" : "/menu";
+  const afterOrderRoute = isAdminSale ? "/admin" : "/";
 
   // Estados de UI
   const [paymentType, setPaymentType] = useState<
@@ -245,8 +255,8 @@ const PaymentPage: React.FC = () => {
 
       const orderData: Order = {
         id: orderId,
-        userId: currentUser!.id,
-        userName: currentUser!.name,
+        userId: orderCustomer!.id,
+        userName: orderCustomer!.name,
         items: cartItems.map(serializeCartItemForOrder),
         total: cartTotal,
         timestamp: new Date().toISOString(),
@@ -254,7 +264,9 @@ const PaymentPage: React.FC = () => {
         status: "active",
       };
 
-      addOrderToHistory(orderData);
+      if (!selectedOrderCustomer) {
+        addOrderToHistory(orderData);
+      }
 
       setActivePayment(null);
       setStatus("success");
@@ -287,8 +299,10 @@ const PaymentPage: React.FC = () => {
 
       // Redireciona para a página inicial após 5 segundos
       setTimeout(async () => {
-        await logout();
-        navigate("/", { replace: true });
+        if (!isAdminSale) {
+          await logout();
+        }
+        navigate(afterOrderRoute, { replace: true });
       }, 5000);
     } catch (error) {
       console.error("Erro ao finalizar:", error);
@@ -303,8 +317,8 @@ const PaymentPage: React.FC = () => {
     const orderResp = await fetchStandard(`${BACKEND_URL}/api/orders`, {
       method: "POST",
       body: JSON.stringify({
-        userId: currentUser!.id,
-        userName: currentUser!.name,
+        userId: orderCustomer!.id,
+        userName: orderCustomer!.name,
         items: cartItems.map(serializeCartItemForOrder),
         total:
           paymentType === "presencial" &&
@@ -325,6 +339,84 @@ const PaymentPage: React.FC = () => {
     return data.id;
   };
 
+  const handleContactOrder = async () => {
+    if (!orderCustomer || cartItems.length === 0) return;
+
+    setStatus("processing");
+    setErrorMessage("");
+
+    try {
+      const serializedItems = cartItems.map(serializeCartItemForOrder);
+      const orderResp = await fetchStandard(`${BACKEND_URL}/api/orders`, {
+        method: "POST",
+        body: JSON.stringify({
+          userId: orderCustomer.id,
+          userName: orderCustomer.name,
+          items: serializedItems,
+          total: cartTotal,
+          paymentType: "contato",
+          paymentMethod: "whatsapp",
+          paymentStatus: "pending",
+          observation,
+          status: "pending",
+        }),
+      });
+
+      if (!orderResp.ok) {
+        throw new Error("Erro ao criar pedido");
+      }
+
+      const orderData = await orderResp.json();
+      const itemsText = serializedItems
+        .map(
+          (item) =>
+            `${item.quantity}x ${item.name} - R$ ${(item.price * item.quantity).toFixed(2)}`,
+        )
+        .join("\n");
+      const message = [
+        `Olá! Acabei de fazer o pedido ${orderData.id}.`,
+        "",
+        `Cliente: ${orderCustomer.name}`,
+        "",
+        "Itens:",
+        itemsText,
+        "",
+        `Total: R$ ${cartTotal.toFixed(2)}`,
+        observation ? `Observação: ${observation}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n");
+
+      clearCart();
+      setPaymentType(null);
+      setPresencialStep(null);
+      setPaymentMethod(null);
+      setStatus("success");
+      window.open(
+        `https://wa.me/${CONTACT_WHATSAPP}?text=${encodeURIComponent(message)}`,
+        "_blank",
+      );
+
+      Swal.fire({
+        icon: "success",
+        title: "Pedido criado!",
+        text: "Agora é só continuar pelo WhatsApp.",
+        confirmButtonText: "OK",
+      }).then(() => {
+        navigate(isAdminSale ? "/admin" : "/meus-pedidos");
+      });
+    } catch (err: any) {
+      setStatus("error");
+      setErrorMessage(err.message || "Erro ao criar pedido para contato.");
+      Swal.fire({
+        icon: "error",
+        title: "Erro ao criar pedido",
+        text: err.message || "Erro desconhecido",
+        confirmButtonText: "OK",
+      });
+    }
+  };
+
   const handlePixPayment = async () => {
     setStatus("processing");
     setPaymentStatusMessage("Gerando QR Code...");
@@ -334,14 +426,14 @@ const PaymentPage: React.FC = () => {
 
       const result = await createPixPayment({
         amount: cartTotal,
-        description: `Pedido de ${currentUser!.name}`,
+        description: `Pedido de ${orderCustomer!.name}`,
         orderId: orderId,
-        email: currentUser?.email,
-        payerName: currentUser?.name,
+        email: orderCustomer?.email,
+        payerName: orderCustomer?.name,
         items: cartItems.map(serializeCartItemForOrder),
         user: {
-          email: currentUser?.email,
-          name: currentUser?.name,
+          email: orderCustomer?.email,
+          name: orderCustomer?.name,
         },
       });
 
@@ -373,14 +465,14 @@ const PaymentPage: React.FC = () => {
 
       const result = await createCardPayment({
         amount: valorFinal,
-        description: `Pedido ${currentUser!.name}`,
+        description: `Pedido ${orderCustomer!.name}`,
         orderId: orderId,
         paymentMethod: paymentMethod as "credit" | "debit",
         installments: paymentMethod === "credit" ? selectedInstallments : 1,
         items: cartItems.map(serializeCartItemForOrder),
         user: {
-          email: currentUser?.email,
-          name: currentUser?.name,
+          email: orderCustomer?.email,
+          name: orderCustomer?.name,
         },
       });
 
@@ -432,7 +524,7 @@ const PaymentPage: React.FC = () => {
       <div className="container mx-auto max-w-4xl">
       <h1 className="mb-8 flex items-center gap-2 text-3xl font-bold text-white">
         <button
-          onClick={() => navigate("/menu")}
+          onClick={() => navigate(saleRoute)}
           className="text-[var(--color-primary)] hover:bg-[var(--color-primary-light)] p-2 rounded-full transition-all duration-300 ease-in-out transform hover:scale-110 shadow-lg"
           disabled={status === "processing"}
         >
@@ -447,6 +539,14 @@ const PaymentPage: React.FC = () => {
           <h2 className="mb-4 border-b border-blue-500/20 pb-2 text-xl font-bold text-white">
             Resumo do Pedido
           </h2>
+          {selectedOrderCustomer && (
+            <div className="mb-4 rounded border border-blue-500/20 bg-black/30 p-3 text-sm text-blue-100">
+              Compra para:{" "}
+              <span className="font-bold text-white">
+                {selectedOrderCustomer.name}
+              </span>
+            </div>
+          )}
           <ul className="space-y-3 max-h-64 overflow-y-auto mb-4">
             {cartItems.map((item) => (
               <li key={item.id} className="flex justify-between text-blue-100">
@@ -506,9 +606,10 @@ const PaymentPage: React.FC = () => {
               </button>
               <button
                 className="p-4 rounded-xl border-2 border-[var(--color-primary)] bg-[var(--color-primary-lighter)] text-[var(--color-primary-active)] font-bold text-lg hover:bg-[var(--color-primary-light)] transition-all"
-                onClick={() => setPaymentType("presencial")}
+                onClick={handleContactOrder}
+                disabled={status === "processing"}
               >
-                🏪 Pagar na Loja Girakids
+                🏪 Entrar em contato
               </button>
             </>
           )}
@@ -528,8 +629,8 @@ const PaymentPage: React.FC = () => {
                         {
                           method: "POST",
                           body: JSON.stringify({
-                            userId: currentUser!.id,
-                            userName: currentUser!.name,
+                            userId: orderCustomer!.id,
+                            userName: orderCustomer!.name,
                             items: cartItems.map(serializeCartItemForOrder),
                             total: cartTotal,
                             observation,
@@ -565,8 +666,8 @@ const PaymentPage: React.FC = () => {
                   orderId={onlineOrderId}
                   total={cartTotal}
                   items={cartItems.map(serializeCartItemForOrder)}
-                  userEmail={currentUser?.email || ""}
-                  userName={currentUser?.name || ""}
+                  userEmail={orderCustomer?.email || ""}
+                  userName={orderCustomer?.name || ""}
                   onSuccess={(paymentId) => {
                     Swal.fire({
                       icon: "success",
@@ -577,7 +678,7 @@ const PaymentPage: React.FC = () => {
                       clearCart();
                       setOnlineOrderId(null);
                       setPaymentType(null);
-                      navigate("/menu");
+                      navigate(saleRoute);
                     });
                   }}
                   onError={(error) => {
@@ -597,7 +698,7 @@ const PaymentPage: React.FC = () => {
           {paymentType === "presencial" && (
             <div className="rounded border-l-4 border-[var(--color-primary)] bg-[#071226] p-4 text-center font-semibold text-blue-100 shadow-xl shadow-blue-950/25">
               <span className="block text-2xl mb-2">
-                🏪 Pagamento na Loja Girakids
+                🏪 Pagamento na Loja
               </span>
 
               {/* Step 1: Seleção do método */}
@@ -645,7 +746,8 @@ const PaymentPage: React.FC = () => {
                     PIX
                   </button>
                   {/* Opções extras para admin */}
-                  {currentUser?.role === "admincustomer" && (
+                  {(currentUser?.role === "admincustomer" ||
+                    currentUser?.role === "admin") && (
                     <>
                       <button
                         className={`px-6 py-3 rounded font-bold text-lg transition-all ${
@@ -721,8 +823,8 @@ const PaymentPage: React.FC = () => {
                         {
                           method: "POST",
                           body: JSON.stringify({
-                            userId: currentUser!.id,
-                            userName: currentUser!.name,
+                            userId: orderCustomer!.id,
+                            userName: orderCustomer!.name,
                             items: cartItems.map(serializeCartItemForOrder),
                             paymentType: "presencial",
                             paymentMethod,
@@ -760,7 +862,7 @@ const PaymentPage: React.FC = () => {
 
                       // Redirecionar para o catálogo após um pequeno delay
                       setTimeout(() => {
-                        navigate("/");
+                        navigate(afterOrderRoute);
                       }, 500);
                     } catch (err: any) {
                       setStatus("error");
@@ -794,3 +896,4 @@ const PaymentPage: React.FC = () => {
 };
 
 export default PaymentPage;
+

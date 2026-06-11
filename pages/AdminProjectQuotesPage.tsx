@@ -4,6 +4,15 @@ import { authenticatedFetch } from "../services/apiService";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
+const openWhatsApp = (phone: string, message: string) => {
+  const cleanPhone = phone.replace(/\D/g, "");
+  if (!cleanPhone) return;
+  window.open(
+    `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`,
+    "_blank",
+  );
+};
+
 type QuoteDraft = {
   quotedTotal: string;
   adminObservation: string;
@@ -267,6 +276,7 @@ const AdminProjectQuotesPage: React.FC = () => {
               deliveryDeadline: "",
             };
             const canEdit = quote.status === "pending" || quote.status === "sent";
+            const customerPhone = quote.customerPhone || quote.userPhone || "";
 
             return (
               <div
@@ -278,6 +288,16 @@ const AdminProjectQuotesPage: React.FC = () => {
                     <h2 className="text-lg font-black text-stone-900">
                       {quote.fileName}
                     </h2>
+                    {quote.projectLink && (
+                      <a
+                        href={quote.projectLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-1 block break-all text-sm font-bold text-blue-700 underline"
+                      >
+                        Abrir link do projeto
+                      </a>
+                    )}
                     <p className="text-sm text-stone-500">
                       Cliente: {quote.userName || quote.userId}
                     </p>
@@ -291,6 +311,31 @@ const AdminProjectQuotesPage: React.FC = () => {
                 </div>
 
                 <div className="mb-4 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      openWhatsApp(
+                        customerPhone,
+                        [
+                          `Ola, ${quote.userName || "tudo bem"}!`,
+                          `Estou entrando em contato sobre seu orcamento ${quote.id}.`,
+                          `Projeto: ${quote.fileName}`,
+                          quote.projectLink ? `Link: ${quote.projectLink}` : "",
+                        ]
+                          .filter(Boolean)
+                          .join("\n"),
+                      )
+                    }
+                    disabled={!customerPhone}
+                    className="rounded-lg bg-green-600 px-4 py-2 text-sm font-bold text-white shadow transition hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-stone-300 disabled:text-stone-500"
+                    title={
+                      customerPhone
+                        ? "Entrar em contato pelo WhatsApp"
+                        : "Cliente sem telefone cadastrado"
+                    }
+                  >
+                    Entrar em contato
+                  </button>
                   <button
                     type="button"
                     onClick={() => downloadFile(quote)}
@@ -318,16 +363,17 @@ const AdminProjectQuotesPage: React.FC = () => {
                 </div>
 
                 <div className="grid gap-2 text-sm text-stone-700 md:grid-cols-2">
-                  <p>Tamanho: {quote.size}</p>
-                  <p>Pecas: {quote.pieceQuantity}</p>
+                  <p>Tamanho: {quote.size || "-"}</p>
+                  <p>Pecas: {quote.pieceQuantity || "-"}</p>
                   <p>
-                    Medidas: {quote.height} x {quote.width} x {quote.depth}
+                    Medidas: {quote.height || "-"} x {quote.width || "-"} x{" "}
+                    {quote.depth || "-"}
                   </p>
                   <p>
-                    Cores: {quote.colorQuantity} - {quote.colors}
+                    Cores: {quote.colorQuantity || "-"} - {quote.colors || "-"}
                   </p>
                   <p className="md:col-span-2">
-                    Dados de envio: {quote.shippingData}
+                    Dados de envio: {quote.shippingData || "-"}
                   </p>
                 </div>
 

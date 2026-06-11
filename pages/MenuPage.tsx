@@ -7,8 +7,11 @@ import {
   getDynamicCartSuggestion,
   getChefMessage,
 } from "../services/geminiService";
-import { getProducts } from "../services/apiService";
-import type { Product, CartItem } from "../types";
+import {
+  getCustomersForAdminCustomer,
+  getProducts,
+} from "../services/apiService";
+import type { Product, CartItem, User } from "../types";
 
 // URL da API
 const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
@@ -29,23 +32,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
   quantityInCart = 0,
   onOpenImage,
 }) => {
-  // Lógica ajustada: Se for null é ilimitado. Se for 0 é esgotado.
-  const isOutOfStock = product.stock === 0;
   const primaryImage = product.images?.[0] || product.imageUrl;
 
   return (
     <div
-      className={`monster-product-card bg-white w-60 rounded-2xl shadow-md overflow-hidden flex flex-col relative h-full transition-transform hover:shadow-xl ${
-        isOutOfStock ? "opacity-60 grayscale" : ""
-      }`}
+      className="monster-product-card bg-white w-60 rounded-2xl shadow-md overflow-hidden flex flex-col relative h-full transition-transform hover:shadow-xl"
     >
-      {/* Badges - Apenas ESGOTADO agora */}
-      {isOutOfStock && (
-        <div className="absolute top-3 right-3 z-10 bg-blue-600 text-white font-bold px-3 py-1 rounded-none text-sm shadow-sm">
-          ESGOTADO
-        </div>
-      )}
-
       {/* Mídia (Imagem ou Vídeo) */}
       <div className="monster-product-media relative h-40 md:h-52 bg-gray-100">
         {primaryImage ? (
@@ -85,12 +77,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             )}
             <button
               onClick={() => onAddToCart(product)}
-              disabled={isOutOfStock}
-              className={`monster-buy-button w-full font-bold py-3 px-4 rounded-xl text-base md:text-lg transition-colors shadow-sm ${
-                isOutOfStock
-                  ? "bg-stone-300 text-stone-500 cursor-not-allowed"
-                  : "bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800"
-              }`}
+              className="monster-buy-button w-full font-bold py-3 px-4 rounded-xl text-base md:text-lg transition-colors shadow-sm bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800"
             >
               {quantityInCart > 0
                 ? `Adicionado (${quantityInCart})`
@@ -110,6 +97,8 @@ interface CartSidebarProps {
   cartItems: CartItem[];
   cartTotal: number;
   updateQuantity: (id: string, q: number) => void;
+  updateUnitPrice: (id: string, unitPrice: number) => void;
+  updateDiscountPercent: (id: string, discountPercent: number) => void;
   onCheckout: () => void;
   isPlacingOrder: boolean;
   cartSuggestion?: string;
@@ -119,6 +108,10 @@ interface CartSidebarProps {
   onAddToCart: (product: Product) => void;
   observation: string; // <--- Recebe a observação
   setObservation: (obs: string) => void; // <--- Recebe a função para alterar
+  selectedOrderCustomer: User | null;
+  setSelectedOrderCustomer: (user: User | null) => void;
+  availableCustomers: User[];
+  isLoadingCustomers: boolean;
   currentUser?: any; // <--- Recebe o usuário atual
 }
 
@@ -126,6 +119,8 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
   cartItems,
   cartTotal,
   updateQuantity,
+  updateUnitPrice,
+  updateDiscountPercent,
   onCheckout,
   isPlacingOrder,
   cartSuggestion,
@@ -135,10 +130,16 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
   onAddToCart,
   observation,
   setObservation,
+  selectedOrderCustomer,
+  setSelectedOrderCustomer,
+  availableCustomers,
+  isLoadingCustomers,
   currentUser,
 }) => {
   const [showObservationSaved, setShowObservationSaved] = useState(false);
   const observationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const canManageCustomerSale =
+    currentUser?.role === "admincustomer" || currentUser?.role === "admin";
 
   const containerClass = isMobile
     ? "monster-cart fixed inset-x-0 bottom-0 z-[200] bg-white rounded-t-3xl shadow-[0_-10px_60px_rgba(0,0,0,0.4)] flex flex-col max-h-[90vh] transition-transform duration-300 ease-out transform translate-y-0 border-t border-stone-200"
@@ -233,55 +234,91 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
             {cartItems.map((item) => (
               <div
                 key={item.id}
-                className="monster-cart-item flex bg-white p-3 rounded-lg shadow-sm border border-stone-200 items-center justify-between"
+                className="monster-cart-item flex flex-col gap-3 bg-white p-3 rounded-lg shadow-sm border border-stone-200"
               >
-                <div className="flex-1 pr-3">
-                  <p className="font-bold text-stone-100 text-base md:text-lg leading-tight mb-1">
-                    {item.name}
-                  </p>
-                  <p className="text-sm md:text-base font-semibold text-blue-300">
-                    R$ {item.price.toFixed(2)}
-                  </p>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex-1 pr-3">
+                    <p className="font-bold text-stone-100 text-base md:text-lg leading-tight mb-1">
+                      {item.name}
+                    </p>
+                    <p className="text-sm md:text-base font-semibold text-blue-300">
+                      R$ {item.price.toFixed(2)}
+                    </p>
+                  </div>
+
+                  {/* CONTROLES DE QUANTIDADE GRANDES */}
+                  <div className="monster-qty flex items-center bg-stone-100 rounded-lg border border-stone-300 overflow-hidden h-10 md:h-11 shadow-inner shrink-0">
+                    <button
+                      onClick={() => {
+                        const step = item.quantidadeVenda ?? 1;
+                        updateQuantity(item.id, item.quantity - step);
+                      }}
+                      className="w-9 md:w-10 h-full flex items-center justify-center text-stone-100 font-bold text-xl hover:bg-blue-600 hover:text-white transition-colors active:bg-blue-700"
+                    >
+                      -
+                    </button>
+                    {canManageCustomerSale ? (
+                      <input
+                        type="number"
+                        min={1}
+                        value={item.quantity}
+                        onChange={(e) => {
+                          const q = parseInt(e.target.value);
+                          if (!isNaN(q) && q > 0) updateQuantity(item.id, q);
+                        }}
+                        className="w-12 md:w-14 h-full text-base md:text-lg font-bold text-center bg-black text-white border-x border-blue-500/20"
+                      />
+                    ) : (
+                      <span className="w-9 md:w-10 h-full flex items-center justify-center text-base md:text-lg font-bold bg-black border-x border-blue-500/20">
+                        {item.quantity}
+                      </span>
+                    )}
+                    <button
+                      onClick={() => {
+                        const step = item.quantidadeVenda ?? 1;
+                        updateQuantity(item.id, item.quantity + step);
+                      }}
+                      className="w-9 md:w-10 h-full flex items-center justify-center bg-blue-600 text-white font-bold text-xl hover:bg-blue-700 transition-colors active:bg-blue-800"
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
 
-                {/* CONTROLES DE QUANTIDADE GRANDES */}
-                <div className="monster-qty flex items-center bg-stone-100 rounded-lg border border-stone-300 overflow-hidden h-10 md:h-11 shadow-inner">
-                  <button
-                    onClick={() => {
-                      const step = item.quantidadeVenda ?? 1;
-                      updateQuantity(item.id, item.quantity - step);
-                    }}
-                    className="w-9 md:w-10 h-full flex items-center justify-center text-stone-100 font-bold text-xl hover:bg-blue-600 hover:text-white transition-colors active:bg-blue-700"
-                  >
-                    -
-                  </button>
-                  {currentUser?.role === "admincustomer" ? (
-                    <input
-                      type="number"
-                      min={1}
-                      max={item.stock ?? 99}
-                      value={item.quantity}
-                      onChange={(e) => {
-                        const q = parseInt(e.target.value);
-                        if (!isNaN(q) && q > 0) updateQuantity(item.id, q);
-                      }}
-                      className="w-12 md:w-14 h-full text-base md:text-lg font-bold text-center bg-black text-white border-x border-blue-500/20"
-                    />
-                  ) : (
-                    <span className="w-9 md:w-10 h-full flex items-center justify-center text-base md:text-lg font-bold bg-black border-x border-blue-500/20">
-                      {item.quantity}
-                    </span>
-                  )}
-                  <button
-                    onClick={() => {
-                      const step = item.quantidadeVenda ?? 1;
-                      updateQuantity(item.id, item.quantity + step);
-                    }}
-                    className="w-9 md:w-10 h-full flex items-center justify-center bg-blue-600 text-white font-bold text-xl hover:bg-blue-700 transition-colors active:bg-blue-800"
-                  >
-                    +
-                  </button>
-                </div>
+                {canManageCustomerSale && (
+                  <div className="grid grid-cols-2 gap-2 rounded border border-blue-500/20 bg-black/40 p-2">
+                    <label className="flex flex-col gap-1 text-xs font-bold text-blue-100">
+                      Valor un.
+                      <input
+                        type="number"
+                        min={0}
+                        step="0.01"
+                        value={item.customUnitPrice ?? item.price}
+                        onChange={(e) =>
+                          updateUnitPrice(item.id, parseFloat(e.target.value))
+                        }
+                        className="h-9 w-full border border-blue-500/30 bg-black px-2 text-sm font-semibold text-white focus:border-blue-400 focus:outline-none"
+                      />
+                    </label>
+                    <label className="flex flex-col gap-1 text-xs font-bold text-blue-100">
+                      Desconto %
+                      <input
+                        type="number"
+                        min={0}
+                        max={100}
+                        step="0.01"
+                        value={item.discountPercent ?? 0}
+                        onChange={(e) =>
+                          updateDiscountPercent(
+                            item.id,
+                            parseFloat(e.target.value),
+                          )
+                        }
+                        className="h-9 w-full border border-blue-500/30 bg-black px-2 text-sm font-semibold text-white focus:border-blue-400 focus:outline-none"
+                      />
+                    </label>
+                  </div>
+                )}
               </div>
             ))}
           </>
@@ -291,6 +328,45 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
       {/* Footer / Checkout */}
       {cartItems.length > 0 && (
         <div className="monster-cart-footer p-4 bg-white border-t border-stone-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+          {canManageCustomerSale && (
+            <div className="mb-4">
+              <label
+                htmlFor="orderCustomer"
+                className="block text-base font-bold text-stone-100 mb-2"
+              >
+                Cliente da compra
+              </label>
+              <select
+                id="orderCustomer"
+                value={selectedOrderCustomer?.id || ""}
+                onChange={(e) => {
+                  const selected = availableCustomers.find(
+                    (user) => user.id === e.target.value,
+                  );
+                  setSelectedOrderCustomer(selected || null);
+                }}
+                disabled={isLoadingCustomers}
+                className="w-full p-2 border-2 border-blue-500/30 bg-black text-white rounded-none focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-300/20 transition-all text-sm"
+              >
+                <option value="">
+                  {isLoadingCustomers
+                    ? "Carregando clientes..."
+                    : "Usar conta do admin"}
+                </option>
+                {availableCustomers.map((user) => (
+                  <option key={user.id} value={user.id}>
+                    {user.name}
+                    {user.cpf ? ` - ${user.cpf}` : ""}
+                  </option>
+                ))}
+              </select>
+              {selectedOrderCustomer && (
+                <p className="text-xs text-blue-300 font-bold mt-1">
+                  Pedido sera registrado para {selectedOrderCustomer.name}.
+                </p>
+              )}
+            </div>
+          )}
           {/* CAMPO DE OBSERVAÇÃO - AGORA CONECTADO AO CONTEXTO */}
           <div className="mb-4">
             <label
@@ -455,6 +531,8 @@ const MenuPage: React.FC = () => {
   const [isChefLoading, setIsChefLoading] = useState<boolean>(false);
   const [isSuggestionLoading, setIsSuggestionLoading] = useState(false);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+  const [availableCustomers, setAvailableCustomers] = useState<User[]>([]);
+  const [isLoadingCustomers, setIsLoadingCustomers] = useState(false);
   const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
   const [isCatalogNavOpen, setIsCatalogNavOpen] = useState(false);
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
@@ -477,6 +555,8 @@ const MenuPage: React.FC = () => {
   >([]);
 
   const { currentUser } = useAuth();
+  const canManageCustomerSale =
+    currentUser?.role === "admincustomer" || currentUser?.role === "admin";
 
   // AQUI ESTÁ A MÁGICA: Extraímos observation e setObservation do contexto
   const {
@@ -484,9 +564,13 @@ const MenuPage: React.FC = () => {
     addToCart,
     cartTotal,
     updateQuantity,
+    updateUnitPrice,
+    updateDiscountPercent,
     clearCart,
     observation,
     setObservation,
+    selectedOrderCustomer,
+    setSelectedOrderCustomer,
   } = useCart();
   const touchStartXRef = useRef<number | null>(null);
   const didSwipeRef = useRef(false);
@@ -627,6 +711,31 @@ const MenuPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    const fetchCustomers = async () => {
+      if (!canManageCustomerSale || !currentUser?.id) return;
+      setIsLoadingCustomers(true);
+      try {
+        const data = await getCustomersForAdminCustomer(currentUser.id);
+        const users = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.data)
+            ? data.data
+            : [];
+        setAvailableCustomers(
+          users.filter((user: User) => (user.role || "customer") === "customer"),
+        );
+      } catch (error) {
+        console.error("Erro ao buscar clientes:", error);
+        setAvailableCustomers([]);
+      } finally {
+        setIsLoadingCustomers(false);
+      }
+    };
+
+    fetchCustomers();
+  }, [canManageCustomerSale, currentUser?.id]);
+
+  useEffect(() => {
     const fetchSuggestion = async () => {
       if (currentUser && menu.length > 0) {
         setIsSuggestionLoading(true);
@@ -704,7 +813,7 @@ const MenuPage: React.FC = () => {
 
   const handleCheckout = () => {
     if (!currentUser || cartItems.length === 0) return;
-    navigate("/payment");
+    navigate(currentUser.role === "admin" ? "/admin/payment" : "/payment");
   };
 
   const categorizedMenu = useMemo(() => {
@@ -811,7 +920,7 @@ const MenuPage: React.FC = () => {
           </div>
         )}
         {/* Scroll Container */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 pb-48 md:pb-8 scroll-smooth">
+        <div className="flex-1 overflow-y-auto p-4 md:p-8 pb-48 md:pb-24 scroll-smooth">
           {/* Mensagens IA */}
 
           {/* Grid de Produtos */}
@@ -859,12 +968,7 @@ const MenuPage: React.FC = () => {
                 <h2 className="monster-section-title">Produtos em destaque</h2>
                 <div className="monster-product-grid flex flex-wrap gap-4 md:gap-6">
                 {[...menu]
-                  .sort((a, b) => {
-                    const aOOS = a.stock === 0 ? 1 : 0;
-                    const bOOS = b.stock === 0 ? 1 : 0;
-                    if (aOOS !== bOOS) return aOOS - bOOS;
-                    return a.name.localeCompare(b.name, "pt-BR");
-                  })
+                  .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"))
                     .map((product) => (
                       <ProductCard
                         key={product.id}
@@ -886,11 +990,7 @@ const MenuPage: React.FC = () => {
                 </h3>
                 <div className="monster-product-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 md:gap-8">
                   {[...(categorizedMenu[selectedCategory] || [])]
-                    .sort((a, b) => {
-                      const aOOS = a.stock === 0 ? 1 : 0;
-                      const bOOS = b.stock === 0 ? 1 : 0;
-                      return aOOS - bOOS;
-                    })
+                    .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"))
                     .map((product) => (
                       <ProductCard
                         key={product.id}
@@ -944,6 +1044,8 @@ const MenuPage: React.FC = () => {
             cartItems={cartItems}
             cartTotal={cartTotal}
             updateQuantity={updateQuantity}
+            updateUnitPrice={updateUnitPrice}
+            updateDiscountPercent={updateDiscountPercent}
             onCheckout={handleCheckout}
             isPlacingOrder={isPlacingOrder}
             cartSuggestion={cartSuggestion}
@@ -951,6 +1053,10 @@ const MenuPage: React.FC = () => {
             onAddToCart={addToCart}
             observation={observation}
             setObservation={setObservation}
+            selectedOrderCustomer={selectedOrderCustomer}
+            setSelectedOrderCustomer={setSelectedOrderCustomer}
+            availableCustomers={availableCustomers}
+            isLoadingCustomers={isLoadingCustomers}
             currentUser={currentUser}
           />
           </div>

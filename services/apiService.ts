@@ -273,3 +273,17 @@ export async function getUsers() {
   const response = await authenticatedFetch(`${API_URL}/users`);
   return response.json();
 }
+
+export async function getCustomersForAdminCustomer(adminCustomerId: string) {
+  const response = await publicFetch(
+    `${API_URL}/admincustomer/customers?adminCustomerId=${encodeURIComponent(
+      adminCustomerId,
+    )}`,
+  );
+
+  if (!response.ok) {
+    throw new Error("Erro ao buscar clientes");
+  }
+
+  return response.json();
+}

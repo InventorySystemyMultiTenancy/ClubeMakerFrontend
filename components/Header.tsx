@@ -13,7 +13,8 @@ const Header: React.FC = () => {
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [hasUndeliveredOrder, setHasUndeliveredOrder] = useState(false);
-  const isCatalogRoute = location.pathname === "/menu";
+  const isCatalogRoute =
+    location.pathname === "/menu" || location.pathname === "/admin/nova-venda";
 
   useEffect(() => {
     setIsMenuOpen(false);
@@ -145,6 +146,12 @@ const Header: React.FC = () => {
 
             {currentUser?.role === "admin" && (
               <>
+                <NavLink
+                  to="/admin/nova-venda"
+                  className="energy-link text-white hover:text-blue-200 transition-colors font-medium"
+                >
+                  Nova Venda
+                </NavLink>
                 <NavLink
                   to="/admin"
                   className="energy-link text-white hover:text-blue-200 transition-colors font-medium"

@@ -7,6 +7,7 @@ import React, {
   useEffect,
 } from "react";
 import type { CartItem, Product } from "../types";
+import type { User } from "../types";
 
 /*
   Define o formato do contexto do carrinho.
@@ -28,6 +29,8 @@ interface CartContextType {
   cartTotal: number;
   observation: string;
   setObservation: (obs: string) => void;
+  selectedOrderCustomer: User | null;
+  setSelectedOrderCustomer: (user: User | null) => void;
 }
 
 // Cria o contexto com tipo opcional (undefined por padrão até o Provider ser usado)
@@ -61,6 +64,17 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
     }
   });
 
+  const [selectedOrderCustomer, setSelectedOrderCustomer] =
+    useState<User | null>(() => {
+      try {
+        const raw = localStorage.getItem("kiosk_selected_order_customer");
+        return raw ? (JSON.parse(raw) as User) : null;
+      } catch (error) {
+        console.error("Erro ao recuperar cliente selecionado:", error);
+        return null;
+      }
+    });
+
   // 2. Efeito de Persistência: Salva no LocalStorage sempre que o carrinho mudar
   useEffect(() => {
     try {
@@ -78,33 +92,37 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, [observation]);
 
+  useEffect(() => {
+    try {
+      if (selectedOrderCustomer) {
+        localStorage.setItem(
+          "kiosk_selected_order_customer",
+          JSON.stringify(selectedOrderCustomer),
+        );
+      } else {
+        localStorage.removeItem("kiosk_selected_order_customer");
+      }
+    } catch (error) {
+      console.error("Erro ao salvar cliente selecionado:", error);
+    }
+  }, [selectedOrderCustomer]);
+
   /*
     Adiciona um produto ao carrinho.
-    - Valida se o produto tem estoque disponível (stock > 0)
-    - Se o produto já existir (mesmo id), incrementa a quantidade em 1 (se houver estoque)
+    - Se o produto já existir (mesmo id), incrementa a quantidade em 1.
     - Caso contrário, adiciona o produto com quantity = 1.
     Usa a função de atualização baseada no estado anterior para evitar condições de corrida.
   */
   const { currentUser } = useAuth();
   const addToCart = (product: Product) => {
-    // Validação de estoque
-    if ((product.stock ?? 0) === 0) {
-      alert("Produto esgotado!");
-      return;
-    }
     setCartItems((prevItems) => {
       const existingItem = prevItems.find((item) => item.id === product.id);
-      const isAdminCustomer = currentUser?.role === "admincustomer";
+      const canManageCustomerSale =
+        currentUser?.role === "admincustomer" || currentUser?.role === "admin";
       const quantidadeVenda = product.quantidadeVenda ?? 1;
-      const addQuantidade = isAdminCustomer ? 1 : quantidadeVenda;
+      const addQuantidade = canManageCustomerSale ? 1 : quantidadeVenda;
       if (existingItem) {
         const novaQuantidade = existingItem.quantity + addQuantidade;
-        if (product.stock !== undefined && novaQuantidade > product.stock) {
-          alert(
-            `Estoque limitado! Máximo de ${product.stock} unidades disponíveis.`,
-          );
-          return prevItems;
-        }
         return prevItems.map((item) =>
           item.id === product.id ? { ...item, quantity: novaQuantidade } : item,
         );
@@ -141,21 +159,13 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
     setCartItems((prevItems) => {
       const item = prevItems.find((i) => i.id === productId);
       if (!item) return prevItems;
-      const isAdminCustomer = currentUser?.role === "admincustomer";
+      const canManageCustomerSale =
+        currentUser?.role === "admincustomer" || currentUser?.role === "admin";
       const quantidadeVenda = item.quantidadeVenda ?? 1;
       let novaQuantidade = Math.max(quantity, 0);
-      if (!isAdminCustomer && novaQuantidade > 0) {
+      if (!canManageCustomerSale && novaQuantidade > 0) {
         novaQuantidade =
           Math.round(novaQuantidade / quantidadeVenda) * quantidadeVenda;
-        if (item.stock !== undefined && novaQuantidade > item.stock) {
-          novaQuantidade = item.stock;
-        }
-      } else if (
-        isAdminCustomer &&
-        item.stock !== undefined &&
-        novaQuantidade > item.stock
-      ) {
-        novaQuantidade = item.stock;
       }
       if (novaQuantidade <= 0) {
         return prevItems.filter((i) => i.id !== productId);
@@ -218,6 +228,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
   const clearCart = () => {
     setCartItems([]);
     setObservation("");
+    setSelectedOrderCustomer(null);
   };
 
   // Calcula o total do carrinho somando price * quantity de cada item
@@ -240,6 +251,8 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
         cartTotal,
         observation,
         setObservation,
+        selectedOrderCustomer,
+        setSelectedOrderCustomer,
       }}
     >
       {children}

@@ -4,6 +4,16 @@ import { useAuth } from "../contexts/AuthContext";
 import type { ProjectQuote } from "../types";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const CONTACT_WHATSAPP = "5511947094271";
+
+const openWhatsApp = (phone: string, message: string) => {
+  const cleanPhone = phone.replace(/\D/g, "");
+  if (!cleanPhone) return;
+  window.open(
+    `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`,
+    "_blank",
+  );
+};
 
 const statusLabel: Record<ProjectQuote["status"], string> = {
   pending: "Aguardando analise",
@@ -150,6 +160,28 @@ const CustomerQuotesPage: React.FC = () => {
                     </div>
                   </div>
                 )}
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    openWhatsApp(
+                      CONTACT_WHATSAPP,
+                      [
+                        `Ola! Quero falar sobre meu orcamento ${quote.id}.`,
+                        `Projeto: ${quote.fileName}`,
+                        quote.projectLink ? `Link: ${quote.projectLink}` : "",
+                        quote.quotedTotal
+                          ? `Valor: R$ ${Number(quote.quotedTotal).toFixed(2)}`
+                          : "",
+                      ]
+                        .filter(Boolean)
+                        .join("\n"),
+                    )
+                  }
+                  className="mt-4 rounded-lg bg-green-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-green-700"
+                >
+                  Entrar em contato
+                </button>
 
                 {quote.status === "approved" && quote.orderId && (
                   <p className="mt-4 text-sm font-semibold text-green-300">

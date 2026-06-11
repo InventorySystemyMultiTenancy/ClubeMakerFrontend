@@ -20,65 +20,50 @@ const CreateProjectPage: React.FC = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   const [file, setFile] = useState<File | null>(null);
+  const [projectLink, setProjectLink] = useState("");
   const [size, setSize] = useState("");
   const [height, setHeight] = useState("");
   const [width, setWidth] = useState("");
   const [depth, setDepth] = useState("");
-  const [colorQuantity, setColorQuantity] = useState("1");
+  const [colorQuantity, setColorQuantity] = useState("");
   const [colors, setColors] = useState("");
-  const [pieceQuantity, setPieceQuantity] = useState("1");
+  const [pieceQuantity, setPieceQuantity] = useState("");
   const [shippingData, setShippingData] = useState("");
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [makerWorldSearch, setMakerWorldSearch] = useState("");
 
   const canSubmit = useMemo(
-    () =>
-      file &&
-      size.trim() &&
-      height.trim() &&
-      width.trim() &&
-      depth.trim() &&
-      colorQuantity.trim() &&
-      colors.trim() &&
-      pieceQuantity.trim() &&
-      shippingData.trim(),
-    [
-      file,
-      size,
-      height,
-      width,
-      depth,
-      colorQuantity,
-      colors,
-      pieceQuantity,
-      shippingData,
-    ],
+    () => Boolean(file || projectLink.trim()),
+    [file, projectLink],
   );
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError("");
 
-    if (!canSubmit || !file) {
-      setError("Preencha todos os campos obrigatorios e envie o arquivo.");
+    if (!canSubmit) {
+      setError("Envie um arquivo ou cole o link do projeto.");
       return;
     }
 
     let fileBase64 = "";
-    try {
-      fileBase64 = await fileToBase64(file);
-    } catch {
-      setError("Nao foi possivel ler o arquivo selecionado.");
-      return;
+    if (file) {
+      try {
+        fileBase64 = await fileToBase64(file);
+      } catch {
+        setError("Nao foi possivel ler o arquivo selecionado.");
+        return;
+      }
     }
 
     const quote = {
       userId: currentUser?.id,
       userName: currentUser?.name,
-      fileName: file.name,
-      fileSize: file.size,
+      fileName: file?.name || "",
+      fileSize: file?.size || 0,
       fileBase64,
+      projectLink: projectLink.trim(),
       size: size.trim(),
       height: height.trim(),
       width: width.trim(),
@@ -111,17 +96,20 @@ const CreateProjectPage: React.FC = () => {
         "Ola! Quero solicitar um orcamento de projeto 3D.",
         "",
         `Cliente: ${currentUser?.name || "Cliente"}`,
-        `Arquivo: ${quote.fileName}`,
-        `Tamanho: ${quote.size}`,
-        `Altura: ${quote.height}`,
-        `Largura: ${quote.width}`,
-        `Profundidade: ${quote.depth}`,
-        `Quantidade de cores: ${quote.colorQuantity}`,
-        `Cores: ${quote.colors}`,
-        `Quantidade de pecas: ${quote.pieceQuantity}`,
+        quote.fileName ? `Arquivo: ${quote.fileName}` : "",
+        quote.projectLink ? `Link: ${quote.projectLink}` : "",
+        quote.size ? `Tamanho: ${quote.size}` : "",
+        quote.height ? `Altura: ${quote.height}` : "",
+        quote.width ? `Largura: ${quote.width}` : "",
+        quote.depth ? `Profundidade: ${quote.depth}` : "",
+        quote.colorQuantity ? `Quantidade de cores: ${quote.colorQuantity}` : "",
+        quote.colors ? `Cores: ${quote.colors}` : "",
+        quote.pieceQuantity ? `Quantidade de pecas: ${quote.pieceQuantity}` : "",
         "",
-        `Dados de envio: ${quote.shippingData}`,
-      ].join("\n"),
+        quote.shippingData ? `Dados de envio: ${quote.shippingData}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n"),
     );
 
     window.open(`https://wa.me/${CONTACT_WHATSAPP}?text=${message}`, "_blank");
@@ -206,24 +194,35 @@ const CreateProjectPage: React.FC = () => {
         >
           <label className="md:col-span-2">
             <span className="mb-2 block text-sm font-bold text-cyan-100">
-              Arquivo do projeto *
+              Arquivo do projeto
             </span>
             <input
               type="file"
-              required
               onChange={(event) => setFile(event.target.files?.[0] || null)}
               className="w-full rounded-lg border border-cyan-300/20 bg-[#0b1526] px-3 py-3 text-sm text-white file:mr-4 file:rounded-md file:border-0 file:bg-cyan-500 file:px-4 file:py-2 file:font-bold file:text-white hover:file:bg-cyan-400"
             />
           </label>
 
+          <label className="md:col-span-2">
+            <span className="mb-2 block text-sm font-bold text-cyan-100">
+              Ou cole o link do projeto
+            </span>
+            <input
+              type="url"
+              value={projectLink}
+              onChange={(event) => setProjectLink(event.target.value)}
+              placeholder="Ex: https://makerworld.com/..."
+              className="w-full rounded-lg border border-cyan-300/20 bg-[#0b1526] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300"
+            />
+          </label>
+
           <label>
             <span className="mb-2 block text-sm font-bold text-cyan-100">
-              Tamanho *
+              Tamanho
             </span>
             <input
               value={size}
               onChange={(event) => setSize(event.target.value)}
-              required
               placeholder="Ex: pequeno, medio, grande ou escala"
               className="w-full rounded-lg border border-cyan-300/20 bg-[#0b1526] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300"
             />
@@ -231,14 +230,13 @@ const CreateProjectPage: React.FC = () => {
 
           <label>
             <span className="mb-2 block text-sm font-bold text-cyan-100">
-              Quantidade de pecas *
+              Quantidade de pecas
             </span>
             <input
               type="number"
               min="1"
               value={pieceQuantity}
               onChange={(event) => setPieceQuantity(event.target.value)}
-              required
               className="w-full rounded-lg border border-cyan-300/20 bg-[#0b1526] px-4 py-3 text-white outline-none transition focus:border-cyan-300"
             />
           </label>
@@ -246,36 +244,33 @@ const CreateProjectPage: React.FC = () => {
           <div className="grid gap-4 md:col-span-2 md:grid-cols-3">
             <label>
               <span className="mb-2 block text-sm font-bold text-cyan-100">
-                Altura *
+                Altura
               </span>
               <input
                 value={height}
                 onChange={(event) => setHeight(event.target.value)}
-                required
                 placeholder="Ex: 10 cm"
                 className="w-full rounded-lg border border-cyan-300/20 bg-[#0b1526] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300"
               />
             </label>
             <label>
               <span className="mb-2 block text-sm font-bold text-cyan-100">
-                Largura *
+                Largura
               </span>
               <input
                 value={width}
                 onChange={(event) => setWidth(event.target.value)}
-                required
                 placeholder="Ex: 8 cm"
                 className="w-full rounded-lg border border-cyan-300/20 bg-[#0b1526] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300"
               />
             </label>
             <label>
               <span className="mb-2 block text-sm font-bold text-cyan-100">
-                Profundidade *
+                Profundidade
               </span>
               <input
                 value={depth}
                 onChange={(event) => setDepth(event.target.value)}
-                required
                 placeholder="Ex: 6 cm"
                 className="w-full rounded-lg border border-cyan-300/20 bg-[#0b1526] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300"
               />
@@ -284,26 +279,24 @@ const CreateProjectPage: React.FC = () => {
 
           <label>
             <span className="mb-2 block text-sm font-bold text-cyan-100">
-              Quantidade de cores *
+              Quantidade de cores
             </span>
             <input
               type="number"
               min="1"
               value={colorQuantity}
               onChange={(event) => setColorQuantity(event.target.value)}
-              required
               className="w-full rounded-lg border border-cyan-300/20 bg-[#0b1526] px-4 py-3 text-white outline-none transition focus:border-cyan-300"
             />
           </label>
 
           <label>
             <span className="mb-2 block text-sm font-bold text-cyan-100">
-              Quais cores *
+              Quais cores
             </span>
             <input
               value={colors}
               onChange={(event) => setColors(event.target.value)}
-              required
               placeholder="Ex: azul, preto e branco"
               className="w-full rounded-lg border border-cyan-300/20 bg-[#0b1526] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300"
             />
@@ -311,12 +304,11 @@ const CreateProjectPage: React.FC = () => {
 
           <label className="md:col-span-2">
             <span className="mb-2 block text-sm font-bold text-cyan-100">
-              Dados de envio *
+              Dados de envio
             </span>
             <textarea
               value={shippingData}
               onChange={(event) => setShippingData(event.target.value)}
-              required
               rows={4}
               placeholder="Nome, telefone, endereco completo, CEP e observacoes de entrega"
               className="w-full resize-none rounded-lg border border-cyan-300/20 bg-[#0b1526] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300"
