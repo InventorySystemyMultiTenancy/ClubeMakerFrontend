@@ -39,8 +39,7 @@ export default function PaymentSuccessPage() {
             if (!pdfOpenedRef.current) {
               const pdfOrderId = data.orderId || orderId;
               if (pdfOrderId) {
-                const pdfUrl = buildReceiptPdfUrl(BACKEND_URL, pdfOrderId);
-                window.open(pdfUrl, "_blank");
+                window.open(buildReceiptPdfUrl(BACKEND_URL, pdfOrderId), "_blank");
                 pdfOpenedRef.current = true;
               }
             }

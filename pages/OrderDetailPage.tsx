@@ -168,14 +168,12 @@ const OrderDetailPage: React.FC = () => {
         </h1>
         <button
           className="mb-4 bg-green-600 text-white font-bold py-2 px-4 rounded hover:bg-green-700 transition-colors shadow-md"
-          onClick={() => {
-            const backendUrl =
-              import.meta.env.VITE_API_URL || "http://localhost:3001";
+          onClick={() =>
             window.open(
               buildReceiptPdfUrl(backendUrl, currentOrder.id),
               "_blank",
-            );
-          }}
+            )
+          }
         >
           Gerar PDF do Pedido
         </button>

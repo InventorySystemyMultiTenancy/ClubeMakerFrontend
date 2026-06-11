@@ -8,7 +8,6 @@ export const buildReceiptPdfUrl = (
   );
 
   url.searchParams.set("brand", "clubemaker");
-  url.searchParams.set("logo", "clubemaker-logo.png");
 
   return url.toString();
 };

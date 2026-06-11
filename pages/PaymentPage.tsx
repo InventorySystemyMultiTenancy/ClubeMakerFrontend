@@ -273,20 +273,8 @@ const PaymentPage: React.FC = () => {
       clearCart();
       setQrCodeBase64(null);
 
-      // Baixa o PDF automaticamente após sucesso
       const pdfUrl = buildReceiptPdfUrl(BACKEND_URL, orderId);
-      fetch(pdfUrl)
-        .then((res) => res.blob())
-        .then((blob) => {
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = `pedido-${orderId}.pdf`;
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          window.URL.revokeObjectURL(url);
-        });
+      window.open(pdfUrl, "_blank");
 
       // Gera link do WhatsApp com o PDF
       const whatsappNumber = 11947094271; // ajuste conforme seu modelo de usuário
