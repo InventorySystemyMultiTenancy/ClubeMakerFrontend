@@ -188,6 +188,12 @@ const OrderDetailPage: React.FC = () => {
         <div className="mb-2 text-blue-100">
           <span className="font-semibold">Forma de Pagamento:</span>{" "}
           {(() => {
+            if (
+              currentOrder.paymentType === "pedido_feito_por_fora" ||
+              currentOrder.paymentMethod === "pedido_feito_por_fora"
+            ) {
+              return "Pedido feito por fora";
+            }
             if (!currentOrder.paymentType) return "-";
             if (currentOrder.paymentType === "presencial") {
               return "Presencial";

@@ -14,6 +14,10 @@ import {
 import type { Order, CartItem } from "../types";
 import PaymentOnline from "../components/PaymentOnline";
 import { buildReceiptPdfUrl } from "../utils/receiptPdf";
+import {
+  EXTERNAL_ORDER_PAYMENT_LABEL,
+  EXTERNAL_ORDER_PAYMENT_VALUE,
+} from "../utils/paymentLabels";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 const CONTACT_WHATSAPP = "5511947094271";
@@ -83,7 +87,7 @@ const PaymentPage: React.FC = () => {
 
   // Estados de UI
   const [paymentType, setPaymentType] = useState<
-    "online" | "presencial" | null
+    "online" | "presencial" | "pedido_feito_por_fora" | null
   >(null);
 
   // --- CORREÇÃO: ADICIONADO O ESTADO QUE FALTAVA ---
@@ -92,8 +96,15 @@ const PaymentPage: React.FC = () => {
   >(null);
 
   const [paymentMethod, setPaymentMethod] = useState<
-    "credit" | "debit" | "pix" | null
+    | "credit"
+    | "debit"
+    | "pix"
+    | "cheque"
+    | "boleto"
+    | "pedido_feito_por_fora"
+    | null
   >(null);
+  const [externalBuyerName, setExternalBuyerName] = useState("");
 
   const [status, setStatus] = useState<
     "idle" | "processing" | "success" | "error"
@@ -325,6 +336,74 @@ const PaymentPage: React.FC = () => {
     if (!orderResp.ok) throw new Error("Erro ao criar pedido");
     const data = await orderResp.json();
     return data.id;
+  };
+
+  const handleExternalOrder = async () => {
+    const buyerName = externalBuyerName.trim();
+
+    if (!isAdminSale) return;
+
+    if (!buyerName) {
+      setErrorMessage("Informe o nome de quem comprou.");
+      Swal.fire({
+        icon: "warning",
+        title: "Nome obrigatorio",
+        text: "Informe o nome de quem comprou.",
+        confirmButtonText: "OK",
+      });
+      return;
+    }
+
+    setStatus("processing");
+    setErrorMessage("");
+
+    try {
+      const orderResp = await fetchStandard(`${BACKEND_URL}/api/orders`, {
+        method: "POST",
+        body: JSON.stringify({
+          userId: null,
+          userName: buyerName,
+          externalBuyerName: buyerName,
+          items: cartItems.map(serializeCartItemForOrder),
+          total: cartTotal,
+          paymentType: EXTERNAL_ORDER_PAYMENT_VALUE,
+          paymentMethod: EXTERNAL_ORDER_PAYMENT_VALUE,
+          paymentStatus: "paid",
+          createdByAdmin: true,
+          createdByRole: currentUser?.role || "admin",
+          createdByName: currentUser?.name || "",
+          createdByUserId: currentUser?.id || null,
+          observation,
+          status: "completed",
+        }),
+      });
+
+      if (!orderResp.ok) throw new Error("Erro ao criar pedido");
+
+      const orderData = await orderResp.json();
+      clearCart();
+      setExternalBuyerName("");
+      setPaymentType(null);
+      setPaymentMethod(null);
+      setStatus("success");
+
+      if (orderData?.id) {
+        window.open(buildReceiptPdfUrl(BACKEND_URL, orderData.id), "_blank");
+      }
+
+      setTimeout(() => {
+        navigate(afterOrderRoute);
+      }, 500);
+    } catch (err: any) {
+      setStatus("error");
+      setErrorMessage(err.message || "Erro ao criar pedido feito por fora.");
+      Swal.fire({
+        icon: "error",
+        title: "Erro ao criar pedido",
+        text: err.message || "Erro desconhecido",
+        confirmButtonText: "OK",
+      });
+    }
   };
 
   const handleContactOrder = async () => {
@@ -599,7 +678,68 @@ const PaymentPage: React.FC = () => {
               >
                 🏪 Entrar em contato
               </button>
+              {isAdminSale && (
+                <button
+                  className="p-4 rounded-xl border-2 border-amber-500 bg-amber-50 text-amber-900 font-bold text-lg hover:bg-amber-100 transition-all"
+                  onClick={() => {
+                    setPaymentType(EXTERNAL_ORDER_PAYMENT_VALUE);
+                    setPaymentMethod(EXTERNAL_ORDER_PAYMENT_VALUE);
+                    setErrorMessage("");
+                  }}
+                  disabled={status === "processing"}
+                >
+                  {EXTERNAL_ORDER_PAYMENT_LABEL}
+                </button>
+              )}
             </>
+          )}
+
+          {paymentType === EXTERNAL_ORDER_PAYMENT_VALUE && isAdminSale && (
+            <div className="rounded border-l-4 border-amber-500 bg-[#071226] p-4 text-blue-100 shadow-xl shadow-blue-950/25">
+              <h2 className="mb-4 text-xl font-bold text-white">
+                {EXTERNAL_ORDER_PAYMENT_LABEL}
+              </h2>
+              <label className="mb-2 block text-sm font-semibold text-blue-100">
+                Nome de quem comprou
+              </label>
+              <input
+                type="text"
+                value={externalBuyerName}
+                onChange={(e) => setExternalBuyerName(e.target.value)}
+                className="w-full rounded border border-blue-500/30 bg-white px-3 py-2 text-stone-900"
+                placeholder="Maria Silva"
+                required
+                disabled={status === "processing"}
+              />
+              {errorMessage && (
+                <p className="mt-2 text-sm font-semibold text-red-300">
+                  {errorMessage}
+                </p>
+              )}
+              <div className="mt-4 flex flex-wrap gap-3">
+                <button
+                  className="px-6 py-3 rounded bg-[var(--color-primary)] text-white font-bold text-lg hover:bg-[var(--color-primary-active)] transition-all disabled:opacity-60"
+                  onClick={handleExternalOrder}
+                  disabled={status === "processing"}
+                >
+                  {status === "processing"
+                    ? "Finalizando..."
+                    : "Finalizar Pedido"}
+                </button>
+                <button
+                  className="px-4 py-2 rounded bg-stone-200 text-stone-700 hover:bg-stone-300"
+                  onClick={() => {
+                    setPaymentType(null);
+                    setPaymentMethod(null);
+                    setExternalBuyerName("");
+                    setErrorMessage("");
+                  }}
+                  disabled={status === "processing"}
+                >
+                  Voltar
+                </button>
+              </div>
+            </div>
           )}
 
           {/* Pagamento Online com Mercado Pago */}

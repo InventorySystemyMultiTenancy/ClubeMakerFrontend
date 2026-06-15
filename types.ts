@@ -55,17 +55,30 @@ export interface OrderItem {
 
 export interface Order {
   id: string;
-  userId: string;
+  userId: string | null;
   /** Nome do usuário que realizou o pedido (duplicado para histórico rápido) */
   userName?: string;
+  externalBuyerName?: string;
   items: OrderItem[];
   total: number;
   timestamp: string;
   status: "active" | "completed";
   observation?: string;
   // Novos campos para pagamento
-  paymentType?: "online" | "presencial" | "orcamento";
-  paymentMethod?: "credit" | "debit" | "pix";
+  paymentType?:
+    | "online"
+    | "presencial"
+    | "orcamento"
+    | "contato"
+    | "pedido_feito_por_fora";
+  paymentMethod?:
+    | "credit"
+    | "debit"
+    | "pix"
+    | "cheque"
+    | "boleto"
+    | "whatsapp"
+    | "pedido_feito_por_fora";
   installments?: number;
   fee?: number;
   paymentStatus?: "pending" | "paid" | "authorized" | "canceled";

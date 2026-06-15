@@ -9,6 +9,7 @@ import {
 } from "../services/apiService";
 import { useAuth } from "../contexts/AuthContext";
 import { formatCurrency, getOrderItemPricingInfo } from "../utils/orderPricing";
+import { getPaymentMethodLabel } from "../utils/paymentLabels";
 
 // Página de Histórico de Pedidos com filtro por data
 // (OrderHistoryPage)
@@ -268,6 +269,10 @@ const OrderHistoryPage: React.FC = () => {
               <div className="mb-2 text-stone-700">
                 <span className="font-semibold">Cliente:</span>{" "}
                 {order.userName || "-"}
+              </div>
+              <div className="mb-2 text-stone-700">
+                <span className="font-semibold">Forma de pagamento:</span>{" "}
+                {getPaymentMethodLabel(order)}
               </div>
               <ul className="mb-2">
                 {order.items.map((item, idx) => {
