@@ -314,8 +314,7 @@ const OrderHistoryPage: React.FC = () => {
                   Total: R${Number(order.total)?.toFixed(2) ?? "-"}
                 </div>
                 {/* Exibe status do pagamento */}
-                {order.paymentType === "presencial" &&
-                  order.paymentStatus === "pending" && (
+                {order.paymentStatus === "pending" && (
                     <>
                       <span className="text-[var(--color-primary)] font-bold">A PAGAR</span>
                       <button

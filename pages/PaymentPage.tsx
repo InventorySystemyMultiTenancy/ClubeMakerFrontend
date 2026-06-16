@@ -284,7 +284,9 @@ const PaymentPage: React.FC = () => {
       clearCart();
       setQrCodeBase64(null);
 
-      const pdfUrl = buildReceiptPdfUrl(BACKEND_URL, orderId);
+      const pdfUrl = buildReceiptPdfUrl(BACKEND_URL, orderId, {
+        paymentStatus: "paid",
+      });
       window.open(pdfUrl, "_blank");
 
       // Gera link do WhatsApp com o PDF
@@ -368,7 +370,7 @@ const PaymentPage: React.FC = () => {
           total: cartTotal,
           paymentType: EXTERNAL_ORDER_PAYMENT_VALUE,
           paymentMethod: EXTERNAL_ORDER_PAYMENT_VALUE,
-          paymentStatus: "paid",
+          paymentStatus: "pending",
           createdByAdmin: true,
           createdByRole: currentUser?.role || "admin",
           createdByName: currentUser?.name || "",
@@ -388,7 +390,12 @@ const PaymentPage: React.FC = () => {
       setStatus("success");
 
       if (orderData?.id) {
-        window.open(buildReceiptPdfUrl(BACKEND_URL, orderData.id), "_blank");
+        window.open(
+          buildReceiptPdfUrl(BACKEND_URL, orderData.id, {
+            paymentStatus: "pending",
+          }),
+          "_blank",
+        );
       }
 
       setTimeout(() => {
@@ -984,6 +991,7 @@ const PaymentPage: React.FC = () => {
                         const pdfUrl = buildReceiptPdfUrl(
                           BACKEND_URL,
                           orderData.id,
+                          { paymentStatus: "pending" },
                         );
                         window.open(pdfUrl, "_blank");
                       }

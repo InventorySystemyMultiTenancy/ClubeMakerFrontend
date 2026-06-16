@@ -205,7 +205,12 @@ export default function PaymentOnline(props: PaymentOnlineProps) {
                 <button
                   className="mt-4 bg-white text-green-700 border border-green-500 font-bold py-2 px-6 rounded-xl shadow-md transition-all hover:bg-green-50"
                   onClick={() => {
-                    window.open(buildReceiptPdfUrl(API_URL, orderId), "_blank");
+                    window.open(
+                      buildReceiptPdfUrl(API_URL, orderId, {
+                        paymentStatus: "paid",
+                      }),
+                      "_blank",
+                    );
                   }}
                 >
                   Gerar PDF

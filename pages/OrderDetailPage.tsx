@@ -170,7 +170,9 @@ const OrderDetailPage: React.FC = () => {
           className="mb-4 bg-green-600 text-white font-bold py-2 px-4 rounded hover:bg-green-700 transition-colors shadow-md"
           onClick={() =>
             window.open(
-              buildReceiptPdfUrl(backendUrl, currentOrder.id),
+              buildReceiptPdfUrl(backendUrl, currentOrder.id, {
+                paymentStatus: currentOrder.paymentStatus,
+              }),
               "_blank",
             )
           }

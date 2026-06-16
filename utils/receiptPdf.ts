@@ -1,6 +1,7 @@
 export const buildReceiptPdfUrl = (
   backendUrl: string,
   orderId: string | number,
+  options: { paymentStatus?: string | null } = {},
 ) => {
   const url = new URL(
     `/api/orders/${orderId}/receipt-pdf`,
@@ -9,6 +10,13 @@ export const buildReceiptPdfUrl = (
 
   url.searchParams.set("brand", "clubemaker");
   url.searchParams.set("logo", "clubemaker-logo.png");
+
+  const statusLabel =
+    options.paymentStatus === "paid" || options.paymentStatus === "authorized"
+      ? "Pago"
+      : "Pendente";
+  url.searchParams.set("paymentStatus", options.paymentStatus || "pending");
+  url.searchParams.set("paymentStatusLabel", statusLabel);
 
   if (typeof window !== "undefined") {
     const logoUrl = new URL("/clubemaker-logo.png", window.location.origin);
