@@ -888,6 +888,12 @@ const AdminPage: React.FC = () => {
             📂 Categorias
           </button>
           <button
+            onClick={() => navigate("/admin/criar-cadastro-cliente")}
+            className="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors shadow-md"
+          >
+            Criar cadastro para cliente
+          </button>
+          <button
             onClick={() => navigate("/historico")}
             className="bg-green-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-700 transition-colors shadow-md"
           >

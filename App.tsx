@@ -25,6 +25,7 @@ import AdminReportsPage from "./pages/AdminReportsPage";
 import AdminManagementReportPage from "./pages/AdminManagementReportPage";
 import AdminProjectQuotesPage from "./pages/AdminProjectQuotesPage";
 import AdminCategoriesPage from "./pages/AdminCategoriesPage"; // 🆕
+import AdminCreateCustomerPage from "./pages/AdminCreateCustomerPage";
 import Header from "./components/Header";
 import Chatbot from "./components/Chatbot";
 // import InactivityGuard from "./components/InactivityGuard";
@@ -268,6 +269,20 @@ const RouterBody: React.FC = () => {
           />
 
           {/* 🆕 Rota protegida para gerenciar categorias */}
+          <Route
+            path="/admin/criar-cadastro-cliente"
+            element={
+              <RoleProtectedRoute
+                allowedRoles={["admin"]}
+                redirectTo="/admin/login"
+              >
+                <div className="admin-modern-theme">
+                  <AdminCreateCustomerPage />
+                </div>
+              </RoleProtectedRoute>
+            }
+          />
+
           <Route
             path="/admin/categories"
             element={
