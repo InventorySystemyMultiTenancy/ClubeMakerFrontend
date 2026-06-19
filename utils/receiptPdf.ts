@@ -11,11 +11,13 @@ export const buildReceiptPdfUrl = (
   url.searchParams.set("brand", "clubemaker");
   url.searchParams.set("logo", "clubemaker-logo.png");
 
+  const paymentStatus = options.paymentStatus?.toLowerCase() || "pending";
   const statusLabel =
-    options.paymentStatus === "paid" || options.paymentStatus === "authorized"
+    paymentStatus === "paid" || paymentStatus === "authorized"
       ? "Pago"
-      : "Pendente";
-  url.searchParams.set("paymentStatus", options.paymentStatus || "pending");
+      : "Em aberto";
+
+  url.searchParams.set("paymentStatus", paymentStatus);
   url.searchParams.set("paymentStatusLabel", statusLabel);
 
   if (typeof window !== "undefined") {
