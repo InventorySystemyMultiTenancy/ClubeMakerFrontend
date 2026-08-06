@@ -15,6 +15,9 @@ const Header: React.FC = () => {
   const [hasUndeliveredOrder, setHasUndeliveredOrder] = useState(false);
   const isCatalogRoute =
     location.pathname === "/menu" || location.pathname === "/admin/nova-venda";
+  const isAdminArea =
+    location.pathname.startsWith("/admin") ||
+    location.pathname.startsWith("/historico");
 
   useEffect(() => {
     setIsMenuOpen(false);
@@ -144,40 +147,22 @@ const Header: React.FC = () => {
               </NavLink>
             )}
 
-            {currentUser?.role === "admin" && (
-              <>
-                <NavLink
-                  to="/admin/nova-venda"
-                  className="energy-link text-white hover:text-blue-200 transition-colors font-medium"
+            {currentUser?.role === "admin" &&
+              (isAdminArea ? (
+                <button
+                  onClick={() => navigate("/menu")}
+                  className="energy-cta bg-blue-100 text-blue-700 font-bold py-1 px-4 rounded-lg hover:bg-blue-200 transition-colors shadow-md text-sm"
                 >
-                  Nova Venda
-                </NavLink>
+                  ← Voltar ao site
+                </button>
+              ) : (
                 <NavLink
                   to="/admin"
-                  className="energy-link text-white hover:text-blue-200 transition-colors font-medium"
+                  className="energy-cta bg-blue-600 text-white font-bold py-1 px-4 rounded-lg hover:bg-blue-700 transition-colors shadow-md text-sm"
                 >
-                  Produtos
+                  Administrativo
                 </NavLink>
-                <NavLink
-                  to="/admin/orcamentos"
-                  className="energy-link text-white hover:text-blue-200 transition-colors font-medium"
-                >
-                  Orcamentos
-                </NavLink>
-                <NavLink
-                  to="/admin/management-report"
-                  className="energy-link text-blue-200 hover:text-white transition-colors font-medium"
-                >
-                  Relatorio Gestao
-                </NavLink>
-                <NavLink
-                  to="/admin/reports"
-                  className="energy-link text-blue-200 hover:text-white transition-colors font-medium"
-                >
-                  Relatórios IA
-                </NavLink>
-              </>
-            )}
+              ))}
           </nav>
 
           {/* Área do Usuário (Desktop) + Menu Hambúrguer (<1100px) */}
@@ -362,34 +347,22 @@ const Header: React.FC = () => {
               </NavLink>
             )}
 
-            {currentUser?.role === "admin" && (
-              <>
+            {currentUser?.role === "admin" &&
+              (isAdminArea ? (
+                <button
+                  onClick={() => navigate("/menu")}
+                  className="text-left text-stone-700 hover:text-[var(--color-primary)] font-medium"
+                >
+                  ← Voltar ao site
+                </button>
+              ) : (
                 <NavLink
                   to="/admin"
                   className="text-stone-700 hover:text-[var(--color-primary)] font-medium"
                 >
-                  Produtos
+                  Administrativo
                 </NavLink>
-                <NavLink
-                  to="/admin/orcamentos"
-                  className="text-stone-700 hover:text-[var(--color-primary)] font-medium"
-                >
-                  Orcamentos
-                </NavLink>
-                <NavLink
-                  to="/admin/management-report"
-                  className="text-[var(--color-success)] hover:text-green-800 font-medium"
-                >
-                  Relatorio Gestao
-                </NavLink>
-                <NavLink
-                  to="/admin/reports"
-                  className="text-[var(--color-secondary)] hover:text-[var(--color-primary)] font-medium"
-                >
-                  Relatórios IA
-                </NavLink>
-              </>
-            )}
+              ))}
 
             {currentUser ? (
               <>

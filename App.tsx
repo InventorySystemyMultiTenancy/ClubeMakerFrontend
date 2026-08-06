@@ -33,6 +33,7 @@ import type { UserRole } from "./types";
 
 import OrderDetailPage from "./pages/OrderDetailPage";
 import CustomerOrdersPage from "./pages/CustomerOrdersPage";
+import AdminLayout from "./components/admin/AdminLayout";
 
 // 1. Configuração do Cliente React Query
 const queryClient = new QueryClient({
@@ -262,7 +263,9 @@ const RouterBody: React.FC = () => {
                 redirectTo="/admin/login"
               >
                 <div className="admin-modern-theme">
-                  <AdminPage />
+                  <AdminLayout>
+                    <AdminPage />
+                  </AdminLayout>
                 </div>
               </RoleProtectedRoute>
             }
@@ -277,7 +280,9 @@ const RouterBody: React.FC = () => {
                 redirectTo="/admin/login"
               >
                 <div className="admin-modern-theme">
-                  <AdminCreateCustomerPage />
+                  <AdminLayout>
+                    <AdminCreateCustomerPage />
+                  </AdminLayout>
                 </div>
               </RoleProtectedRoute>
             }
@@ -291,7 +296,9 @@ const RouterBody: React.FC = () => {
                 redirectTo="/admin/login"
               >
                 <div className="admin-modern-theme">
-                  <AdminCategoriesPage />
+                  <AdminLayout>
+                    <AdminCategoriesPage />
+                  </AdminLayout>
                 </div>
               </RoleProtectedRoute>
             }
@@ -306,7 +313,9 @@ const RouterBody: React.FC = () => {
                 redirectTo="/admin/login"
               >
                 <div className="admin-modern-theme">
-                  <AdminReportsPage />
+                  <AdminLayout>
+                    <AdminReportsPage />
+                  </AdminLayout>
                 </div>
               </RoleProtectedRoute>
             }
@@ -321,7 +330,9 @@ const RouterBody: React.FC = () => {
                 redirectTo="/admin/login"
               >
                 <div className="admin-modern-theme">
-                  <AdminProjectQuotesPage />
+                  <AdminLayout>
+                    <AdminProjectQuotesPage />
+                  </AdminLayout>
                 </div>
               </RoleProtectedRoute>
             }
@@ -335,7 +346,9 @@ const RouterBody: React.FC = () => {
                 redirectTo="/admin/login"
               >
                 <div className="admin-modern-theme">
-                  <AdminManagementReportPage />
+                  <AdminLayout>
+                    <AdminManagementReportPage />
+                  </AdminLayout>
                 </div>
               </RoleProtectedRoute>
             }

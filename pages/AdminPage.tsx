@@ -123,11 +123,8 @@ const StockMovementModal: React.FC<{
     </div>
   );
 };
-import { useNavigate } from "react-router-dom";
 import type { Product } from "../types";
 import { authenticatedFetch } from "../services/apiService";
-import { useAuth } from "../contexts/AuthContext";
-import { useCart } from "../contexts/CartContext";
 
 // --- Componente de formulário de produto (Modal) ---
 // Props esperadas pelo formulário:
@@ -563,10 +560,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
 // --- Componente principal da página administrativa ---
 const AdminPage: React.FC = () => {
-  const navigate = useNavigate();
-  const { logout } = useAuth();
-  const { clearCart } = useCart();
-
   // Estado que contém a lista de produtos exibida na tabela
   const [menu, setMenu] = useState<Product[]>([]);
   // Modal de movimentação de estoque
@@ -857,15 +850,6 @@ const AdminPage: React.FC = () => {
         </h1>
         <div className="flex flex-wrap gap-2 sm:gap-3 w-full sm:w-auto">
           <button
-            onClick={() => {
-              clearCart();
-              navigate("/admin/nova-venda");
-            }}
-            className="bg-emerald-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-emerald-700 transition-colors shadow-md"
-          >
-            Nova Venda
-          </button>
-          <button
             onClick={() => setIsStockModalOpen(true)}
             className="bg-[var(--color-accent)] text-white font-bold py-2 px-6 rounded-lg hover:bg-[var(--color-secondary)] transition-colors shadow-md"
           >
@@ -879,26 +863,6 @@ const AdminPage: React.FC = () => {
               onMovement={handleStockMovement}
             />
           )}
-          {/* Histórico de movimentações de estoque */}
-          <div className="mt-12"></div>
-          <button
-            onClick={() => navigate("/admin/categories")}
-            className="bg-[var(--color-primary)] text-white font-bold py-2 px-6 rounded-lg hover:bg-[var(--color-primary-active)] transition-colors shadow-md"
-          >
-            📂 Categorias
-          </button>
-          <button
-            onClick={() => navigate("/admin/criar-cadastro-cliente")}
-            className="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors shadow-md"
-          >
-            Criar cadastro para cliente
-          </button>
-          <button
-            onClick={() => navigate("/historico")}
-            className="bg-green-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-700 transition-colors shadow-md"
-          >
-            📋 Histórico de Pedidos
-          </button>
           <button
             onClick={handleGenerateAnalysis}
             disabled={isLoadingAnalysis}
@@ -914,17 +878,6 @@ const AdminPage: React.FC = () => {
             className="bg-[var(--color-primary)] text-white font-bold py-2 px-6 rounded-lg hover:bg-[var(--color-primary-active)] transition-colors shadow-md"
           >
             + Adicionar Produto
-          </button>
-          <button
-            onClick={async () => {
-              if (window.confirm("Deseja realmente sair?")) {
-                await logout();
-                navigate("/admin/login");
-              }
-            }}
-            className="bg-[var(--color-primary)] text-white font-bold py-2 px-6 rounded-lg hover:bg-[var(--color-primary-active)] transition-colors shadow-md"
-          >
-            🚪 Sair
           </button>
         </div>
       </div>
