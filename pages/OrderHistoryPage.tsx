@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import type { Order } from "../types";
+import type { Order, Product } from "../types";
 import Swal from "sweetalert2";
 import {
   authenticatedFetch,
   deleteOrderFromHistory,
+  getProducts,
   getToken,
 } from "../services/apiService";
 import { useAuth } from "../contexts/AuthContext";
@@ -26,6 +27,8 @@ const OrderHistoryPage: React.FC = () => {
   const [showUndeliveredOnly, setShowUndeliveredOnly] = useState(false);
   const [showUnpaidOnly, setShowUnpaidOnly] = useState(false);
   const [deletingOrderId, setDeletingOrderId] = useState<string | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [productFilter, setProductFilter] = useState("");
 
   const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
   const isAdmin = currentUser?.role === "admin";
@@ -117,6 +120,12 @@ const OrderHistoryPage: React.FC = () => {
     // eslint-disable-next-line
   }, [startDate, endDate]);
 
+  useEffect(() => {
+    getProducts()
+      .then((data: Product[]) => setProducts(data))
+      .catch(() => setProducts([]));
+  }, []);
+
   const filteredOrders = orders.filter((order) => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
     const matchesSearch =
@@ -127,6 +136,9 @@ const OrderHistoryPage: React.FC = () => {
     const isUnpaid = !["paid", "authorized"].includes(
       order.paymentStatus ?? "pending",
     );
+    const matchesProduct =
+      !productFilter ||
+      order.items.some((item) => item.productId === productFilter);
 
     if (!matchesSearch) {
       return false;
@@ -137,6 +149,10 @@ const OrderHistoryPage: React.FC = () => {
     }
 
     if (showUnpaidOnly && !isUnpaid) {
+      return false;
+    }
+
+    if (!matchesProduct) {
       return false;
     }
 
@@ -196,6 +212,23 @@ const OrderHistoryPage: React.FC = () => {
             className="border rounded px-2 py-1"
           />
         </div>
+        <div className="w-full sm:w-64">
+          <label className="block text-sm font-medium text-stone-700 mb-1">
+            Produto
+          </label>
+          <select
+            value={productFilter}
+            onChange={(e) => setProductFilter(e.target.value)}
+            className="w-full border rounded px-3 py-2"
+          >
+            <option value="">Todos os produtos</option>
+            {products.map((product) => (
+              <option key={product.id} value={product.id}>
+                {product.name}
+              </option>
+            ))}
+          </select>
+        </div>
         <label className="flex items-center gap-2 text-sm font-medium text-stone-700 pb-2">
           <input
             type="checkbox"
@@ -227,6 +260,7 @@ const OrderHistoryPage: React.FC = () => {
             setSearchTerm("");
             setShowUndeliveredOnly(false);
             setShowUnpaidOnly(false);
+            setProductFilter("");
           }}
           className="bg-stone-300 text-stone-700 font-bold py-2 px-4 rounded-lg hover:bg-stone-400 transition-colors shadow-md"
         >
