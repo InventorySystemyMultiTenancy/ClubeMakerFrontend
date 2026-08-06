@@ -15,8 +15,12 @@ const Header: React.FC = () => {
   const [hasUndeliveredOrder, setHasUndeliveredOrder] = useState(false);
   const isCatalogRoute =
     location.pathname === "/menu" || location.pathname === "/admin/nova-venda";
+  // Rotas onde o admin está "comprando" (catálogo/checkout), não no painel administrativo
+  const isAdminPurchaseFlow =
+    location.pathname === "/admin/nova-venda" ||
+    location.pathname === "/admin/payment";
   const isAdminArea =
-    location.pathname.startsWith("/admin") ||
+    (location.pathname.startsWith("/admin") && !isAdminPurchaseFlow) ||
     location.pathname.startsWith("/historico");
 
   useEffect(() => {
@@ -160,7 +164,7 @@ const Header: React.FC = () => {
                   to="/admin"
                   className="energy-cta bg-blue-600 text-white font-bold py-1 px-4 rounded-lg hover:bg-blue-700 transition-colors shadow-md text-sm"
                 >
-                  Administrativo
+                  Aba administrativa
                 </NavLink>
               ))}
           </nav>
@@ -360,7 +364,7 @@ const Header: React.FC = () => {
                   to="/admin"
                   className="text-stone-700 hover:text-[var(--color-primary)] font-medium"
                 >
-                  Administrativo
+                  Aba administrativa
                 </NavLink>
               ))}
 
