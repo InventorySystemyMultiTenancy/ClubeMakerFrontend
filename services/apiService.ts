@@ -226,6 +226,25 @@ export async function getProducts() {
   }
 }
 
+/**
+ * Envia uma imagem (base64) para o backend, que faz upload direto ao Cloudinary.
+ * Retorna a URL segura (https) da imagem hospedada.
+ */
+export async function uploadProductImage(imageBase64: string): Promise<string> {
+  const response = await authenticatedFetch(`${API_URL}/admin/upload-image`, {
+    method: "POST",
+    body: JSON.stringify({ imageBase64 }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Erro ao enviar imagem: ${response.status} - ${errorText}`);
+  }
+
+  const data = await response.json();
+  return data.url;
+}
+
 export async function createProduct(productData: any) {
   const response = await authenticatedFetch(`${API_URL}/products`, {
     method: "POST",

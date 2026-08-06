@@ -124,7 +124,7 @@ const StockMovementModal: React.FC<{
   );
 };
 import type { Product } from "../types";
-import { authenticatedFetch } from "../services/apiService";
+import { authenticatedFetch, uploadProductImage } from "../services/apiService";
 
 // --- Componente de formulário de produto (Modal) ---
 // Props esperadas pelo formulário:
@@ -155,6 +155,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
     quantidadeVenda: 1,
   });
   const [imageUrls, setImageUrls] = useState<string[]>([""]);
+  const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
 
   // 🆕 Estado para categorias dinâmicas
   const [categories, setCategories] = useState<Array<{ name: string }>>([]);
@@ -311,6 +312,37 @@ const ProductForm: React.FC<ProductFormProps> = ({
     });
   };
 
+  const fileToBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+  const handleImageUpload = async (
+    index: number,
+    file: File | undefined,
+  ) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      alert("Selecione um arquivo de imagem válido");
+      return;
+    }
+
+    setUploadingIndex(index);
+    try {
+      const base64 = await fileToBase64(file);
+      const url = await uploadProductImage(base64);
+      updateImageAt(index, url);
+    } catch (error) {
+      console.error("Erro ao enviar imagem:", error);
+      alert("Erro ao enviar imagem. Tente novamente.");
+    } finally {
+      setUploadingIndex(null);
+    }
+  };
+
   return (
     // Modal em tela cheia com fundo escuro semitransparente
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-start sm:items-center z-50 overflow-y-auto p-2 sm:p-4">
@@ -452,28 +484,58 @@ const ProductForm: React.FC<ProductFormProps> = ({
             </div>
           </div>
           <div>
-            <label
-              htmlFor="imageUrl-0"
-              className="block text-sm font-medium text-stone-700"
-            >
-              URLs das Imagens
+            <label className="block text-sm font-medium text-stone-700">
+              Fotos do Produto
             </label>
             <div className="mt-1 space-y-2">
               {imageUrls.map((url, index) => (
-                <div key={`image-${index}`} className="flex items-center gap-2">
-                  <input
-                    type="url"
-                    id={`imageUrl-${index}`}
-                    value={url}
-                    onChange={(e) => updateImageAt(index, e.target.value)}
-                    placeholder="https://exemplo.com/imagem.jpg"
-                    className="block w-full rounded-md border-stone-300 shadow-sm focus:border-[var(--color-accent)] focus:ring-[var(--color-accent)]"
-                  />
+                <div
+                  key={`image-${index}`}
+                  className="flex items-center gap-3 border border-stone-200 rounded-lg p-2"
+                >
+                  {url ? (
+                    <img
+                      src={url}
+                      alt={`Foto ${index + 1}`}
+                      className="h-16 w-16 rounded-md object-cover border border-stone-200 shrink-0"
+                    />
+                  ) : (
+                    <div className="h-16 w-16 shrink-0 flex items-center justify-center rounded-md border border-dashed border-stone-300 text-stone-400 text-[10px] text-center px-1">
+                      Sem foto
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      id={`imageFile-${index}`}
+                      className="hidden"
+                      disabled={uploadingIndex !== null}
+                      onChange={(e) => {
+                        handleImageUpload(index, e.target.files?.[0]);
+                        e.target.value = "";
+                      }}
+                    />
+                    <label
+                      htmlFor={`imageFile-${index}`}
+                      className={`inline-block px-3 py-2 rounded-md text-sm font-semibold ${
+                        uploadingIndex !== null
+                          ? "bg-stone-100 text-stone-400 cursor-not-allowed"
+                          : "bg-[var(--color-primary-lighter)] text-[var(--color-primary-active)] hover:bg-[var(--color-primary-light)] cursor-pointer"
+                      }`}
+                    >
+                      {uploadingIndex === index
+                        ? "Enviando..."
+                        : url
+                          ? "Trocar foto"
+                          : "Enviar foto do dispositivo"}
+                    </label>
+                  </div>
                   {imageUrls.length > 1 && (
                     <button
                       type="button"
                       onClick={() => removeImageField(index)}
-                      className="px-3 py-2 rounded-md bg-stone-100 hover:bg-stone-200 text-stone-700 text-sm font-semibold"
+                      className="px-3 py-2 rounded-md bg-stone-100 hover:bg-stone-200 text-stone-700 text-sm font-semibold shrink-0"
                     >
                       Remover
                     </button>
@@ -486,10 +548,10 @@ const ProductForm: React.FC<ProductFormProps> = ({
               onClick={addImageField}
               className="mt-2 text-sm font-semibold text-[var(--color-primary)] hover:text-[var(--color-primary-active)]"
             >
-              + Adicionar outra imagem
+              + Adicionar outra foto
             </button>
             <p className="mt-1 text-xs text-stone-500">
-              A primeira URL será a imagem principal do produto.
+              A primeira foto será a imagem principal do produto.
             </p>
           </div>
           <div>
