@@ -154,7 +154,7 @@ const Header: React.FC = () => {
             {currentUser?.role === "admin" &&
               (isAdminArea ? (
                 <button
-                  onClick={() => navigate("/menu")}
+                  onClick={() => navigate("/admin/nova-venda")}
                   className="energy-cta bg-blue-100 text-blue-700 font-bold py-1 px-4 rounded-lg hover:bg-blue-200 transition-colors shadow-md text-sm"
                 >
                   ← Voltar ao site
@@ -354,7 +354,7 @@ const Header: React.FC = () => {
             {currentUser?.role === "admin" &&
               (isAdminArea ? (
                 <button
-                  onClick={() => navigate("/menu")}
+                  onClick={() => navigate("/admin/nova-venda")}
                   className="text-left text-stone-700 hover:text-[var(--color-primary)] font-medium"
                 >
                   ← Voltar ao site
