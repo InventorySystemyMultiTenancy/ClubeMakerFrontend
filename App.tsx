@@ -95,7 +95,6 @@ const App: React.FC = () => {
           <CartProvider>
             <HashRouter>
               <RouterBody />
-              <Footer />
             </HashRouter>
           </CartProvider>
         </AuthProvider>
@@ -365,5 +364,4 @@ const RouterBody: React.FC = () => {
   );
 };
 
-import Footer from "./components/Footer";
 export default App;

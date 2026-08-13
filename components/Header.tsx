@@ -3,6 +3,7 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useStore } from "../contexts/StoreContext"; // 🏪 MULTI-TENANT
 import logo from "../assets/clubemaker-logo.png";
+import "./Footer.css";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
