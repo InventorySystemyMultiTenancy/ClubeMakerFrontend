@@ -204,30 +204,23 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
     }, 2000); // Oculta a mensagem após 2 segundos
   };
   return (
-    <div
-      className={containerClass}
-      style={isMobile ? undefined : { background: "#050604" }}
-    >
+    <div className={containerClass}>
       {/* Header do Carrinho */}
       <div
         className={`monster-cart-header p-5 flex items-center justify-between ${
           isMobile
-            ? "bg-stone-900 text-white rounded-t-3xl"
+            ? "bg-white text-gray-800 rounded-t-3xl border-b border-stone-100"
             : "bg-white border-b border-stone-100"
         }`}
       >
-        <h2
-          className={`text-xl md:text-2xl font-black uppercase flex items-center gap-2 ${
-            isMobile ? "text-white" : "text-gray-800"
-          }`}
-        >
+        <h2 className="text-xl md:text-2xl font-bold flex items-center gap-2 text-gray-800">
           <span>Carrinho</span> (
           {cartItems.reduce((acc, i) => acc + i.quantity, 0)})
         </h2>
         {isMobile && onClose && (
           <button
             onClick={onClose}
-            className="text-stone-400 hover:text-white bg-stone-800 p-2 rounded-full w-10 h-10 flex items-center justify-center text-xl font-bold"
+            className="text-stone-500 hover:text-stone-800 bg-stone-100 p-2 rounded-full w-10 h-10 flex items-center justify-center text-xl font-bold"
           >
             ✕
           </button>
@@ -254,10 +247,10 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
               >
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex-1 pr-3">
-                    <p className="font-bold text-stone-100 text-base md:text-lg leading-tight mb-1">
+                    <p className="font-bold text-stone-800 text-base md:text-lg leading-tight mb-1">
                       {item.name}
                     </p>
-                    <p className="text-sm md:text-base font-semibold text-blue-300">
+                    <p className="text-sm md:text-base font-semibold text-blue-600">
                       R$ {item.price.toFixed(2)}
                     </p>
                   </div>
@@ -269,7 +262,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                         const step = item.quantidadeVenda ?? 1;
                         updateQuantity(item.id, item.quantity - step);
                       }}
-                      className="w-9 md:w-10 h-full flex items-center justify-center text-stone-100 font-bold text-xl hover:bg-blue-600 hover:text-white transition-colors active:bg-blue-700"
+                      className="w-9 md:w-10 h-full flex items-center justify-center text-stone-700 font-bold text-xl hover:bg-blue-600 hover:text-white transition-colors active:bg-blue-700"
                     >
                       -
                     </button>
@@ -283,10 +276,10 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                           const q = parseInt(e.target.value);
                           if (!isNaN(q) && q > 0) updateQuantity(item.id, q);
                         }}
-                        className="w-12 md:w-14 h-full text-base md:text-lg font-bold text-center bg-black text-white border-x border-blue-500/20"
+                        className="w-12 md:w-14 h-full text-base md:text-lg font-bold text-center bg-white text-stone-800 border-x border-stone-200"
                       />
                     ) : (
-                      <span className="w-9 md:w-10 h-full flex items-center justify-center text-base md:text-lg font-bold bg-black border-x border-blue-500/20">
+                      <span className="w-9 md:w-10 h-full flex items-center justify-center text-base md:text-lg font-bold bg-white text-stone-800 border-x border-stone-200">
                         {item.quantity}
                       </span>
                     )}
@@ -303,8 +296,8 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                 </div>
 
                 {canManageCustomerSale && (
-                  <div className="grid grid-cols-2 gap-2 rounded border border-blue-500/20 bg-black/40 p-2">
-                    <label className="flex flex-col gap-1 text-xs font-bold text-blue-100">
+                  <div className="grid grid-cols-2 gap-2 rounded border border-stone-200 bg-stone-50 p-2">
+                    <label className="flex flex-col gap-1 text-xs font-bold text-stone-600">
                       Valor un.
                       <input
                         type="number"
@@ -314,10 +307,10 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                         onChange={(e) =>
                           updateUnitPrice(item.id, parseFloat(e.target.value))
                         }
-                        className="h-9 w-full border border-blue-500/30 bg-black px-2 text-sm font-semibold text-white focus:border-blue-400 focus:outline-none"
+                        className="h-9 w-full border border-stone-300 bg-white px-2 text-sm font-semibold text-stone-800 focus:border-blue-400 focus:outline-none"
                       />
                     </label>
-                    <label className="flex flex-col gap-1 text-xs font-bold text-blue-100">
+                    <label className="flex flex-col gap-1 text-xs font-bold text-stone-600">
                       Desconto %
                       <input
                         type="number"
@@ -331,7 +324,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                             parseFloat(e.target.value),
                           )
                         }
-                        className="h-9 w-full border border-blue-500/30 bg-black px-2 text-sm font-semibold text-white focus:border-blue-400 focus:outline-none"
+                        className="h-9 w-full border border-stone-300 bg-white px-2 text-sm font-semibold text-stone-800 focus:border-blue-400 focus:outline-none"
                       />
                     </label>
                   </div>
@@ -349,7 +342,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
             <div className="mb-4">
               <label
                 htmlFor="orderCustomer"
-                className="block text-base font-bold text-stone-100 mb-2"
+                className="block text-base font-bold text-stone-700 mb-2"
               >
                 Cliente da compra
               </label>
@@ -363,7 +356,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                   setSelectedOrderCustomer(selected || null);
                 }}
                 disabled={isLoadingCustomers}
-                className="w-full p-2 border-2 border-blue-500/30 bg-black text-white rounded-none focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-300/20 transition-all text-sm"
+                className="w-full p-2 border border-stone-300 bg-white text-stone-800 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-300/30 transition-all text-sm"
               >
                 <option value="">
                   {isLoadingCustomers
@@ -378,7 +371,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                 ))}
               </select>
               {selectedOrderCustomer && (
-                <p className="text-xs text-blue-300 font-bold mt-1">
+                <p className="text-xs text-blue-600 font-bold mt-1">
                   Pedido sera registrado para {selectedOrderCustomer.name}.
                 </p>
               )}
@@ -388,7 +381,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
           <div className="mb-4">
             <label
               htmlFor="observation"
-              className="block text-base font-bold text-stone-100 mb-2"
+              className="block text-base font-bold text-stone-700 mb-2"
             >
               📝 Alguma observação?
             </label>
@@ -397,7 +390,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
               value={observation}
               onChange={handleObservationChange}
               placeholder="Ex: Em caixa, em sacos..."
-              className="w-full p-2 border-2 border-blue-500/30 bg-black text-white rounded-none focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-300/20 transition-all text-sm"
+              className="w-full p-2 border border-stone-300 bg-white text-stone-800 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-300/30 transition-all text-sm"
               rows={2}
             />
             {showObservationSaved && observation && (
@@ -408,8 +401,8 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
           </div>
 
           <div className="flex justify-between items-center mb-4">
-            <span className="text-stone-300 font-bold text-lg">Total</span>
-            <span className="text-2xl md:text-3xl font-bold text-blue-300">
+            <span className="text-stone-600 font-bold text-lg">Total</span>
+            <span className="text-2xl md:text-3xl font-bold text-blue-600">
               R$ {cartTotal.toFixed(2)}
             </span>
           </div>
@@ -551,7 +544,6 @@ const MenuPage: React.FC = () => {
   const [availableCustomers, setAvailableCustomers] = useState<User[]>([]);
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(false);
   const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
-  const [isCatalogNavOpen, setIsCatalogNavOpen] = useState(false);
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
   const [imageViewer, setImageViewer] = useState<{
     isOpen: boolean;
@@ -828,6 +820,17 @@ const MenuPage: React.FC = () => {
     }
   }, [currentBannerIndex, latestProducts.length]);
 
+  const showNextBanner = () => {
+    setCurrentBannerIndex((current) => (current + 1) % latestProducts.length);
+  };
+
+  const showPreviousBanner = () => {
+    setCurrentBannerIndex(
+      (current) =>
+        (current - 1 + latestProducts.length) % latestProducts.length,
+    );
+  };
+
   const handleCheckout = () => {
     if (!currentUser || cartItems.length === 0) return;
     navigate(currentUser.role === "admin" ? "/admin/payment" : "/payment");
@@ -877,10 +880,7 @@ const MenuPage: React.FC = () => {
     : "";
 
   return (
-    <div
-      className="monster-shell animated-gradient flex h-screen w-full overflow-hidden font-sans"
-      style={{ background: "#050604" }}
-    >
+    <div className="monster-shell flex h-screen w-full overflow-hidden font-sans">
       {/* 1. SIDEBAR ESQUERDA */}
       {false && (
       <CategorySidebar
@@ -893,59 +893,54 @@ const MenuPage: React.FC = () => {
 
       {/* 2. ÁREA CENTRAL */}
       <main className="monster-content flex-1 flex flex-col h-full relative overflow-hidden">
-        <div className="catalog-header">
+        <div className="catalog-subnav">
           <button
             type="button"
-            className="catalog-toggle"
-            onClick={() => setIsCatalogNavOpen((open) => !open)}
+            onClick={() => {
+              setSelectedCategory(null);
+            }}
+            className={`catalog-subnav-item ${
+              selectedCategory === null ? "is-active" : ""
+            }`}
           >
-            Ver catálogo
-            <span aria-hidden="true">{isCatalogNavOpen ? "−" : "+"}</span>
+            Todos
           </button>
-        </div>
 
-        {isCatalogNavOpen && (
-          <div className="catalog-subnav">
+          {displayCategories.map((category) => (
             <button
               type="button"
+              key={category}
               onClick={() => {
-                setSelectedCategory(null);
+                setSelectedCategory(category);
               }}
               className={`catalog-subnav-item ${
-                selectedCategory === null ? "is-active" : ""
+                selectedCategory === category ? "is-active" : ""
               }`}
             >
-              <span>🧸</span>
-              Todos
+              {category}
             </button>
-
-            {displayCategories.map((category) => (
-              <button
-                type="button"
-                key={category}
-                onClick={() => {
-                  setSelectedCategory(category);
-                }}
-                className={`catalog-subnav-item ${
-                  selectedCategory === category ? "is-active" : ""
-                }`}
-              >
-                <span>{getCategoryIcon(category)}</span>
-                {category}
-              </button>
-            ))}
-          </div>
-        )}
+          ))}
+        </div>
         {/* Scroll Container */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 pb-48 md:pb-24 scroll-smooth">
+        <div className="flex-1 overflow-y-auto pb-48 md:pb-8 scroll-smooth">
           {/* Mensagens IA */}
 
           {/* Grid de Produtos */}
-          <div className="max-w-7xl mx-auto min-h-[101%]">
+          <div className="max-w-7xl mx-auto min-h-[101%] p-4 md:p-8 pt-6">
             {selectedCategory === null ? (
               <>
                 {currentBannerProduct && (
                   <section className="latest-banner" aria-label="Novidades">
+                    {latestProducts.length > 1 && (
+                      <button
+                        type="button"
+                        className="latest-banner-arrow latest-banner-arrow-prev"
+                        onClick={showPreviousBanner}
+                        aria-label="Destaque anterior"
+                      >
+                        ‹
+                      </button>
+                    )}
                     <div className="latest-banner-copy">
                       <span>Novidades!</span>
                       <h2>Últimos lançamentos!</h2>
@@ -965,6 +960,16 @@ const MenuPage: React.FC = () => {
                         loading="eager"
                       />
                     </div>
+                    {latestProducts.length > 1 && (
+                      <button
+                        type="button"
+                        className="latest-banner-arrow latest-banner-arrow-next"
+                        onClick={showNextBanner}
+                        aria-label="Próximo destaque"
+                      >
+                        ›
+                      </button>
+                    )}
                     {latestProducts.length > 1 && (
                       <div className="latest-banner-dots">
                         {latestProducts.map((product, index) => (
