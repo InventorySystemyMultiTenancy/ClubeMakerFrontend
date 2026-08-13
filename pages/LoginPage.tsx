@@ -217,7 +217,7 @@ const CPFLogin: React.FC<CPFLoginProps> = ({ onBack, onLoginSuccess }) => {
               />
               {error && <p className="text-blue-200 text-sm mt-2">{error}</p>}
             </div>
-            <button type="submit" disabled={isLoading} className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors shadow-lg shadow-blue-950/40">
+            <button type="submit" disabled={isLoading} className="w-full bg-[var(--color-primary)] text-white font-bold py-3 rounded-lg hover:bg-[var(--color-primary-hover)] transition-colors shadow-lg shadow-blue-950/40">
               {isLoading ? "Verificando CPF..." : "Verificar CPF e continuar"}
             </button>
           </form>
@@ -238,7 +238,7 @@ const CPFLogin: React.FC<CPFLoginProps> = ({ onBack, onLoginSuccess }) => {
               />
               {error && <p className="text-[var(--color-secondary)] text-sm mt-2">{error}</p>}
             </div>
-            <button type="submit" className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors shadow-lg shadow-blue-950/40">Entrar</button>
+            <button type="submit" className="w-full bg-[var(--color-primary)] text-white font-bold py-3 rounded-lg hover:bg-[var(--color-primary-hover)] transition-colors shadow-lg shadow-blue-950/40">Entrar</button>
             <button type="button" onClick={() => setShowPassword(false)} className="w-full text-sm text-blue-100 hover:text-white">Voltar</button>
           </form>
         )}
@@ -246,15 +246,15 @@ const CPFLogin: React.FC<CPFLoginProps> = ({ onBack, onLoginSuccess }) => {
         {/* FLUXO CADASTRO */}
         {requiresRegistration && (
           <form onSubmit={registerUser} className="space-y-4 max-h-[60vh] overflow-y-auto px-1">
-            <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Nome Completo" className="w-full px-4 py-2 border rounded-lg" />
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="E-mail" className="w-full px-4 py-2 border rounded-lg" />
-            <input type="text" value={address} onChange={e => setAddress(e.target.value)} placeholder="Endereço" className="w-full px-4 py-2 border rounded-lg" />
-            <input type="text" value={cep} onChange={e => setCep(e.target.value)} placeholder="CEP" className="w-full px-4 py-2 border rounded-lg" />
-            <input type="text" value={phone} onChange={e => setPhone(e.target.value)} placeholder="Telefone" className="w-full px-4 py-2 border rounded-lg" />
-            <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Crie uma senha" className="w-full px-4 py-2 border rounded-lg" />
-            {error && <p className="text-[var(--color-secondary)] text-sm">{error}</p>}
-            <button type="submit" className="w-full bg-[var(--color-primary)] text-white font-bold py-3 rounded-lg">Cadastrar</button>
-            <button type="button" onClick={() => setRequiresRegistration(false)} className="w-full text-sm text-stone-500">← Voltar</button>
+            <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Nome Completo" className="login-input w-full px-4 py-2 border rounded-lg" />
+            <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="E-mail" className="login-input w-full px-4 py-2 border rounded-lg" />
+            <input type="text" value={address} onChange={e => setAddress(e.target.value)} placeholder="Endereço" className="login-input w-full px-4 py-2 border rounded-lg" />
+            <input type="text" value={cep} onChange={e => setCep(e.target.value)} placeholder="CEP" className="login-input w-full px-4 py-2 border rounded-lg" />
+            <input type="text" value={phone} onChange={e => setPhone(e.target.value)} placeholder="Telefone" className="login-input w-full px-4 py-2 border rounded-lg" />
+            <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Crie uma senha" className="login-input w-full px-4 py-2 border rounded-lg" />
+            {error && <p className="text-blue-200 text-sm">{error}</p>}
+            <button type="submit" className="w-full bg-[var(--color-primary)] text-white font-bold py-3 rounded-lg hover:bg-[var(--color-primary-hover)] transition-colors shadow-lg shadow-blue-950/40">Cadastrar</button>
+            <button type="button" onClick={() => setRequiresRegistration(false)} className="w-full text-sm text-blue-100 hover:text-white">Voltar</button>
           </form>
         )}
       </div>

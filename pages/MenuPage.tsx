@@ -33,11 +33,22 @@ const ProductCard: React.FC<ProductCardProps> = ({
   onOpenImage,
 }) => {
   const primaryImage = product.images?.[0] || product.imageUrl;
+  // Lógica ajustada: Se for null é ilimitado. Se for 0 é esgotado.
+  const isOutOfStock = product.stock === 0;
 
   return (
     <div
-      className="monster-product-card bg-white w-60 rounded-2xl shadow-md overflow-hidden flex flex-col relative h-full transition-transform hover:shadow-xl"
+      className={`monster-product-card bg-white w-60 rounded-2xl shadow-md overflow-hidden flex flex-col relative h-full transition-transform hover:shadow-xl ${
+        isOutOfStock ? "opacity-60 grayscale" : ""
+      }`}
     >
+      {/* Badges - Apenas ESGOTADO agora */}
+      {isOutOfStock && (
+        <div className="absolute top-3 right-3 z-10 bg-blue-600 text-white font-bold px-3 py-1 rounded-none text-sm shadow-sm">
+          ESGOTADO
+        </div>
+      )}
+
       {/* Mídia (Imagem ou Vídeo) */}
       <div className="monster-product-media relative h-40 md:h-52 bg-gray-100">
         {primaryImage ? (
@@ -77,7 +88,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
             )}
             <button
               onClick={() => onAddToCart(product)}
-              className="monster-buy-button w-full font-bold py-3 px-4 rounded-xl text-base md:text-lg transition-colors shadow-sm bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800"
+              disabled={isOutOfStock}
+              className={`monster-buy-button w-full font-bold py-3 px-4 rounded-xl text-base md:text-lg transition-colors shadow-sm ${
+                isOutOfStock
+                  ? "bg-stone-300 text-stone-500 cursor-not-allowed"
+                  : "bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800"
+              }`}
             >
               {quantityInCart > 0
                 ? `Adicionado (${quantityInCart})`
@@ -261,6 +277,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                       <input
                         type="number"
                         min={1}
+                        max={item.stock ?? 99}
                         value={item.quantity}
                         onChange={(e) => {
                           const q = parseInt(e.target.value);
@@ -968,7 +985,12 @@ const MenuPage: React.FC = () => {
                 <h2 className="monster-section-title">Produtos em destaque</h2>
                 <div className="monster-product-grid flex flex-wrap gap-4 md:gap-6">
                 {[...menu]
-                  .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"))
+                  .sort((a, b) => {
+                    const aOOS = a.stock === 0 ? 1 : 0;
+                    const bOOS = b.stock === 0 ? 1 : 0;
+                    if (aOOS !== bOOS) return aOOS - bOOS;
+                    return a.name.localeCompare(b.name, "pt-BR");
+                  })
                     .map((product) => (
                       <ProductCard
                         key={product.id}
@@ -990,7 +1012,11 @@ const MenuPage: React.FC = () => {
                 </h3>
                 <div className="monster-product-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 md:gap-8">
                   {[...(categorizedMenu[selectedCategory] || [])]
-                    .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"))
+                    .sort((a, b) => {
+                      const aOOS = a.stock === 0 ? 1 : 0;
+                      const bOOS = b.stock === 0 ? 1 : 0;
+                      return aOOS - bOOS;
+                    })
                     .map((product) => (
                       <ProductCard
                         key={product.id}

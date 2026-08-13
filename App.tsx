@@ -111,6 +111,10 @@ const RouterBody: React.FC = () => {
   const isMenuRoute =
     location.pathname === "/menu" || location.pathname === "/admin/nova-venda";
   const isCreateProjectRoute = location.pathname === "/criar-projeto";
+  const isLoginRoute =
+    location.pathname === "/login" || location.pathname === "/register";
+  const isCheckoutThemeRoute =
+    location.pathname === "/payment" || location.pathname === "/admin/payment";
 
   // Loading state enquanto carrega a loja
   if (loading) {
@@ -132,12 +136,14 @@ const RouterBody: React.FC = () => {
   return (
     <div className="min-h-screen bg-[var(--color-page-bg)] text-stone-800">
       {/* <InactivityGuard /> */}
-      <Header />
+      {!isLoginRoute && <Header />}
       <main
         className={
           isMenuRoute || isCreateProjectRoute
             ? "h-[calc(100dvh-69px)] overflow-hidden bg-[#0a1220]"
-            : "bg-[#050604] bg-[radial-gradient(circle_at_16%_8%,rgba(37,99,235,0.24),transparent_24rem),radial-gradient(circle_at_86%_78%,rgba(239,36,36,0.14),transparent_22rem)]"
+            : isCheckoutThemeRoute
+              ? "checkout-modern-theme p-4 md:p-8"
+              : "bg-[#050604] bg-[radial-gradient(circle_at_16%_8%,rgba(37,99,235,0.24),transparent_24rem),radial-gradient(circle_at_86%_78%,rgba(239,36,36,0.14),transparent_22rem)]"
         }
       >
         <Routes>

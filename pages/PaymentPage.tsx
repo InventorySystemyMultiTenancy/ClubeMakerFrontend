@@ -567,8 +567,8 @@ const PaymentPage: React.FC = () => {
 
   if (status === "success") {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[#050604] bg-[radial-gradient(circle_at_16%_8%,rgba(37,99,235,0.24),transparent_24rem),radial-gradient(circle_at_86%_78%,rgba(239,36,36,0.14),transparent_22rem)] p-4 text-white animate-fade-in-down">
-        <div className="w-full max-w-md rounded-3xl border border-blue-500/20 bg-[#071226] p-10 text-center shadow-2xl shadow-blue-950/40">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-green-50 p-4 animate-fade-in-down">
+        <div className="w-full max-w-md rounded-3xl bg-white p-10 text-center shadow-2xl">
           <img
             src="/selfMachine.jpg"
             alt="Self Machine"
@@ -580,26 +580,25 @@ const PaymentPage: React.FC = () => {
           <h2 className="text-3xl font-bold text-green-800 mb-2">
             Pagamento Aprovado!
           </h2>
-          <p className="mb-6 text-lg text-blue-100">
+          <p className="mb-6 text-lg text-stone-600">
             Pedido enviado.
             <br />
             <span className="block mt-2 text-green-700 font-semibold">
               Comprovante enviado para seu e-mail!
             </span>
           </p>
-          <p className="text-sm text-blue-200/70">Redirecionando...</p>
+          <p className="text-sm text-stone-400">Redirecionando...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#050604] bg-[radial-gradient(circle_at_16%_8%,rgba(37,99,235,0.24),transparent_24rem),radial-gradient(circle_at_86%_78%,rgba(239,36,36,0.14),transparent_22rem)] px-4 py-8 text-white">
-      <div className="container mx-auto max-w-4xl">
-      <h1 className="mb-8 flex items-center gap-2 text-3xl font-bold text-white">
+    <div className="container mx-auto p-6 max-w-4xl">
+      <h1 className="mb-8 flex items-center gap-2 text-3xl font-bold text-blue-800">
         <button
           onClick={() => navigate(saleRoute)}
-          className="text-[var(--color-primary)] hover:bg-[var(--color-primary-light)] p-2 rounded-full transition-all duration-300 ease-in-out transform hover:scale-110 shadow-lg"
+          className="text-blue-600 hover:bg-blue-100 p-2 rounded-full transition-all duration-300 ease-in-out transform hover:scale-110 shadow-lg"
           disabled={status === "processing"}
         >
           ←
@@ -609,21 +608,21 @@ const PaymentPage: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* COLUNA ESQUERDA - RESUMO */}
-        <div className="h-fit rounded-2xl border border-blue-500/20 bg-[#071226] p-6 shadow-xl shadow-blue-950/25">
-          <h2 className="mb-4 border-b border-blue-500/20 pb-2 text-xl font-bold text-white">
+        <div className="h-fit rounded-2xl bg-white p-6 shadow-lg">
+          <h2 className="mb-4 border-b pb-2 text-xl font-bold text-stone-800">
             Resumo do Pedido
           </h2>
           {selectedOrderCustomer && (
-            <div className="mb-4 rounded border border-blue-500/20 bg-black/30 p-3 text-sm text-blue-100">
+            <div className="mb-4 rounded border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800">
               Compra para:{" "}
-              <span className="font-bold text-white">
+              <span className="font-bold">
                 {selectedOrderCustomer.name}
               </span>
             </div>
           )}
           <ul className="space-y-3 max-h-64 overflow-y-auto mb-4">
             {cartItems.map((item) => (
-              <li key={item.id} className="flex justify-between text-blue-100">
+              <li key={item.id} className="flex justify-between text-stone-600">
                 <span>
                   {item.quantity}x {item.name}
                 </span>
@@ -633,7 +632,7 @@ const PaymentPage: React.FC = () => {
               </li>
             ))}
           </ul>
-          <div className="mb-4 border-t border-blue-500/20 pt-4 text-sm text-blue-100">
+          <div className="mb-4 border-t pt-4 text-sm text-stone-500">
             <span className="font-semibold">Frete:</span> entrar em contato para
             calcular{" "}
             <a
@@ -647,9 +646,9 @@ const PaymentPage: React.FC = () => {
               {CONTACT_PHONE_LABEL}
             </a>
           </div>
-          <div className="flex items-center justify-between border-t border-blue-500/20 pt-4">
-            <span className="text-lg text-blue-200/80">Total a pagar:</span>
-            <span className="text-3xl font-bold text-[var(--color-primary)]">
+          <div className="flex items-center justify-between border-t pt-4">
+            <span className="text-lg text-stone-500">Total a pagar:</span>
+            <span className="text-3xl font-bold text-blue-600">
               {(paymentType === "presencial" || paymentType === "online") &&
               paymentMethod === "credit" &&
               taxaSelecionada
@@ -658,7 +657,7 @@ const PaymentPage: React.FC = () => {
             </span>
           </div>
           {paymentType === "presencial" && paymentMethod === "credit" && (
-            <div className="mt-2 text-sm text-[var(--color-primary)] text-right">
+            <div className="mt-2 text-sm text-blue-700 text-right">
               Taxa: {taxaSelecionada.toFixed(2)}% ({selectedInstallments}
               x)
             </div>
@@ -669,7 +668,7 @@ const PaymentPage: React.FC = () => {
         <div className="flex flex-col gap-4">
           {!paymentType && (
             <>
-              <h2 className="mb-2 text-xl font-bold text-white">
+              <h2 className="mb-2 text-xl font-bold text-stone-800">
                 Como você quer pagar?
               </h2>
               <button
@@ -679,7 +678,7 @@ const PaymentPage: React.FC = () => {
                 💻 Pagamento Online (Mercado Pago)
               </button>
               <button
-                className="p-4 rounded-xl border-2 border-[var(--color-primary)] bg-[var(--color-primary-lighter)] text-[var(--color-primary-active)] font-bold text-lg hover:bg-[var(--color-primary-light)] transition-all"
+                className="p-4 rounded-xl border-2 border-blue-500 bg-blue-50 text-blue-900 font-bold text-lg hover:bg-blue-100 transition-all"
                 onClick={handleContactOrder}
                 disabled={status === "processing"}
               >
@@ -702,30 +701,30 @@ const PaymentPage: React.FC = () => {
           )}
 
           {paymentType === EXTERNAL_ORDER_PAYMENT_VALUE && isAdminSale && (
-            <div className="rounded border-l-4 border-amber-500 bg-[#071226] p-4 text-blue-100 shadow-xl shadow-blue-950/25">
-              <h2 className="mb-4 text-xl font-bold text-white">
+            <div className="rounded-xl border-l-4 border-amber-500 bg-amber-50 p-4 text-stone-800 shadow-lg">
+              <h2 className="mb-4 text-xl font-bold text-stone-800">
                 {EXTERNAL_ORDER_PAYMENT_LABEL}
               </h2>
-              <label className="mb-2 block text-sm font-semibold text-blue-100">
+              <label className="mb-2 block text-sm font-semibold text-stone-700">
                 Nome de quem comprou
               </label>
               <input
                 type="text"
                 value={externalBuyerName}
                 onChange={(e) => setExternalBuyerName(e.target.value)}
-                className="w-full rounded border border-blue-500/30 bg-white px-3 py-2 text-stone-900"
+                className="w-full rounded border border-stone-300 bg-white px-3 py-2 text-stone-900"
                 placeholder="Maria Silva"
                 required
                 disabled={status === "processing"}
               />
               {errorMessage && (
-                <p className="mt-2 text-sm font-semibold text-red-300">
+                <p className="mt-2 text-sm font-semibold text-red-600">
                   {errorMessage}
                 </p>
               )}
               <div className="mt-4 flex flex-wrap gap-3">
                 <button
-                  className="px-6 py-3 rounded bg-[var(--color-primary)] text-white font-bold text-lg hover:bg-[var(--color-primary-active)] transition-all disabled:opacity-60"
+                  className="px-6 py-3 rounded bg-blue-600 text-white font-bold text-lg hover:bg-blue-700 transition-all disabled:opacity-60"
                   onClick={handleExternalOrder}
                   disabled={status === "processing"}
                 >
@@ -755,7 +754,7 @@ const PaymentPage: React.FC = () => {
               {/* Cria o pedido antes de exibir o PaymentOnline */}
               {!onlineOrderId && !creatingOnlineOrder && (
                 <button
-                  className="w-full bg-[var(--color-primary)] text-white font-bold py-4 px-6 rounded-xl mb-4"
+                  className="w-full bg-blue-600 text-white font-bold py-4 px-6 rounded-xl mb-4"
                   onClick={async () => {
                     setCreatingOnlineOrder(true);
                     try {
@@ -831,7 +830,7 @@ const PaymentPage: React.FC = () => {
 
           {/* Pagamento Presencial (Modo Manual/A Pagar) */}
           {paymentType === "presencial" && (
-            <div className="rounded border-l-4 border-[var(--color-primary)] bg-[#071226] p-4 text-center font-semibold text-blue-100 shadow-xl shadow-blue-950/25">
+            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded text-center text-blue-800 font-semibold">
               <span className="block text-2xl mb-2">
                 🏪 Pagamento na Loja
               </span>
@@ -1025,7 +1024,6 @@ const PaymentPage: React.FC = () => {
             </div>
           )}
         </div>
-      </div>
       </div>
     </div>
   );
