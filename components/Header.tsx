@@ -75,7 +75,7 @@ const Header: React.FC = () => {
 
   return (
     <>
-      <header className="monster-header bg-gradient-to-r from-white via-blue-800 to-blue-900 border-b border-stone-200 sticky top-0 z-50 h-16">
+      <header className="monster-header border-b border-stone-200 sticky top-0 z-50 h-16">
         <div className="container mx-auto px-3 sm:px-4 h-full flex items-center justify-between gap-3 min-w-0">
           {/* Logo */}
           <div className="flex items-center gap-2 relative min-w-0">
@@ -100,7 +100,7 @@ const Header: React.FC = () => {
               (!currentUser.role || currentUser.role === "customer") && (
                 <NavLink
                   to="/menu"
-                  className="monster-header-link text-white transition-colors font-medium"
+                  className="monster-header-link transition-colors"
                 >
                   Catálogo
                 </NavLink>
@@ -112,7 +112,7 @@ const Header: React.FC = () => {
                 currentUser.role === "admincustomer") && (
                 <NavLink
                   to="/meus-orcamentos"
-                  className="monster-header-link text-white transition-colors font-medium"
+                  className="monster-header-link transition-colors"
                 >
                   Orçamentos
                 </NavLink>
@@ -124,7 +124,7 @@ const Header: React.FC = () => {
                 style={({ isActive }) =>
                   isActive ? activeLinkStyle : undefined
                 }
-                className="monster-header-link text-stone-500 hover:text-blue-700 transition-colors font-medium"
+                className="monster-header-link transition-colors"
               >
                 Pedidos Cozinha
               </NavLink>
@@ -133,7 +133,7 @@ const Header: React.FC = () => {
             {currentUser?.role === "admincustomer" && (
               <NavLink
                 to="/admin/login"
-                className="monster-header-link text-white hover:text-blue-700 transition-colors font-medium"
+                className="monster-header-link transition-colors"
               >
                 Ir para Admin
               </NavLink>
@@ -215,10 +215,10 @@ const Header: React.FC = () => {
                   <div className="h-6 w-px bg-stone-200 mx-1"></div>
                   <div className="flex items-center gap-3">
                     <div className="hidden sm:block text-right leading-tight">
-                      <p className="text-xs text-white font-medium">Olá,</p>
+                      <p className="text-xs text-stone-500 font-medium">Olá,</p>
                       <p
                         className="text-sm font-bold max-w-[100px] truncate"
-                        style={{ color: "#60a5fa" }}
+                        style={{ color: "#1d4ed8" }}
                       >
                         {currentUser.name}
                       </p>
@@ -264,7 +264,7 @@ const Header: React.FC = () => {
                     </NavLink>
                     <button
                       onClick={handleLogout}
-                      className="text-white hover:text-blue-600 hover:bg-blue-100 p-2 rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg"
+                      className="text-stone-500 hover:text-blue-600 hover:bg-blue-100 p-2 rounded-full transition-all duration-300 ease-in-out transform hover:scale-105"
                       title="Sair"
                     >
                       <svg
@@ -285,7 +285,7 @@ const Header: React.FC = () => {
                   </div>
                 </>
               ) : (
-                <span className="text-sm text-white">Bem-vindo!</span>
+                <span className="text-sm text-stone-600">Bem-vindo!</span>
               )}
             </div>
           </div>
@@ -293,13 +293,13 @@ const Header: React.FC = () => {
       </header>
 
       {isMenuOpen && (
-        <div className="min-[1101px]:hidden bg-[#050604] border-b border-blue-500/30 shadow-md">
+        <div className="min-[1101px]:hidden bg-white border-b border-stone-200 shadow-md">
           <div className="container mx-auto px-4 py-4 flex flex-col gap-3">
             {currentUser &&
               (!currentUser.role || currentUser.role === "customer") && (
                 <NavLink
                   to="/menu"
-                  className="text-stone-100 hover:text-blue-300 font-medium"
+                  className="text-stone-700 hover:text-blue-600 font-medium"
                 >
                   Catálogo
                 </NavLink>
@@ -311,7 +311,7 @@ const Header: React.FC = () => {
                 currentUser.role === "admincustomer") && (
                 <NavLink
                   to="/meus-orcamentos"
-                  className="text-stone-100 hover:text-blue-300 font-medium"
+                  className="text-stone-700 hover:text-blue-600 font-medium"
                 >
                   Orçamentos
                 </NavLink>
@@ -320,7 +320,7 @@ const Header: React.FC = () => {
             {currentUser?.role === "kitchen" && (
               <NavLink
                 to="/cozinha"
-                className="text-stone-100 hover:text-blue-300 font-medium"
+                className="text-stone-700 hover:text-blue-600 font-medium"
               >
                 Pedidos Cozinha
               </NavLink>
@@ -329,7 +329,7 @@ const Header: React.FC = () => {
             {currentUser?.role === "admincustomer" && (
               <NavLink
                 to="/admin/login"
-                className="text-stone-100 hover:text-blue-300 font-medium"
+                className="text-stone-700 hover:text-blue-600 font-medium"
               >
                 Ir para Admin
               </NavLink>
@@ -339,14 +339,14 @@ const Header: React.FC = () => {
               (isAdminArea ? (
                 <button
                   onClick={() => navigate("/admin/nova-venda")}
-                  className="text-left text-stone-100 hover:text-blue-300 font-medium"
+                  className="text-left text-stone-700 hover:text-blue-600 font-medium"
                 >
                   ← Voltar ao site
                 </button>
               ) : (
                 <NavLink
                   to="/admin"
-                  className="text-stone-100 hover:text-blue-300 font-medium"
+                  className="text-stone-700 hover:text-blue-600 font-medium"
                 >
                   Aba administrativa
                 </NavLink>
@@ -354,22 +354,22 @@ const Header: React.FC = () => {
 
             {currentUser ? (
               <>
-                <div className="h-px bg-blue-500/20 my-1" />
-                <p className="text-sm text-stone-300">
+                <div className="h-px bg-stone-200 my-1" />
+                <p className="text-sm text-stone-500">
                   Olá,{" "}
-                  <span className="font-bold text-blue-300">
+                  <span className="font-bold text-blue-600">
                     {currentUser.name}
                   </span>
                 </p>
                 <button
                   onClick={() => navigate("/register?edit=1")}
-                  className="text-left text-stone-100 hover:text-blue-300 font-medium"
+                  className="text-left text-stone-700 hover:text-blue-600 font-medium"
                 >
                   Editar meus dados
                 </button>
                 <NavLink
                   to="/meus-pedidos"
-                  className={`text-stone-100 hover:text-blue-300 font-medium ${
+                  className={`text-stone-700 hover:text-blue-600 font-medium ${
                     hasUndeliveredOrder
                       ? "animate-pulse rounded-lg bg-blue-600 px-3 py-2 text-white shadow"
                       : ""
@@ -379,13 +379,13 @@ const Header: React.FC = () => {
                 </NavLink>
                 <button
                   onClick={handleLogout}
-                  className="text-left text-stone-100 hover:text-blue-300 font-medium"
+                  className="text-left text-stone-700 hover:text-blue-600 font-medium"
                 >
                   Sair
                 </button>
               </>
             ) : (
-              <span className="text-sm text-stone-100">Bem-vindo!</span>
+              <span className="text-sm text-stone-600">Bem-vindo!</span>
             )}
           </div>
         </div>
