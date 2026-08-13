@@ -111,12 +111,11 @@ body {
   transform: scaleX(1);
 }
 
-/* Header escuro: usado nas abas onde o fundo da página continua escuro
-   (site principal, admin, orçamento personalizado, login) */
+/* Header em azul escuro (tonalidade principal do site) */
 .monster-header.dark-header {
-  background: rgba(5, 6, 4, 0.94) !important;
+  background: linear-gradient(135deg, #04122f 0%, #0b2559 100%) !important;
   border-bottom: 1px solid rgba(96, 165, 250, 0.34) !important;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.42);
+  box-shadow: 0 12px 40px rgba(2, 12, 32, 0.45);
 }
 
 .dark-header .monster-header-brand {
@@ -161,7 +160,7 @@ body {
 }
 
 .dark-header-mobile-panel {
-  background: #050604;
+  background: #04122f;
   border-bottom: 1px solid rgba(96, 165, 250, 0.3);
 }
 
@@ -263,11 +262,11 @@ body {
   height: 400px;
   margin: 0;
   overflow: hidden;
-  background: linear-gradient(120deg, #eff6ff 0%, #f8fafc 55%, #ffffff 100%);
+  background: linear-gradient(120deg, #0d2b63 0%, #123a7a 55%, #1a4894 100%);
   border: none;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid rgba(96, 165, 250, 0.24);
   border-radius: 0;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 10px 30px rgba(2, 12, 32, 0.35);
 }
 
 .latest-banner-copy,
@@ -299,7 +298,7 @@ body {
 
 .latest-banner-copy h2 {
   max-width: 16ch;
-  color: #0f172a;
+  color: #ffffff;
   font-size: clamp(1.9rem, 3.6vw, 2.9rem);
   font-weight: 800;
   line-height: 1.08;
@@ -309,7 +308,7 @@ body {
 
 .latest-banner-copy p {
   margin-top: 0.75rem;
-  color: #2563eb;
+  color: #93c5fd;
   font-size: clamp(0.95rem, 1.4vw, 1.15rem);
   font-weight: 700;
   text-transform: none;
@@ -319,7 +318,7 @@ body {
   display: block;
   max-width: 36rem;
   margin-top: 0.3rem;
-  color: #475569;
+  color: #dbeafe;
   font-weight: 500;
   font-size: 0.98rem;
 }
@@ -404,7 +403,7 @@ body {
   width: 2rem;
   height: 0.26rem;
   border-radius: 999px;
-  background: #cbd5e1;
+  background: rgba(226, 232, 240, 0.35);
   transition: background 180ms ease, transform 180ms ease;
 }
 

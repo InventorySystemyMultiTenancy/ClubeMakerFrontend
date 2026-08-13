@@ -12,6 +12,7 @@ import {
   getProducts,
 } from "../services/apiService";
 import type { Product, CartItem, User } from "../types";
+import CatalogFooter from "../components/CatalogFooter";
 
 // URL da API
 const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
@@ -984,7 +985,7 @@ const MenuPage: React.FC = () => {
           )}
 
           {/* Grid de Produtos */}
-          <div className="max-w-7xl mx-auto min-h-[101%] p-4 md:p-8 pt-6">
+          <div className="max-w-7xl mx-auto p-4 md:p-8 pt-6">
             {selectedCategory === null ? (
               <>
                 <h2 className="monster-section-title">Produtos em destaque</h2>
@@ -1038,6 +1039,7 @@ const MenuPage: React.FC = () => {
               </div>
             )}
           </div>
+          <CatalogFooter categories={displayCategories} />
         </div>
         {cartItems.length > 0 && !isMobileCartOpen && (
           <button

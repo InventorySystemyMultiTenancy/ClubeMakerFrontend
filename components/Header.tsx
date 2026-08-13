@@ -20,13 +20,6 @@ const Header: React.FC = () => {
   const isAdminArea =
     (location.pathname.startsWith("/admin") && !isAdminPurchaseFlow) ||
     location.pathname.startsWith("/historico");
-  // Catálogo e checkout têm fundo claro; o restante do site (principal, admin,
-  // orçamento personalizado, login) continua com fundo escuro — o header acompanha.
-  const isLightHeaderRoute =
-    location.pathname === "/menu" ||
-    location.pathname === "/admin/nova-venda" ||
-    location.pathname === "/payment" ||
-    location.pathname === "/admin/payment";
 
   useEffect(() => {
     setIsMenuOpen(false);
@@ -83,9 +76,7 @@ const Header: React.FC = () => {
   return (
     <>
       <header
-        className={`monster-header border-b border-stone-200 sticky top-0 z-50 h-16 ${
-          isLightHeaderRoute ? "" : "dark-header"
-        }`}
+        className="monster-header dark-header border-b border-stone-200 sticky top-0 z-50 h-16"
       >
         <div className="container mx-auto px-3 sm:px-4 h-full flex items-center justify-between gap-3 min-w-0">
           {/* Logo */}
@@ -223,23 +214,15 @@ const Header: React.FC = () => {
             <div className="flex items-center gap-4 max-[1100px]:hidden">
               {currentUser ? (
                 <>
-                  <div
-                    className={`h-6 w-px mx-1 ${
-                      isLightHeaderRoute ? "bg-stone-200" : "dark-header-divider"
-                    }`}
-                  ></div>
+                  <div className="h-6 w-px mx-1 dark-header-divider"></div>
                   <div className="flex items-center gap-3">
                     <div className="hidden sm:block text-right leading-tight">
-                      <p
-                        className={`text-xs font-medium ${
-                          isLightHeaderRoute ? "text-stone-500" : "dark-header-hello"
-                        }`}
-                      >
+                      <p className="text-xs font-medium dark-header-hello">
                         Olá,
                       </p>
                       <p
                         className="text-sm font-bold max-w-[100px] truncate"
-                        style={{ color: isLightHeaderRoute ? "#1d4ed8" : "#93c5fd" }}
+                        style={{ color: "#93c5fd" }}
                       >
                         {currentUser.name}
                       </p>
@@ -285,11 +268,7 @@ const Header: React.FC = () => {
                     </NavLink>
                     <button
                       onClick={handleLogout}
-                      className={`p-2 rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 ${
-                        isLightHeaderRoute
-                          ? "text-stone-500 hover:text-blue-600 hover:bg-blue-100"
-                          : "dark-header-logout"
-                      }`}
+                      className="p-2 rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 dark-header-logout"
                       title="Sair"
                     >
                       <svg
@@ -310,11 +289,7 @@ const Header: React.FC = () => {
                   </div>
                 </>
               ) : (
-                <span
-                  className={`text-sm ${
-                    isLightHeaderRoute ? "text-stone-600" : "dark-header-guest"
-                  }`}
-                >
+                <span className="text-sm dark-header-guest">
                   Bem-vindo!
                 </span>
               )}
@@ -324,24 +299,11 @@ const Header: React.FC = () => {
       </header>
 
       {isMenuOpen && (
-        <div
-          className={`min-[1101px]:hidden shadow-md ${
-            isLightHeaderRoute
-              ? "bg-white border-b border-stone-200"
-              : "dark-header-mobile-panel"
-          }`}
-        >
+        <div className="min-[1101px]:hidden shadow-md dark-header-mobile-panel">
           <div className="container mx-auto px-4 py-4 flex flex-col gap-3">
             {currentUser &&
               (!currentUser.role || currentUser.role === "customer") && (
-                <NavLink
-                  to="/menu"
-                  className={`font-medium ${
-                    isLightHeaderRoute
-                      ? "text-stone-700 hover:text-blue-600"
-                      : "dark-header-mobile-link"
-                  }`}
-                >
+                <NavLink to="/menu" className="font-medium dark-header-mobile-link">
                   Catálogo
                 </NavLink>
               )}
@@ -352,25 +314,14 @@ const Header: React.FC = () => {
                 currentUser.role === "admincustomer") && (
                 <NavLink
                   to="/meus-orcamentos"
-                  className={`font-medium ${
-                    isLightHeaderRoute
-                      ? "text-stone-700 hover:text-blue-600"
-                      : "dark-header-mobile-link"
-                  }`}
+                  className="font-medium dark-header-mobile-link"
                 >
                   Orçamentos
                 </NavLink>
               )}
 
             {currentUser?.role === "kitchen" && (
-              <NavLink
-                to="/cozinha"
-                className={`font-medium ${
-                  isLightHeaderRoute
-                    ? "text-stone-700 hover:text-blue-600"
-                    : "dark-header-mobile-link"
-                }`}
-              >
+              <NavLink to="/cozinha" className="font-medium dark-header-mobile-link">
                 Pedidos Cozinha
               </NavLink>
             )}
@@ -378,11 +329,7 @@ const Header: React.FC = () => {
             {currentUser?.role === "admincustomer" && (
               <NavLink
                 to="/admin/login"
-                className={`font-medium ${
-                  isLightHeaderRoute
-                    ? "text-stone-700 hover:text-blue-600"
-                    : "dark-header-mobile-link"
-                }`}
+                className="font-medium dark-header-mobile-link"
               >
                 Ir para Admin
               </NavLink>
@@ -392,64 +339,34 @@ const Header: React.FC = () => {
               (isAdminArea ? (
                 <button
                   onClick={() => navigate("/admin/nova-venda")}
-                  className={`text-left font-medium ${
-                    isLightHeaderRoute
-                      ? "text-stone-700 hover:text-blue-600"
-                      : "dark-header-mobile-link"
-                  }`}
+                  className="text-left font-medium dark-header-mobile-link"
                 >
                   ← Voltar ao site
                 </button>
               ) : (
-                <NavLink
-                  to="/admin"
-                  className={`font-medium ${
-                    isLightHeaderRoute
-                      ? "text-stone-700 hover:text-blue-600"
-                      : "dark-header-mobile-link"
-                  }`}
-                >
+                <NavLink to="/admin" className="font-medium dark-header-mobile-link">
                   Aba administrativa
                 </NavLink>
               ))}
 
             {currentUser ? (
               <>
-                <div
-                  className={`h-px my-1 ${
-                    isLightHeaderRoute ? "bg-stone-200" : "dark-header-divider"
-                  }`}
-                />
-                <p
-                  className={`text-sm ${
-                    isLightHeaderRoute ? "text-stone-500" : "dark-header-hello"
-                  }`}
-                >
+                <div className="h-px my-1 dark-header-divider" />
+                <p className="text-sm dark-header-hello">
                   Olá,{" "}
-                  <span
-                    className="font-bold"
-                    style={{ color: isLightHeaderRoute ? "#2563eb" : "#93c5fd" }}
-                  >
+                  <span className="font-bold" style={{ color: "#93c5fd" }}>
                     {currentUser.name}
                   </span>
                 </p>
                 <button
                   onClick={() => navigate("/register?edit=1")}
-                  className={`text-left font-medium ${
-                    isLightHeaderRoute
-                      ? "text-stone-700 hover:text-blue-600"
-                      : "dark-header-mobile-link"
-                  }`}
+                  className="text-left font-medium dark-header-mobile-link"
                 >
                   Editar meus dados
                 </button>
                 <NavLink
                   to="/meus-pedidos"
-                  className={`font-medium ${
-                    isLightHeaderRoute
-                      ? "text-stone-700 hover:text-blue-600"
-                      : "dark-header-mobile-link"
-                  } ${
+                  className={`font-medium dark-header-mobile-link ${
                     hasUndeliveredOrder
                       ? "animate-pulse rounded-lg bg-blue-600 px-3 py-2 text-white shadow"
                       : ""
@@ -459,23 +376,13 @@ const Header: React.FC = () => {
                 </NavLink>
                 <button
                   onClick={handleLogout}
-                  className={`text-left font-medium ${
-                    isLightHeaderRoute
-                      ? "text-stone-700 hover:text-blue-600"
-                      : "dark-header-mobile-link"
-                  }`}
+                  className="text-left font-medium dark-header-mobile-link"
                 >
                   Sair
                 </button>
               </>
             ) : (
-              <span
-                className={`text-sm ${
-                  isLightHeaderRoute ? "text-stone-600" : "dark-header-guest"
-                }`}
-              >
-                Bem-vindo!
-              </span>
+              <span className="text-sm dark-header-guest">Bem-vindo!</span>
             )}
           </div>
         </div>
