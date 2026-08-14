@@ -133,6 +133,14 @@ const LandingPage: React.FC = () => {
           </div>
 
           <div className="mt-8 max-w-4xl">
+            <div className="mb-5">
+              <Link
+                to="/login?redirect=/menu"
+                className="energy-cta inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-amber-400 px-7 py-3 text-base font-black text-slate-900 shadow-[0_0_28px_rgba(251,191,36,0.45)] transition hover:bg-amber-300 focus:outline-none focus:ring-4 focus:ring-amber-200/40"
+              >
+                Comprar agora
+              </Link>
+            </div>
             <p className="club-neon-kicker">Projetos 3D personalizados</p>
             <h1 className="mt-5 text-4xl font-black leading-tight text-white sm:text-5xl lg:text-7xl">
               A sua ideia ganhando forma, cor e presença.

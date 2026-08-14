@@ -3,13 +3,17 @@ import { Link } from "react-router-dom";
 import "./CatalogFooter.css";
 import logo from "../assets/clubemaker-logo.png";
 
-const PAYMENT_BADGES: { name: string; src?: string }[] = [
+interface PaymentBadge {
+  name: string;
+  src: string;
+}
+
+const PAYMENT_BADGES: PaymentBadge[] = [
   { name: "Visa", src: "/payment-logos/visa.svg" },
   { name: "Mastercard", src: "/payment-logos/mastercard.svg" },
   { name: "Elo", src: "/payment-logos/elo.svg" },
   { name: "Amex", src: "/payment-logos/amex.svg" },
   { name: "Pix", src: "/payment-logos/pix.svg" },
-  { name: "Boleto" },
 ];
 
 const SocialIcon: React.FC<{ label: string; children: React.ReactNode }> = ({
@@ -159,43 +163,15 @@ const CatalogFooter: React.FC<CatalogFooterProps> = ({ categories = [] }) => {
           <div className="catalog-footer-col catalog-footer-trust-col">
             <h3>Formas de pagamento</h3>
             <div className="catalog-footer-payment-badges">
-              {PAYMENT_BADGES.map(({ name, src }) =>
-                src ? (
-                  <span
-                    key={name}
-                    className="catalog-footer-payment-badge"
-                    title={name}
-                  >
-                    <img src={src} alt={name} loading="lazy" />
-                  </span>
-                ) : (
-                  <span
-                    key={name}
-                    className="catalog-footer-payment-badge catalog-footer-payment-badge-boleto"
-                    title={name}
-                  >
-                    <svg
-                      viewBox="0 0 24 24"
-                      width="20"
-                      height="14"
-                      aria-hidden="true"
-                    >
-                      <rect x="0" y="1" width="2" height="12" fill="#1f2937" />
-                      <rect x="3" y="1" width="1" height="12" fill="#1f2937" />
-                      <rect x="5" y="1" width="3" height="12" fill="#1f2937" />
-                      <rect x="9" y="1" width="1" height="12" fill="#1f2937" />
-                      <rect x="11" y="1" width="2" height="12" fill="#1f2937" />
-                      <rect x="14" y="1" width="1" height="12" fill="#1f2937" />
-                      <rect x="16" y="1" width="3" height="12" fill="#1f2937" />
-                      <rect x="20" y="1" width="1" height="12" fill="#1f2937" />
-                      <rect x="22" y="1" width="2" height="12" fill="#1f2937" />
-                    </svg>
-                    <span className="catalog-footer-payment-badge-label">
-                      Boleto
-                    </span>
-                  </span>
-                ),
-              )}
+              {PAYMENT_BADGES.map(({ name, src }) => (
+                <span
+                  key={name}
+                  className="catalog-footer-payment-badge"
+                  title={name}
+                >
+                  <img src={src} alt={name} loading="lazy" />
+                </span>
+              ))}
             </div>
 
             <h3>Segurança</h3>

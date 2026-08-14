@@ -213,14 +213,6 @@
   object-fit: contain;
 }
 
-.catalog-footer-payment-badge-boleto {
-  gap: 0.4rem;
-}
-
-.catalog-footer-payment-badge-label {
-  color: #1f2937;
-}
-
 .catalog-footer-security-badges {
   display: flex;
   flex-direction: column;
