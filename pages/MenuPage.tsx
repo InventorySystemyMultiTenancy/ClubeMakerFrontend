@@ -932,6 +932,13 @@ const MenuPage: React.FC = () => {
                   loading="eager"
                 />
               </div>
+              <button
+                type="button"
+                className="latest-banner-cta"
+                onClick={() => navigate("/criar-projeto")}
+              >
+                Criar meu projeto
+              </button>
               {bannerImages.length > 1 && (
                 <button
                   type="button"
