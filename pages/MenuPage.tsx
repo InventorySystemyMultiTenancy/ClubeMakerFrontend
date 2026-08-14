@@ -798,37 +798,31 @@ const MenuPage: React.FC = () => {
     fetchCartSuggestion();
   }, [cartItems, menu, currentUser]);
 
-  const latestProducts = useMemo(() => {
-    return [...menu]
-      .filter((product) => getProductImages(product).length > 0)
-      .slice(-5)
-      .reverse();
-  }, [menu]);
+  const bannerImages = [
+    "/1 (1).png",
+    "/2 (1).png",
+    "/3 (1).png",
+    "/4 (1).png",
+    "/5 (1).png",
+  ];
 
   useEffect(() => {
-    if (latestProducts.length <= 1) return;
+    if (bannerImages.length <= 1) return;
 
     const interval = window.setInterval(() => {
-      setCurrentBannerIndex((current) => (current + 1) % latestProducts.length);
+      setCurrentBannerIndex((current) => (current + 1) % bannerImages.length);
     }, 10000);
 
     return () => window.clearInterval(interval);
-  }, [latestProducts.length]);
-
-  useEffect(() => {
-    if (currentBannerIndex >= latestProducts.length) {
-      setCurrentBannerIndex(0);
-    }
-  }, [currentBannerIndex, latestProducts.length]);
+  }, [bannerImages.length]);
 
   const showNextBanner = () => {
-    setCurrentBannerIndex((current) => (current + 1) % latestProducts.length);
+    setCurrentBannerIndex((current) => (current + 1) % bannerImages.length);
   };
 
   const showPreviousBanner = () => {
     setCurrentBannerIndex(
-      (current) =>
-        (current - 1 + latestProducts.length) % latestProducts.length,
+      (current) => (current - 1 + bannerImages.length) % bannerImages.length,
     );
   };
 
@@ -872,13 +866,7 @@ const MenuPage: React.FC = () => {
       ? ((imageViewer.currentIndex % totalViewerImages) + totalViewerImages) %
         totalViewerImages
       : 0;
-  const currentBannerProduct =
-    latestProducts.length > 0
-      ? latestProducts[currentBannerIndex % latestProducts.length]
-      : null;
-  const currentBannerImage = currentBannerProduct
-    ? getProductImages(currentBannerProduct)[0]
-    : "";
+  const currentBannerImage = bannerImages[currentBannerIndex % bannerImages.length];
 
   return (
     <div className="monster-shell flex h-screen w-full overflow-hidden font-sans">
@@ -925,9 +913,9 @@ const MenuPage: React.FC = () => {
         {/* Scroll Container */}
         <div className="flex-1 overflow-y-auto pb-48 md:pb-8 scroll-smooth">
           {/* Banner de destaque: fora do container com padding, para ficar rente ao topo e às laterais */}
-          {selectedCategory === null && currentBannerProduct && (
-            <section className="latest-banner" aria-label="Novidades">
-              {latestProducts.length > 1 && (
+          {selectedCategory === null && (
+            <section className="latest-banner" aria-label="Destaques">
+              {bannerImages.length > 1 && (
                 <button
                   type="button"
                   className="latest-banner-arrow latest-banner-arrow-prev"
@@ -937,26 +925,14 @@ const MenuPage: React.FC = () => {
                   ‹
                 </button>
               )}
-              <div className="latest-banner-copy">
-                <span>Novidades!</span>
-                <h2>Últimos lançamentos!</h2>
-                <p>Produto 3D</p>
-                <strong>{currentBannerProduct.name}</strong>
-                <button
-                  type="button"
-                  onClick={() => openImageViewer(currentBannerProduct)}
-                >
-                  Ver detalhes
-                </button>
-              </div>
               <div className="latest-banner-stage">
                 <img
                   src={currentBannerImage}
-                  alt={currentBannerProduct.name}
+                  alt={`Destaque ${currentBannerIndex + 1}`}
                   loading="eager"
                 />
               </div>
-              {latestProducts.length > 1 && (
+              {bannerImages.length > 1 && (
                 <button
                   type="button"
                   className="latest-banner-arrow latest-banner-arrow-next"
@@ -966,13 +942,13 @@ const MenuPage: React.FC = () => {
                   ›
                 </button>
               )}
-              {latestProducts.length > 1 && (
+              {bannerImages.length > 1 && (
                 <div className="latest-banner-dots">
-                  {latestProducts.map((product, index) => (
+                  {bannerImages.map((image, index) => (
                     <button
                       type="button"
-                      key={`banner-dot-${product.id}`}
-                      aria-label={`Ver novidade ${index + 1}`}
+                      key={`banner-dot-${image}`}
+                      aria-label={`Ver destaque ${index + 1}`}
                       className={
                         index === currentBannerIndex ? "is-active" : ""
                       }
