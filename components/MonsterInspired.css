@@ -327,7 +327,7 @@ body {
 .latest-banner-cta {
   position: absolute;
   z-index: 2;
-  top: clamp(1.25rem, 3vw, 2rem);
+  bottom: clamp(1.25rem, 3vw, 2rem);
   left: clamp(1.25rem, 3vw, 2rem);
   padding: 0.85rem 1.7rem;
   border-radius: 999px;
@@ -1067,7 +1067,7 @@ body {
   }
 
   .latest-banner-cta {
-    top: 0.75rem;
+    bottom: 2.5rem;
     left: 0.75rem;
     padding: 0.6rem 1.15rem;
     font-size: 0.85rem;
