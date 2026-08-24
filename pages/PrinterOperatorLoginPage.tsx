@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { isAuthenticated } from "../services/apiService";
 import { operatorLogin } from "../services/printFarmService";
 
 const PrinterOperatorLoginPage: React.FC = () => {
-  const [cpf, setCpf] = useState("");
+  const location = useLocation();
+  // Chega pré-preenchido quando a tela de login principal detecta, pelo CPF,
+  // que a conta é de um operador e redireciona pra cá.
+  const cpfFromQuery = new URLSearchParams(location.search).get("cpf") || "";
+  const [cpf, setCpf] = useState(cpfFromQuery);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -63,7 +67,7 @@ const PrinterOperatorLoginPage: React.FC = () => {
               }}
               placeholder="000.000.000-00"
               className="w-full rounded-lg border-2 border-slate-200 px-4 py-3 transition-colors focus:border-slate-500 focus:outline-none"
-              autoFocus
+              autoFocus={!cpfFromQuery}
               disabled={isLoading}
               autoComplete="username"
               inputMode="numeric"
@@ -83,6 +87,7 @@ const PrinterOperatorLoginPage: React.FC = () => {
               }}
               placeholder="Digite sua senha"
               className="w-full rounded-lg border-2 border-slate-200 px-4 py-3 transition-colors focus:border-slate-500 focus:outline-none"
+              autoFocus={!!cpfFromQuery}
               disabled={isLoading}
               autoComplete="current-password"
             />

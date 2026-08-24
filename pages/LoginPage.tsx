@@ -128,6 +128,12 @@ const CPFLogin: React.FC<CPFLoginProps> = ({ onBack, onLoginSuccess }) => {
       const data = await response.json();
 
       if (data.exists && data.user) {
+        if (data.user.role === "print_operator") {
+          // Operador de impressora não usa a senha em texto puro do login de
+          // cliente — manda direto para a tela própria (CPF + senha com hash).
+          navigate(`/operador/login?cpf=${clean}`);
+          return;
+        }
         setUserFound(data.user);
         setShowPassword(true);
       } else {
