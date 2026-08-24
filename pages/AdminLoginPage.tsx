@@ -102,6 +102,13 @@ const AdminLoginPage: React.FC = () => {
         >
           ← Voltar ao início
         </button>
+
+        <button
+          onClick={() => navigate("/operador/login")}
+          className="w-full mt-1 py-2 text-sm text-slate-500 underline hover:text-slate-700 transition-colors"
+        >
+          Sou operador de impressora 3D
+        </button>
       </div>
     </div>
   );
