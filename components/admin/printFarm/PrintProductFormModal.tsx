@@ -1,5 +1,11 @@
 import React, { useState } from "react";
 import type { Filament, Product, PrintProduct } from "../../../types";
+import type { PrintProductFilamentInput } from "../../../services/printFarmService";
+
+interface FilamentRow {
+  filament_id: string;
+  grams_per_plate: string;
+}
 
 interface PrintProductFormModalProps {
   printProduct?: PrintProduct | null;
@@ -11,12 +17,13 @@ interface PrintProductFormModalProps {
     size_variant?: string;
     units_per_plate: number;
     estimated_time_minutes: number;
-    filament_id?: number | null;
-    filament_grams_per_plate?: number;
+    filaments: PrintProductFilamentInput[];
     manual_unit_price?: number | null;
   }) => Promise<void> | void;
   onCancel: () => void;
 }
+
+const emptyRow = (): FilamentRow => ({ filament_id: "", grams_per_plate: "" });
 
 const PrintProductFormModal: React.FC<PrintProductFormModalProps> = ({
   printProduct,
@@ -34,20 +41,36 @@ const PrintProductFormModal: React.FC<PrintProductFormModalProps> = ({
   const [estimatedTime, setEstimatedTime] = useState(
     printProduct ? String(printProduct.estimated_time_minutes) : "",
   );
-  const [filamentId, setFilamentId] = useState(
-    printProduct?.filament_id ? String(printProduct.filament_id) : "",
-  );
-  const [gramsPerPlate, setGramsPerPlate] = useState(
-    printProduct ? String(printProduct.filament_grams_per_plate) : "",
+  const [filamentRows, setFilamentRows] = useState<FilamentRow[]>(
+    printProduct && printProduct.filaments.length > 0
+      ? printProduct.filaments.map((f) => ({
+          filament_id: String(f.filament_id),
+          grams_per_plate: String(f.grams_per_plate),
+        }))
+      : [emptyRow()],
   );
   const [manualPrice, setManualPrice] = useState(
     printProduct?.manual_unit_price ? String(printProduct.manual_unit_price) : "",
   );
   const [saving, setSaving] = useState(false);
 
+  const usedFilamentIds = new Set(filamentRows.map((r) => r.filament_id).filter(Boolean));
+  const validRows = filamentRows.filter((r) => r.filament_id && r.grams_per_plate !== "");
+  const canSubmit = name && unitsPerPlate && estimatedTime && validRows.length > 0;
+
+  const updateRow = (index: number, patch: Partial<FilamentRow>) => {
+    setFilamentRows((rows) => rows.map((r, i) => (i === index ? { ...r, ...patch } : r)));
+  };
+
+  const removeRow = (index: number) => {
+    setFilamentRows((rows) => (rows.length > 1 ? rows.filter((_, i) => i !== index) : rows));
+  };
+
+  const addRow = () => setFilamentRows((rows) => [...rows, emptyRow()]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !unitsPerPlate || !estimatedTime) return;
+    if (!canSubmit) return;
     setSaving(true);
     try {
       await onSave({
@@ -56,8 +79,10 @@ const PrintProductFormModal: React.FC<PrintProductFormModalProps> = ({
         size_variant: sizeVariant || undefined,
         units_per_plate: parseInt(unitsPerPlate, 10),
         estimated_time_minutes: parseInt(estimatedTime, 10),
-        filament_id: filamentId ? parseInt(filamentId, 10) : null,
-        filament_grams_per_plate: gramsPerPlate ? parseFloat(gramsPerPlate) : 0,
+        filaments: validRows.map((r) => ({
+          filament_id: parseInt(r.filament_id, 10),
+          grams_per_plate: parseFloat(r.grams_per_plate),
+        })),
         manual_unit_price: !productId && manualPrice ? parseFloat(manualPrice) : null,
       });
     } finally {
@@ -122,32 +147,62 @@ const PrintProductFormModal: React.FC<PrintProductFormModalProps> = ({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="mb-1 block text-sm font-semibold text-stone-600">Filamento</label>
-              <select
-                value={filamentId}
-                onChange={(e) => setFilamentId(e.target.value)}
-                className="w-full rounded-lg border border-stone-300 px-3 py-2 focus:border-[var(--color-primary)] focus:outline-none"
+          <div>
+            <div className="mb-1 flex items-center justify-between">
+              <label className="block text-sm font-semibold text-stone-600">
+                Filamentos usados na chapa *
+              </label>
+              <button
+                type="button"
+                onClick={addRow}
+                className="text-xs font-semibold text-[var(--color-primary)] hover:underline"
               >
-                <option value="">Selecione...</option>
-                {filaments.map((f) => (
-                  <option key={f.id} value={f.id}>
-                    {f.material} {f.color ? `— ${f.color}` : ""}
-                  </option>
-                ))}
-              </select>
+                + adicionar filamento
+              </button>
             </div>
-            <div>
-              <label className="mb-1 block text-sm font-semibold text-stone-600">Gramas por chapa</label>
-              <input
-                type="number"
-                step="0.1"
-                min={0}
-                value={gramsPerPlate}
-                onChange={(e) => setGramsPerPlate(e.target.value)}
-                className="w-full rounded-lg border border-stone-300 px-3 py-2 focus:border-[var(--color-primary)] focus:outline-none"
-              />
+            <p className="mb-2 text-xs text-stone-400">
+              Peça em mais de uma cor ou material? Adicione uma linha para cada filamento com a
+              quantidade que ele consome na chapa inteira.
+            </p>
+            <div className="space-y-2">
+              {filamentRows.map((row, index) => (
+                <div key={index} className="flex gap-2">
+                  <select
+                    value={row.filament_id}
+                    onChange={(e) => updateRow(index, { filament_id: e.target.value })}
+                    className="flex-1 rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none"
+                  >
+                    <option value="">Selecione o filamento...</option>
+                    {filaments.map((f) => (
+                      <option
+                        key={f.id}
+                        value={f.id}
+                        disabled={usedFilamentIds.has(String(f.id)) && row.filament_id !== String(f.id)}
+                      >
+                        {f.material} {f.color ? `— ${f.color}` : ""}
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min={0}
+                    value={row.grams_per_plate}
+                    onChange={(e) => updateRow(index, { grams_per_plate: e.target.value })}
+                    placeholder="gramas"
+                    className="w-28 rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeRow(index)}
+                    disabled={filamentRows.length === 1}
+                    className="rounded-lg px-2 text-stone-400 hover:bg-stone-100 hover:text-red-600 disabled:opacity-30"
+                    aria-label="Remover filamento"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -198,7 +253,7 @@ const PrintProductFormModal: React.FC<PrintProductFormModalProps> = ({
             </button>
             <button
               type="submit"
-              disabled={saving}
+              disabled={saving || !canSubmit}
               className="flex-1 rounded-lg bg-[var(--color-primary)] py-2 font-semibold text-white hover:bg-[var(--color-primary-active)] disabled:opacity-60"
             >
               {saving ? "Salvando..." : "Salvar"}

@@ -168,14 +168,18 @@ export async function getPrintProducts(): Promise<PrintProduct[]> {
   return handle<PrintProduct[]>(response);
 }
 
+export interface PrintProductFilamentInput {
+  filament_id: number;
+  grams_per_plate: number;
+}
+
 export async function createPrintProduct(data: {
   name: string;
   product_id?: string | null;
   size_variant?: string;
   units_per_plate: number;
   estimated_time_minutes: number;
-  filament_id?: number | null;
-  filament_grams_per_plate?: number;
+  filaments: PrintProductFilamentInput[];
   manual_unit_price?: number | null;
 }): Promise<PrintProduct> {
   const response = await authenticatedFetch(`${API_URL}/print-products`, {
@@ -193,8 +197,7 @@ export async function updatePrintProduct(
     size_variant: string;
     units_per_plate: number;
     estimated_time_minutes: number;
-    filament_id: number | null;
-    filament_grams_per_plate: number;
+    filaments: PrintProductFilamentInput[];
     manual_unit_price: number | null;
   }>,
 ): Promise<PrintProduct> {

@@ -10,6 +10,7 @@ import {
   getPrintProducts,
   updateFilament,
   updatePrintProduct,
+  type PrintProductFilamentInput,
 } from "../../../services/printFarmService";
 import { getProducts } from "../../../services/apiService";
 import { formatBRL, formatGrams, formatMinutes } from "./printFarmUi";
@@ -92,8 +93,7 @@ const CatalogPanel: React.FC = () => {
     size_variant?: string;
     units_per_plate: number;
     estimated_time_minutes: number;
-    filament_id?: number | null;
-    filament_grams_per_plate?: number;
+    filaments: PrintProductFilamentInput[];
     manual_unit_price?: number | null;
   }) => {
     try {
@@ -156,10 +156,18 @@ const CatalogPanel: React.FC = () => {
                 <p className="mt-2 text-sm text-stone-600">
                   {p.units_per_plate} peças/chapa · {formatMinutes(p.estimated_time_minutes)}
                 </p>
-                <p className="text-sm text-stone-600">
-                  {p.filament_material ? `${p.filament_material}${p.filament_color ? ` (${p.filament_color})` : ""}` : "sem filamento vinculado"}
-                  {p.filament_grams_per_plate ? ` · ${formatGrams(p.filament_grams_per_plate)}/chapa` : ""}
-                </p>
+                {p.filaments.length === 0 ? (
+                  <p className="text-sm text-amber-600">sem filamento cadastrado</p>
+                ) : (
+                  <ul className="text-sm text-stone-600">
+                    {p.filaments.map((f) => (
+                      <li key={f.filament_id}>
+                        {f.material}
+                        {f.color ? ` (${f.color})` : ""} · {formatGrams(f.grams_per_plate)}/chapa
+                      </li>
+                    ))}
+                  </ul>
+                )}
                 <div className="mt-3 flex gap-2">
                   <button
                     onClick={() => setEditingPrintProduct(p)}

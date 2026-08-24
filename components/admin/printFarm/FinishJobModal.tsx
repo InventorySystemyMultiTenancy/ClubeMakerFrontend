@@ -23,13 +23,17 @@ const FinishJobModal: React.FC<FinishJobModalProps> = ({
   const sumValid = success <= job.planned_units;
 
   const preview = useMemo(() => {
-    const gramsPerPlate = job.filament_grams_per_plate_snapshot || 0;
-    const costPerKg = job.filament_cost_per_kg_snapshot || 0;
     const unitPrice = job.unit_sale_price_snapshot ?? null;
-    const lossGrams = job.planned_units > 0 ? gramsPerPlate * (fail / job.planned_units) : 0;
-    const lossCost = (lossGrams / 1000) * costPerKg;
     const revenue = unitPrice !== null ? success * unitPrice : null;
-    return { lossGrams, lossCost, revenue };
+    const byFilament = job.filaments.map((jf) => {
+      const gramsPerPlate = jf.grams_per_plate_snapshot || 0;
+      const lossGrams = job.planned_units > 0 ? gramsPerPlate * (fail / job.planned_units) : 0;
+      const lossCost = (lossGrams / 1000) * (jf.cost_per_kg_snapshot || 0);
+      return { ...jf, lossGrams, lossCost };
+    });
+    const lossGrams = byFilament.reduce((sum, f) => sum + f.lossGrams, 0);
+    const lossCost = byFilament.reduce((sum, f) => sum + f.lossCost, 0);
+    return { byFilament, lossGrams, lossCost, revenue };
   }, [fail, success, job]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -74,9 +78,24 @@ const FinishJobModal: React.FC<FinishJobModalProps> = ({
 
           <div className="space-y-1 rounded-lg bg-red-50 p-3 text-sm text-red-700">
             <p className="font-semibold">Prejuízo estimado</p>
-            <p>
-              {formatGrams(preview.lossGrams)} de filamento perdido ≈ {formatBRL(preview.lossCost)}
-            </p>
+            {preview.byFilament.length > 1 ? (
+              <ul>
+                {preview.byFilament.map((f, i) => (
+                  <li key={i}>
+                    {f.filament_material}
+                    {f.filament_color ? ` (${f.filament_color})` : ""}: {formatGrams(f.lossGrams)} ≈{" "}
+                    {formatBRL(f.lossCost)}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>
+                {formatGrams(preview.lossGrams)} de filamento perdido ≈ {formatBRL(preview.lossCost)}
+              </p>
+            )}
+            {preview.byFilament.length > 1 && (
+              <p className="font-semibold">Total: {formatBRL(preview.lossCost)}</p>
+            )}
           </div>
 
           {preview.revenue !== null && (

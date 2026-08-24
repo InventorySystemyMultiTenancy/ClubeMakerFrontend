@@ -195,6 +195,15 @@ export interface Filament {
   created_at?: string;
 }
 
+// Um perfil pode usar mais de um filamento na mesma chapa (ex: peça em duas cores).
+export interface PrintProductFilament {
+  filament_id: number;
+  material: string;
+  color?: string | null;
+  cost_per_kg: number;
+  grams_per_plate: number;
+}
+
 export interface PrintProduct {
   id: number;
   name: string;
@@ -202,24 +211,30 @@ export interface PrintProduct {
   size_variant?: string | null;
   units_per_plate: number;
   estimated_time_minutes: number;
-  filament_id?: number | null;
-  filament_grams_per_plate: number;
   manual_unit_price?: number | null;
-  filament_material?: string;
-  filament_color?: string;
-  filament_cost_per_kg?: number;
+  filaments: PrintProductFilament[];
 }
 
 export type PrintJobStatus = "running" | "overdue" | "completed";
+
+// Snapshot de um filamento no momento em que o job foi iniciado, com a perda
+// calculada quando finalizado (loss_grams/loss_cost ficam null até lá).
+export interface PrintJobFilament {
+  filament_id: number | null;
+  filament_material: string | null;
+  filament_color: string | null;
+  grams_per_plate_snapshot: number;
+  cost_per_kg_snapshot: number;
+  loss_grams: number | null;
+  loss_cost: number | null;
+}
 
 export interface PrintJob {
   id: number;
   printer_id: number;
   print_product_id: number;
   planned_units: number;
-  filament_id?: number | null;
-  filament_grams_per_plate_snapshot?: number;
-  filament_cost_per_kg_snapshot?: number;
+  filaments: PrintJobFilament[];
   unit_sale_price_snapshot?: number | null;
   started_at: string;
   estimated_end_at: string;
