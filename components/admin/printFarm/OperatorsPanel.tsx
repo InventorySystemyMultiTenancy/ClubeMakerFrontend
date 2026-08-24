@@ -105,7 +105,9 @@ const OperatorsPanel: React.FC = () => {
                 <div>
                   <p className="font-bold text-stone-800">{op.name}</p>
                   <p className="font-mono text-xs text-stone-400">
-                    CPF {op.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")}
+                    {op.cpf
+                      ? `CPF ${op.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")}`
+                      : "CPF não cadastrado — remova e recadastre"}
                   </p>
                 </div>
                 <span

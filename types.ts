@@ -243,7 +243,7 @@ export interface PrintJob {
 export interface PrintOperator {
   id: number;
   name: string;
-  cpf: string;
+  cpf: string | null;
   active: boolean;
   created_at?: string;
 }
