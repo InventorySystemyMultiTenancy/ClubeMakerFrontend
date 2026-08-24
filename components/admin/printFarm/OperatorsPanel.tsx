@@ -28,7 +28,7 @@ const OperatorsPanel: React.FC = () => {
     load();
   }, [load]);
 
-  const handleSave = async (data: { name: string; username: string; password: string }) => {
+  const handleSave = async (data: { name: string; cpf: string; password: string }) => {
     try {
       if (editing) {
         const payload: { name: string; password?: string } = { name: data.name };
@@ -104,7 +104,9 @@ const OperatorsPanel: React.FC = () => {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="font-bold text-stone-800">{op.name}</p>
-                  <p className="font-mono text-xs text-stone-400">@{op.username}</p>
+                  <p className="font-mono text-xs text-stone-400">
+                    CPF {op.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")}
+                  </p>
                 </div>
                 <span
                   className={`rounded-full px-2.5 py-1 text-xs font-bold ${

@@ -286,7 +286,7 @@ export async function getPrintOperators(): Promise<PrintOperator[]> {
 
 export async function createPrintOperator(data: {
   name: string;
-  username: string;
+  cpf: string;
   password: string;
 }): Promise<PrintOperator> {
   const response = await authenticatedFetch(`${API_URL}/print-farm/operators`, {
@@ -314,17 +314,17 @@ export async function deletePrintOperator(id: number): Promise<void> {
   await handle<{ ok: boolean }>(response);
 }
 
-// Login do operador é um fluxo próprio (não usa a senha compartilhada de admin/cozinha):
-// grava o token no mesmo local que authenticatedFetch já lê, então os demais endpoints
-// funcionam sem nenhuma mudança.
+// Login do operador é um fluxo próprio (não usa a senha compartilhada de admin/cozinha),
+// autenticado pelo CPF do funcionário. Grava o token no mesmo local que authenticatedFetch
+// já lê, então os demais endpoints funcionam sem nenhuma mudança.
 export async function operatorLogin(
-  username: string,
+  cpf: string,
   password: string,
 ): Promise<{ id: number; name: string }> {
   const response = await fetch(`${API_URL}/print-farm/operators/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password }),
+    body: JSON.stringify({ cpf, password }),
   });
   const data = await handle<{ success: boolean; token: string; operator: { id: number; name: string } }>(
     response,

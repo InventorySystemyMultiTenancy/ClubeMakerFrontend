@@ -5,7 +5,7 @@ import { isAuthenticated } from "../services/apiService";
 import { operatorLogin } from "../services/printFarmService";
 
 const PrinterOperatorLoginPage: React.FC = () => {
-  const [username, setUsername] = useState("");
+  const [cpf, setCpf] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -24,7 +24,7 @@ const PrinterOperatorLoginPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const operator = await operatorLogin(username, password);
+      const operator = await operatorLogin(cpf, password);
       login({
         id: `operator_${operator.id}`,
         name: operator.name,
@@ -45,27 +45,28 @@ const PrinterOperatorLoginPage: React.FC = () => {
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl">
         <div className="mb-8 text-center">
           <h1 className="mb-2 text-4xl font-bold text-slate-800">🖨️ Operador de Impressão</h1>
-          <p className="text-slate-600">Entre com seu usuário e senha</p>
+          <p className="text-slate-600">Entre com seu CPF e senha</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="username" className="mb-2 block text-sm font-semibold text-slate-700">
-              Usuário
+            <label htmlFor="cpf" className="mb-2 block text-sm font-semibold text-slate-700">
+              CPF
             </label>
             <input
-              id="username"
+              id="cpf"
               type="text"
-              value={username}
+              value={cpf}
               onChange={(e) => {
-                setUsername(e.target.value);
+                setCpf(e.target.value);
                 setError("");
               }}
-              placeholder="Digite seu usuário"
+              placeholder="000.000.000-00"
               className="w-full rounded-lg border-2 border-slate-200 px-4 py-3 transition-colors focus:border-slate-500 focus:outline-none"
               autoFocus
               disabled={isLoading}
               autoComplete="username"
+              inputMode="numeric"
             />
           </div>
           <div>
@@ -90,7 +91,7 @@ const PrinterOperatorLoginPage: React.FC = () => {
 
           <button
             type="submit"
-            disabled={isLoading || !username || !password}
+            disabled={isLoading || !cpf || !password}
             className="w-full rounded-lg bg-slate-700 py-3 text-lg font-bold text-white transition-colors hover:bg-slate-800 disabled:cursor-wait disabled:bg-slate-400"
           >
             {isLoading ? "Verificando..." : "Entrar"}

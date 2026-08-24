@@ -3,23 +3,25 @@ import type { PrintOperator } from "../../../types";
 
 interface OperatorFormModalProps {
   operator?: PrintOperator | null;
-  onSave: (data: { name: string; username: string; password: string }) => Promise<void> | void;
+  onSave: (data: { name: string; cpf: string; password: string }) => Promise<void> | void;
   onCancel: () => void;
 }
 
 const OperatorFormModal: React.FC<OperatorFormModalProps> = ({ operator, onSave, onCancel }) => {
   const [name, setName] = useState(operator?.name || "");
-  const [username, setUsername] = useState(operator?.username || "");
+  const [cpf, setCpf] = useState(operator?.cpf || "");
   const [password, setPassword] = useState("");
   const [saving, setSaving] = useState(false);
 
+  const cpfValid = cpf.replace(/\D/g, "").length === 11;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !username) return;
+    if (!name || !cpfValid) return;
     if (!operator && !password) return;
     setSaving(true);
     try {
-      await onSave({ name, username, password });
+      await onSave({ name, cpf, password });
     } finally {
       setSaving(false);
     }
@@ -44,16 +46,19 @@ const OperatorFormModal: React.FC<OperatorFormModalProps> = ({ operator, onSave,
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-semibold text-stone-600">Usuário de login *</label>
+            <label className="mb-1 block text-sm font-semibold text-stone-600">CPF (login) *</label>
             <input
               type="text"
               required
               disabled={!!operator}
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="joao.silva"
+              value={cpf}
+              onChange={(e) => setCpf(e.target.value)}
+              placeholder="000.000.000-00"
               className="w-full rounded-lg border border-stone-300 px-3 py-2 focus:border-[var(--color-primary)] focus:outline-none disabled:bg-stone-100 disabled:text-stone-400"
             />
+            {!operator && cpf && !cpfValid && (
+              <p className="mt-1 text-xs text-red-600">CPF inválido, digite os 11 dígitos.</p>
+            )}
           </div>
           <div>
             <label className="mb-1 block text-sm font-semibold text-stone-600">
@@ -69,7 +74,7 @@ const OperatorFormModal: React.FC<OperatorFormModalProps> = ({ operator, onSave,
             />
           </div>
           <p className="text-xs text-stone-400">
-            O operador usa esse usuário e senha para entrar em uma tela própria, separada do painel admin, onde só consegue iniciar e finalizar impressões.
+            O operador usa esse CPF e senha para entrar em uma tela própria, separada do painel admin, onde só consegue iniciar e finalizar impressões.
           </p>
           <div className="flex gap-2 pt-2">
             <button
