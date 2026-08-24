@@ -26,6 +26,7 @@ import AdminManagementReportPage from "./pages/AdminManagementReportPage";
 import AdminProjectQuotesPage from "./pages/AdminProjectQuotesPage";
 import AdminCategoriesPage from "./pages/AdminCategoriesPage"; // 🆕
 import AdminCreateCustomerPage from "./pages/AdminCreateCustomerPage";
+import AdminPrintFarmPage from "./pages/AdminPrintFarmPage";
 import Header from "./components/Header";
 import Chatbot from "./components/Chatbot";
 // import InactivityGuard from "./components/InactivityGuard";
@@ -337,6 +338,22 @@ const RouterBody: React.FC = () => {
                 <div className="admin-modern-theme">
                   <AdminLayout>
                     <AdminProjectQuotesPage />
+                  </AdminLayout>
+                </div>
+              </RoleProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/impressoras"
+            element={
+              <RoleProtectedRoute
+                allowedRoles={["admin"]}
+                redirectTo="/admin/login"
+              >
+                <div className="admin-modern-theme">
+                  <AdminLayout>
+                    <AdminPrintFarmPage />
                   </AdminLayout>
                 </div>
               </RoleProtectedRoute>

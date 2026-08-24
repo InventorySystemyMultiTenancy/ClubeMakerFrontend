@@ -146,3 +146,116 @@ export interface ProjectSavedFile {
   createdAt: string;
 }
 
+// ===== Frota de impressoras 3D =====
+
+export type PrinterStatus = "idle" | "running" | "overdue" | "maintenance" | "offline";
+
+export interface Printer {
+  id: number;
+  number: number;
+  nickname?: string | null;
+  brand?: string | null;
+  model?: string | null;
+  purchase_date?: string | null;
+  status: PrinterStatus;
+  total_print_count: number;
+  total_print_hours: number;
+  notes?: string | null;
+  created_at?: string;
+}
+
+export type MaintenanceLevel = "ok" | "warning" | "critical";
+
+export interface PrinterPart {
+  id: number;
+  printer_id: number;
+  part_type: string;
+  lifespan_prints: number;
+  installed_at_count: number;
+  last_replaced_at?: string | null;
+  replacement_cost?: number;
+  created_at?: string;
+  // presentes apenas na resposta de /print-farm/maintenance-alerts
+  printer_number?: number;
+  printer_nickname?: string | null;
+  printer_total_print_count?: number;
+  usage_count?: number;
+  usage_ratio?: number;
+  level?: MaintenanceLevel;
+}
+
+export interface Filament {
+  id: number;
+  material: string;
+  color?: string | null;
+  brand?: string | null;
+  cost_per_kg: number;
+  stock_grams: number;
+  created_at?: string;
+}
+
+export interface PrintProduct {
+  id: number;
+  name: string;
+  product_id?: string | null;
+  size_variant?: string | null;
+  units_per_plate: number;
+  estimated_time_minutes: number;
+  filament_id?: number | null;
+  filament_grams_per_plate: number;
+  manual_unit_price?: number | null;
+  filament_material?: string;
+  filament_color?: string;
+  filament_cost_per_kg?: number;
+}
+
+export type PrintJobStatus = "running" | "overdue" | "completed";
+
+export interface PrintJob {
+  id: number;
+  printer_id: number;
+  print_product_id: number;
+  planned_units: number;
+  filament_id?: number | null;
+  filament_grams_per_plate_snapshot?: number;
+  filament_cost_per_kg_snapshot?: number;
+  unit_sale_price_snapshot?: number | null;
+  started_at: string;
+  estimated_end_at: string;
+  finished_at?: string | null;
+  status: PrintJobStatus;
+  success_count?: number | null;
+  fail_count?: number | null;
+  loss_filament_grams?: number | null;
+  loss_cost?: number | null;
+  revenue_value?: number | null;
+  created_by_role?: string;
+  printer_number?: number;
+  printer_nickname?: string | null;
+  product_name?: string;
+}
+
+export interface PrintFarmSummaryRow {
+  printer_id: number;
+  printer_number: number;
+  printer_nickname?: string | null;
+  jobs: number;
+  success: number;
+  fail: number;
+  lossCost: number;
+  revenue: number;
+  onTime: number;
+}
+
+export interface PrintFarmSummary {
+  totals: {
+    jobs: number;
+    success: number;
+    fail: number;
+    lossCost: number;
+    revenue: number;
+    onTime: number;
+  };
+  byPrinter: PrintFarmSummaryRow[];
+}
+

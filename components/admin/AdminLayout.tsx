@@ -58,6 +58,12 @@ const SparklesIcon: React.FC<IconProps> = ({ className }) => (
   </svg>
 );
 
+const PrinterIcon: React.FC<IconProps> = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M6 9V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v5M6 18H4a1 1 0 0 1-1-1v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a1 1 0 0 1-1 1h-2M6 14h12v7H6z" />
+  </svg>
+);
+
 const LogoutIcon: React.FC<IconProps> = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0-4-4m4 4H7m6 4v1a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1" />
@@ -90,6 +96,7 @@ const useNavItems = (): AdminNavItem[] => {
     },
     { to: "/historico", label: "Histórico de Pedidos", icon: ClockIcon },
     { to: "/admin/orcamentos", label: "Orçamentos", icon: DocumentIcon },
+    { to: "/admin/impressoras", label: "Impressoras 3D", icon: PrinterIcon },
     {
       to: "/admin/management-report",
       label: "Relatório Gestão",
