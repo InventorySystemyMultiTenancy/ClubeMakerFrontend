@@ -14,7 +14,7 @@ const PrinterOperatorLoginPage: React.FC = () => {
 
   useEffect(() => {
     if (currentUser?.role === "print_operator" && isAuthenticated()) {
-      navigate("/operador");
+      navigate("/admin/impressoras");
     }
   }, [currentUser, navigate]);
 
@@ -26,12 +26,12 @@ const PrinterOperatorLoginPage: React.FC = () => {
     try {
       const operator = await operatorLogin(cpf, password);
       login({
-        id: `operator_${operator.id}`,
+        id: operator.id,
         name: operator.name,
         historico: [],
         role: "print_operator",
       });
-      navigate("/operador");
+      navigate("/admin/impressoras");
     } catch (err: any) {
       setError(err.message || "Usuário ou senha inválidos");
       setPassword("");

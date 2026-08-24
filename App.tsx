@@ -28,7 +28,6 @@ import AdminCategoriesPage from "./pages/AdminCategoriesPage"; // 🆕
 import AdminCreateCustomerPage from "./pages/AdminCreateCustomerPage";
 import AdminPrintFarmPage from "./pages/AdminPrintFarmPage";
 import PrinterOperatorLoginPage from "./pages/PrinterOperatorLoginPage";
-import PrinterOperatorPage from "./pages/PrinterOperatorPage";
 import Header from "./components/Header";
 import Chatbot from "./components/Chatbot";
 // import InactivityGuard from "./components/InactivityGuard";
@@ -350,7 +349,7 @@ const RouterBody: React.FC = () => {
             path="/admin/impressoras"
             element={
               <RoleProtectedRoute
-                allowedRoles={["admin"]}
+                allowedRoles={["admin", "print_operator"]}
                 redirectTo="/admin/login"
               >
                 <div className="admin-modern-theme">
@@ -363,17 +362,6 @@ const RouterBody: React.FC = () => {
           />
 
           <Route path="/operador/login" element={<PrinterOperatorLoginPage />} />
-          <Route
-            path="/operador"
-            element={
-              <RoleProtectedRoute
-                allowedRoles={["print_operator", "admin"]}
-                redirectTo="/operador/login"
-              >
-                <PrinterOperatorPage />
-              </RoleProtectedRoute>
-            }
-          />
 
           <Route
             path="/admin/management-report"

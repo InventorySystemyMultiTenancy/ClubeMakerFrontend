@@ -231,21 +231,26 @@ export interface PrintJob {
   loss_cost?: number | null;
   revenue_value?: number | null;
   created_by_role?: string;
-  started_by_operator_id?: number | null;
+  started_by_user_id?: string | null;
   started_by_operator_name?: string | null;
-  finished_by_operator_id?: number | null;
+  finished_by_user_id?: string | null;
   finished_by_operator_name?: string | null;
   printer_number?: number;
   printer_nickname?: string | null;
   product_name?: string;
 }
 
+// Operador é um usuário de verdade (tabela users, role "print_operator"),
+// com cadastro completo — não uma conta simplificada à parte.
 export interface PrintOperator {
-  id: number;
+  id: string;
   name: string;
   cpf: string | null;
+  email: string | null;
+  cep: string | null;
+  address: string | null;
+  phone: string | null;
   active: boolean;
-  created_at?: string;
 }
 
 export interface PrintFarmSummaryRow {
@@ -261,7 +266,7 @@ export interface PrintFarmSummaryRow {
 }
 
 export interface PrintFarmOperatorSummaryRow {
-  operator_id: number | null;
+  operator_id: string | null;
   operator_name: string;
   jobs: number;
   success: number;

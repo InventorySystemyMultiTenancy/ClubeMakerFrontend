@@ -28,10 +28,31 @@ const OperatorsPanel: React.FC = () => {
     load();
   }, [load]);
 
-  const handleSave = async (data: { name: string; cpf: string; password: string }) => {
+  const handleSave = async (data: {
+    name: string;
+    cpf: string;
+    email: string;
+    cep: string;
+    address: string;
+    phone: string;
+    password: string;
+  }) => {
     try {
       if (editing) {
-        const payload: { name: string; password?: string } = { name: data.name };
+        const payload: {
+          name: string;
+          email: string;
+          cep: string;
+          address: string;
+          phone: string;
+          password?: string;
+        } = {
+          name: data.name,
+          email: data.email,
+          cep: data.cep,
+          address: data.address,
+          phone: data.phone,
+        };
         if (data.password) payload.password = data.password;
         await updatePrintOperator(editing.id, payload);
       } else {
@@ -79,7 +100,7 @@ const OperatorsPanel: React.FC = () => {
     <div>
       <div className="mb-4 flex items-center justify-between">
         <p className="text-sm text-stone-500">
-          {operators.length} operador(es) cadastrado(s) · acessam em uma tela própria, separada do admin
+          {operators.length} operador(es) cadastrado(s) · entram pelo login do admin, mas só veem esta aba
         </p>
         <button
           onClick={() => setEditing(null)}
@@ -109,6 +130,7 @@ const OperatorsPanel: React.FC = () => {
                       ? `CPF ${op.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")}`
                       : "CPF não cadastrado — remova e recadastre"}
                   </p>
+                  {op.phone && <p className="text-xs text-stone-400">{op.phone}</p>}
                 </div>
                 <span
                   className={`rounded-full px-2.5 py-1 text-xs font-bold ${

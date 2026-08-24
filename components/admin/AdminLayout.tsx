@@ -79,6 +79,13 @@ interface AdminNavItem {
 
 const useNavItems = (): AdminNavItem[] => {
   const { clearCart } = useCart();
+  const { currentUser } = useAuth();
+
+  // Operador de impressora só opera a produção — não vê nenhum outro
+  // cadastro, venda ou relatório do admin.
+  if (currentUser?.role === "print_operator") {
+    return [{ to: "/admin/impressoras", label: "Impressoras 3D", icon: PrinterIcon }];
+  }
 
   return [
     { to: "/admin", label: "Painel", icon: HomeIcon },
@@ -115,13 +122,14 @@ const navLinkClasses = (isActive: boolean) =>
 
 const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, currentUser } = useAuth();
   const navItems = useNavItems();
+  const isOperator = currentUser?.role === "print_operator";
 
   const handleLogout = async () => {
     if (!window.confirm("Deseja realmente sair?")) return;
     await logout();
-    navigate("/admin/login");
+    navigate(isOperator ? "/operador/login" : "/admin/login");
   };
 
   return (

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
 import FleetPanel from "../components/admin/printFarm/FleetPanel";
 import CatalogPanel from "../components/admin/printFarm/CatalogPanel";
 import MaintenancePanel from "../components/admin/printFarm/MaintenancePanel";
@@ -7,7 +8,7 @@ import OperatorsPanel from "../components/admin/printFarm/OperatorsPanel";
 
 type Tab = "frota" | "catalogo" | "manutencao" | "relatorios" | "operadores";
 
-const TABS: { id: Tab; label: string; icon: string }[] = [
+const ALL_TABS: { id: Tab; label: string; icon: string }[] = [
   { id: "frota", label: "Painel da frota", icon: "🖨️" },
   { id: "catalogo", label: "Catálogo de impressão", icon: "🧩" },
   { id: "manutencao", label: "Manutenção", icon: "🔧" },
@@ -16,6 +17,12 @@ const TABS: { id: Tab; label: string; icon: string }[] = [
 ];
 
 const AdminPrintFarmPage: React.FC = () => {
+  const { currentUser } = useAuth();
+  const isOperator = currentUser?.role === "print_operator";
+
+  // Operador só inicia/finaliza produção — cadastros, manutenção, relatórios
+  // e gestão de operadores ficam restritos ao admin.
+  const tabs = isOperator ? ALL_TABS.filter((t) => t.id === "frota") : ALL_TABS;
   const [tab, setTab] = useState<Tab>("frota");
 
   return (
@@ -26,31 +33,35 @@ const AdminPrintFarmPage: React.FC = () => {
             🖨️ Impressoras 3D
           </h1>
           <p className="mt-1 text-sm text-stone-600">
-            Ciclo de produção, perdas de filamento e manutenção preventiva da frota
+            {isOperator
+              ? "Escolha uma impressora para iniciar ou finalizar uma produção"
+              : "Ciclo de produção, perdas de filamento e manutenção preventiva da frota"}
           </p>
 
-          <div className="mt-4 flex flex-wrap gap-2 border-t border-stone-100 pt-4">
-            {TABS.map((t) => (
-              <button
-                key={t.id}
-                onClick={() => setTab(t.id)}
-                className={`rounded-lg px-4 py-2 text-sm font-bold transition-colors ${
-                  tab === t.id
-                    ? "bg-[var(--color-primary)] text-white shadow"
-                    : "bg-stone-100 text-stone-600 hover:bg-[var(--color-primary-lighter)]"
-                }`}
-              >
-                {t.icon} {t.label}
-              </button>
-            ))}
-          </div>
+          {tabs.length > 1 && (
+            <div className="mt-4 flex flex-wrap gap-2 border-t border-stone-100 pt-4">
+              {tabs.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => setTab(t.id)}
+                  className={`rounded-lg px-4 py-2 text-sm font-bold transition-colors ${
+                    tab === t.id
+                      ? "bg-[var(--color-primary)] text-white shadow"
+                      : "bg-stone-100 text-stone-600 hover:bg-[var(--color-primary-lighter)]"
+                  }`}
+                >
+                  {t.icon} {t.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
-        {tab === "frota" && <FleetPanel />}
-        {tab === "catalogo" && <CatalogPanel />}
-        {tab === "manutencao" && <MaintenancePanel />}
-        {tab === "relatorios" && <ReportsPanel />}
-        {tab === "operadores" && <OperatorsPanel />}
+        {tab === "frota" && <FleetPanel canManagePrinters={!isOperator} />}
+        {!isOperator && tab === "catalogo" && <CatalogPanel />}
+        {!isOperator && tab === "manutencao" && <MaintenancePanel />}
+        {!isOperator && tab === "relatorios" && <ReportsPanel />}
+        {!isOperator && tab === "operadores" && <OperatorsPanel />}
       </div>
     </div>
   );

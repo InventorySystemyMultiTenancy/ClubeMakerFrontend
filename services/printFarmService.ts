@@ -287,6 +287,10 @@ export async function getPrintOperators(): Promise<PrintOperator[]> {
 export async function createPrintOperator(data: {
   name: string;
   cpf: string;
+  email: string;
+  cep: string;
+  address: string;
+  phone: string;
   password: string;
 }): Promise<PrintOperator> {
   const response = await authenticatedFetch(`${API_URL}/print-farm/operators`, {
@@ -297,8 +301,16 @@ export async function createPrintOperator(data: {
 }
 
 export async function updatePrintOperator(
-  id: number,
-  data: Partial<{ name: string; active: boolean; password: string }>,
+  id: string,
+  data: Partial<{
+    name: string;
+    email: string;
+    cep: string;
+    address: string;
+    phone: string;
+    active: boolean;
+    password: string;
+  }>,
 ): Promise<PrintOperator> {
   const response = await authenticatedFetch(`${API_URL}/print-farm/operators/${id}`, {
     method: "PUT",
@@ -307,7 +319,7 @@ export async function updatePrintOperator(
   return handle<PrintOperator>(response);
 }
 
-export async function deletePrintOperator(id: number): Promise<void> {
+export async function deletePrintOperator(id: string): Promise<void> {
   const response = await authenticatedFetch(`${API_URL}/print-farm/operators/${id}`, {
     method: "DELETE",
   });
@@ -320,13 +332,13 @@ export async function deletePrintOperator(id: number): Promise<void> {
 export async function operatorLogin(
   cpf: string,
   password: string,
-): Promise<{ id: number; name: string }> {
+): Promise<{ id: string; name: string }> {
   const response = await fetch(`${API_URL}/print-farm/operators/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ cpf, password }),
   });
-  const data = await handle<{ success: boolean; token: string; operator: { id: number; name: string } }>(
+  const data = await handle<{ success: boolean; token: string; operator: { id: string; name: string } }>(
     response,
   );
   localStorage.setItem("jwt_token", data.token);
