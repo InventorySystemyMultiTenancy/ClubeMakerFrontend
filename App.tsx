@@ -27,6 +27,8 @@ import AdminProjectQuotesPage from "./pages/AdminProjectQuotesPage";
 import AdminCategoriesPage from "./pages/AdminCategoriesPage"; // 🆕
 import AdminCreateCustomerPage from "./pages/AdminCreateCustomerPage";
 import AdminPrintFarmPage from "./pages/AdminPrintFarmPage";
+import PrinterOperatorLoginPage from "./pages/PrinterOperatorLoginPage";
+import PrinterOperatorPage from "./pages/PrinterOperatorPage";
 import Header from "./components/Header";
 import Chatbot from "./components/Chatbot";
 // import InactivityGuard from "./components/InactivityGuard";
@@ -356,6 +358,19 @@ const RouterBody: React.FC = () => {
                     <AdminPrintFarmPage />
                   </AdminLayout>
                 </div>
+              </RoleProtectedRoute>
+            }
+          />
+
+          <Route path="/operador/login" element={<PrinterOperatorLoginPage />} />
+          <Route
+            path="/operador"
+            element={
+              <RoleProtectedRoute
+                allowedRoles={["print_operator", "admin"]}
+                redirectTo="/operador/login"
+              >
+                <PrinterOperatorPage />
               </RoleProtectedRoute>
             }
           />

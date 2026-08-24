@@ -9,8 +9,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { PrintFarmSummary } from "../../../types";
-import { getPrintFarmSummary } from "../../../services/printFarmService";
+import type { Printer, PrintFarmSummary } from "../../../types";
+import { getPrinters, getPrintFarmSummary } from "../../../services/printFarmService";
 import { formatBRL } from "./printFarmUi";
 
 function daysAgoISO(days: number): string {
@@ -53,20 +53,32 @@ const StatCard: React.FC<{ label: string; value: string; tone?: "default" | "dan
 const ReportsPanel: React.FC = () => {
   const [from, setFrom] = useState(daysAgoISO(30));
   const [to, setTo] = useState(daysAgoISO(0));
+  const [printerId, setPrinterId] = useState<string>("");
+  const [printers, setPrinters] = useState<Printer[]>([]);
   const [summary, setSummary] = useState<PrintFarmSummary | null>(null);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getPrinters()
+      .then(setPrinters)
+      .catch((error) => console.error("Erro ao carregar impressoras:", error));
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await getPrintFarmSummary({ from, to: `${to}T23:59:59` });
+      const data = await getPrintFarmSummary({
+        from,
+        to: `${to}T23:59:59`,
+        printer_id: printerId ? parseInt(printerId, 10) : undefined,
+      });
       setSummary(data);
     } catch (error) {
       console.error("Erro ao carregar relatório da frota:", error);
     } finally {
       setLoading(false);
     }
-  }, [from, to]);
+  }, [from, to, printerId]);
 
   useEffect(() => {
     load();
@@ -107,6 +119,21 @@ const ReportsPanel: React.FC = () => {
             onChange={(e) => setTo(e.target.value)}
             className="rounded-lg border border-stone-300 px-3 py-1.5 text-sm focus:border-[var(--color-primary)] focus:outline-none"
           />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs font-semibold text-stone-500">Impressora</label>
+          <select
+            value={printerId}
+            onChange={(e) => setPrinterId(e.target.value)}
+            className="rounded-lg border border-stone-300 px-3 py-1.5 text-sm focus:border-[var(--color-primary)] focus:outline-none"
+          >
+            <option value="">Todas as impressoras</option>
+            {printers.map((p) => (
+              <option key={p.id} value={p.id}>
+                #{p.number} {p.nickname ? `— ${p.nickname}` : ""}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -154,6 +181,36 @@ const ReportsPanel: React.FC = () => {
                 <Bar dataKey="Prejuízo" fill="#dc2626" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
+          </div>
+
+          <div className="mt-6 overflow-x-auto rounded-2xl bg-white shadow-xl">
+            <h3 className="p-5 pb-0 font-bold text-stone-800">O que cada funcionário fez</h3>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-stone-200 text-left text-xs uppercase tracking-wide text-stone-400">
+                  <th className="p-4">Funcionário</th>
+                  <th className="p-4">Chapas</th>
+                  <th className="p-4">Aprovadas</th>
+                  <th className="p-4">Perdidas</th>
+                  <th className="p-4">No prazo</th>
+                  <th className="p-4">Prejuízo</th>
+                  <th className="p-4">Receita</th>
+                </tr>
+              </thead>
+              <tbody>
+                {summary.byOperator.map((op) => (
+                  <tr key={op.operator_id ?? op.operator_name} className="border-b border-stone-100 last:border-0">
+                    <td className="p-4 font-semibold text-stone-800">{op.operator_name}</td>
+                    <td className="p-4">{op.jobs}</td>
+                    <td className="p-4 text-green-700">{op.success}</td>
+                    <td className="p-4 text-red-700">{op.fail}</td>
+                    <td className="p-4">{op.jobs > 0 ? `${((op.onTime / op.jobs) * 100).toFixed(0)}%` : "-"}</td>
+                    <td className="p-4 text-red-700">{formatBRL(op.lossCost)}</td>
+                    <td className="p-4 text-green-700">{formatBRL(op.revenue)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </>
       )}

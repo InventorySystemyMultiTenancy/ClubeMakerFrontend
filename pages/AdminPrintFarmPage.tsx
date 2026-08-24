@@ -3,14 +3,16 @@ import FleetPanel from "../components/admin/printFarm/FleetPanel";
 import CatalogPanel from "../components/admin/printFarm/CatalogPanel";
 import MaintenancePanel from "../components/admin/printFarm/MaintenancePanel";
 import ReportsPanel from "../components/admin/printFarm/ReportsPanel";
+import OperatorsPanel from "../components/admin/printFarm/OperatorsPanel";
 
-type Tab = "frota" | "catalogo" | "manutencao" | "relatorios";
+type Tab = "frota" | "catalogo" | "manutencao" | "relatorios" | "operadores";
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: "frota", label: "Painel da frota", icon: "🖨️" },
   { id: "catalogo", label: "Catálogo de impressão", icon: "🧩" },
   { id: "manutencao", label: "Manutenção", icon: "🔧" },
   { id: "relatorios", label: "Relatórios", icon: "📊" },
+  { id: "operadores", label: "Operadores", icon: "👷" },
 ];
 
 const AdminPrintFarmPage: React.FC = () => {
@@ -48,6 +50,7 @@ const AdminPrintFarmPage: React.FC = () => {
         {tab === "catalogo" && <CatalogPanel />}
         {tab === "manutencao" && <MaintenancePanel />}
         {tab === "relatorios" && <ReportsPanel />}
+        {tab === "operadores" && <OperatorsPanel />}
       </div>
     </div>
   );

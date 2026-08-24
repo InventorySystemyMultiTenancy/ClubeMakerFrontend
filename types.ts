@@ -90,7 +90,8 @@ export type UserRole =
   | "customer"
   | "kitchen"
   | "admin"
-  | "admincustomer";
+  | "admincustomer"
+  | "print_operator";
 
 export interface User {
   id: string;
@@ -230,15 +231,38 @@ export interface PrintJob {
   loss_cost?: number | null;
   revenue_value?: number | null;
   created_by_role?: string;
+  started_by_operator_id?: number | null;
+  started_by_operator_name?: string | null;
+  finished_by_operator_id?: number | null;
+  finished_by_operator_name?: string | null;
   printer_number?: number;
   printer_nickname?: string | null;
   product_name?: string;
+}
+
+export interface PrintOperator {
+  id: number;
+  name: string;
+  username: string;
+  active: boolean;
+  created_at?: string;
 }
 
 export interface PrintFarmSummaryRow {
   printer_id: number;
   printer_number: number;
   printer_nickname?: string | null;
+  jobs: number;
+  success: number;
+  fail: number;
+  lossCost: number;
+  revenue: number;
+  onTime: number;
+}
+
+export interface PrintFarmOperatorSummaryRow {
+  operator_id: number | null;
+  operator_name: string;
   jobs: number;
   success: number;
   fail: number;
@@ -257,5 +281,6 @@ export interface PrintFarmSummary {
     onTime: number;
   };
   byPrinter: PrintFarmSummaryRow[];
+  byOperator: PrintFarmOperatorSummaryRow[];
 }
 

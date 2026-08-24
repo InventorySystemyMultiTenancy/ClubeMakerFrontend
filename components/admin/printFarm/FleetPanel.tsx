@@ -4,8 +4,8 @@ import type { Printer, PrintJob, PrintProduct } from "../../../types";
 import {
   createPrinter,
   finishPrintJob,
+  getActivePrintJobs,
   getPrinters,
-  getPrintJobs,
   getPrintProducts,
   startPrintJob,
 } from "../../../services/printFarmService";
@@ -83,7 +83,12 @@ const PrinterCard: React.FC<{
   );
 };
 
-const FleetPanel: React.FC = () => {
+interface FleetPanelProps {
+  /** Operadores não gerenciam o cadastro de impressoras, só operam a produção. */
+  canManagePrinters?: boolean;
+}
+
+const FleetPanel: React.FC<FleetPanelProps> = ({ canManagePrinters = true }) => {
   const [printers, setPrinters] = useState<Printer[]>([]);
   const [printProducts, setPrintProducts] = useState<PrintProduct[]>([]);
   const [jobByPrinter, setJobByPrinter] = useState<Record<number, PrintJob>>({});
@@ -95,16 +100,15 @@ const FleetPanel: React.FC = () => {
 
   const load = useCallback(async () => {
     try {
-      const [printersData, productsData, runningJobs, overdueJobs] = await Promise.all([
+      const [printersData, productsData, activeJobs] = await Promise.all([
         getPrinters(),
         getPrintProducts(),
-        getPrintJobs({ status: "running" }),
-        getPrintJobs({ status: "overdue" }),
+        getActivePrintJobs(),
       ]);
       setPrinters(printersData);
       setPrintProducts(productsData);
       const map: Record<number, PrintJob> = {};
-      [...runningJobs, ...overdueJobs].forEach((job) => {
+      activeJobs.forEach((job) => {
         map[job.printer_id] = job;
       });
       setJobByPrinter(map);
@@ -174,25 +178,33 @@ const FleetPanel: React.FC = () => {
     <div>
       <div className="mb-4 flex items-center justify-between">
         <p className="text-sm text-stone-500">{printers.length} impressora(s) cadastrada(s)</p>
-        <button
-          onClick={() => setShowNewPrinter(true)}
-          className="rounded-xl bg-[var(--color-primary)] px-5 py-2.5 font-semibold text-white shadow-lg transition-all hover:scale-105 hover:bg-[var(--color-primary-active)]"
-        >
-          ➕ Nova impressora
-        </button>
+        {canManagePrinters && (
+          <button
+            onClick={() => setShowNewPrinter(true)}
+            className="rounded-xl bg-[var(--color-primary)] px-5 py-2.5 font-semibold text-white shadow-lg transition-all hover:scale-105 hover:bg-[var(--color-primary-active)]"
+          >
+            ➕ Nova impressora
+          </button>
+        )}
       </div>
 
       {printers.length === 0 ? (
         <div className="rounded-2xl bg-white p-12 text-center shadow-xl">
           <div className="mb-4 text-6xl">🖨️</div>
           <h2 className="mb-2 text-2xl font-bold text-stone-800">Nenhuma impressora cadastrada</h2>
-          <p className="mb-6 text-stone-600">Cadastre a primeira impressora da sua frota</p>
-          <button
-            onClick={() => setShowNewPrinter(true)}
-            className="rounded-xl bg-[var(--color-primary)] px-8 py-3 font-semibold text-white hover:bg-[var(--color-primary-active)]"
-          >
-            Cadastrar impressora
-          </button>
+          <p className="mb-6 text-stone-600">
+            {canManagePrinters
+              ? "Cadastre a primeira impressora da sua frota"
+              : "Peça para o admin cadastrar as impressoras da frota"}
+          </p>
+          {canManagePrinters && (
+            <button
+              onClick={() => setShowNewPrinter(true)}
+              className="rounded-xl bg-[var(--color-primary)] px-8 py-3 font-semibold text-white hover:bg-[var(--color-primary-active)]"
+            >
+              Cadastrar impressora
+            </button>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

@@ -7,6 +7,7 @@ import type {
   PrinterPart,
   PrintFarmSummary,
   PrintJob,
+  PrintOperator,
   PrintProduct,
 } from "../types";
 
@@ -253,16 +254,81 @@ export async function finishPrintJob(
   return handle<PrintJob>(response);
 }
 
+// Jobs em andamento/atrasados com os dados mínimos para operar a frota
+// (usado tanto pelo painel do admin quanto pela tela do operador).
+export async function getActivePrintJobs(): Promise<PrintJob[]> {
+  const response = await authenticatedFetch(`${API_URL}/print-farm/active-jobs`);
+  return handle<PrintJob[]>(response);
+}
+
 // ===== Relatórios (perda, custo, lucro) =====
 
 export async function getPrintFarmSummary(params?: {
   from?: string;
   to?: string;
+  printer_id?: number;
 }): Promise<PrintFarmSummary> {
   const query = new URLSearchParams();
   if (params?.from) query.set("from", params.from);
   if (params?.to) query.set("to", params.to);
+  if (params?.printer_id) query.set("printer_id", String(params.printer_id));
   const qs = query.toString();
   const response = await authenticatedFetch(`${API_URL}/print-farm/summary${qs ? `?${qs}` : ""}`);
   return handle<PrintFarmSummary>(response);
+}
+
+// ===== Operadores (funcionários que ligam/desligam impressoras) =====
+
+export async function getPrintOperators(): Promise<PrintOperator[]> {
+  const response = await authenticatedFetch(`${API_URL}/print-farm/operators`);
+  return handle<PrintOperator[]>(response);
+}
+
+export async function createPrintOperator(data: {
+  name: string;
+  username: string;
+  password: string;
+}): Promise<PrintOperator> {
+  const response = await authenticatedFetch(`${API_URL}/print-farm/operators`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+  return handle<PrintOperator>(response);
+}
+
+export async function updatePrintOperator(
+  id: number,
+  data: Partial<{ name: string; active: boolean; password: string }>,
+): Promise<PrintOperator> {
+  const response = await authenticatedFetch(`${API_URL}/print-farm/operators/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+  return handle<PrintOperator>(response);
+}
+
+export async function deletePrintOperator(id: number): Promise<void> {
+  const response = await authenticatedFetch(`${API_URL}/print-farm/operators/${id}`, {
+    method: "DELETE",
+  });
+  await handle<{ ok: boolean }>(response);
+}
+
+// Login do operador é um fluxo próprio (não usa a senha compartilhada de admin/cozinha):
+// grava o token no mesmo local que authenticatedFetch já lê, então os demais endpoints
+// funcionam sem nenhuma mudança.
+export async function operatorLogin(
+  username: string,
+  password: string,
+): Promise<{ id: number; name: string }> {
+  const response = await fetch(`${API_URL}/print-farm/operators/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password }),
+  });
+  const data = await handle<{ success: boolean; token: string; operator: { id: number; name: string } }>(
+    response,
+  );
+  localStorage.setItem("jwt_token", data.token);
+  return data.operator;
 }
