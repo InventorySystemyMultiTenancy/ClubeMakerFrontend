@@ -90,7 +90,9 @@ const ReportsPanel: React.FC = () => {
       ? (totals.success / (totals.success + totals.fail)) * 100
       : null;
   const onTimeRate = totals && totals.jobs > 0 ? (totals.onTime / totals.jobs) * 100 : null;
-  const balance = totals ? totals.revenue - totals.lossCost : 0;
+  const orderLosses = summary?.orderLosses || [];
+  const orderLossCost = totals?.orderLossCost || 0;
+  const balance = totals ? totals.revenue - totals.lossCost - orderLossCost : 0;
 
   const chartData =
     summary?.byPrinter.map((row) => ({
@@ -139,7 +141,7 @@ const ReportsPanel: React.FC = () => {
 
       {loading || !totals ? (
         <p className="p-6 text-center text-stone-500">Carregando relatório...</p>
-      ) : totals.jobs === 0 ? (
+      ) : totals.jobs === 0 && orderLosses.length === 0 ? (
         <div className="rounded-2xl bg-white p-12 text-center shadow-xl">
           <div className="mb-4 text-6xl">📊</div>
           <h2 className="mb-2 text-2xl font-bold text-stone-800">Sem produções finalizadas no período</h2>
@@ -167,6 +169,12 @@ const ReportsPanel: React.FC = () => {
             <StatCard label="Peças aprovadas" value={String(totals.success)} tone="success" />
             <StatCard label="Peças perdidas" value={String(totals.fail)} tone="danger" />
           </div>
+          {printerId && (
+            <p className="-mt-3 mb-6 text-xs text-stone-500">
+              Perdas na entrega de pedidos não pertencem a uma impressora e só aparecem no relatório
+              de todas as impressoras.
+            </p>
+          )}
 
           <div className="rounded-2xl bg-white p-5 shadow-xl">
             <h3 className="mb-4 font-bold text-stone-800">Receita x prejuízo por impressora</h3>
@@ -212,6 +220,48 @@ const ReportsPanel: React.FC = () => {
               </tbody>
             </table>
           </div>
+
+          {!printerId && (
+            <div className="mt-6 overflow-x-auto rounded-2xl bg-white shadow-xl">
+              <div className="flex flex-wrap items-baseline justify-between gap-2 p-5 pb-0">
+                <h3 className="font-bold text-stone-800">Perdas na entrega de pedidos</h3>
+                <p className="text-sm font-semibold text-red-700">
+                  {totals.orderLossUnits} un. · {formatBRL(orderLossCost)}
+                </p>
+              </div>
+              {orderLosses.length === 0 ? (
+                <p className="p-5 text-sm text-stone-500">Nenhuma perda na entrega no período.</p>
+              ) : (
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-stone-200 text-left text-xs uppercase tracking-wide text-stone-400">
+                      <th className="p-4">Data</th>
+                      <th className="p-4">Pedido</th>
+                      <th className="p-4">Itens perdidos</th>
+                      <th className="p-4">Motivo</th>
+                      <th className="p-4">Prejuízo</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orderLosses.map((loss) => (
+                      <tr key={loss.id} className="border-b border-stone-100 last:border-0">
+                        <td className="p-4">{new Date(loss.created_at).toLocaleDateString()}</td>
+                        <td className="p-4">
+                          #{loss.order_id.slice(-4)}
+                          {loss.customer_name ? ` — ${loss.customer_name}` : ""}
+                        </td>
+                        <td className="p-4">
+                          {loss.items.map((item) => `${item.lost}x ${item.name}`).join(", ")}
+                        </td>
+                        <td className="p-4 text-stone-600">{loss.loss_reason || "-"}</td>
+                        <td className="p-4 text-red-700">{formatBRL(loss.loss_cost)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          )}
         </>
       )}
     </div>

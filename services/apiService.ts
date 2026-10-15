@@ -136,6 +136,29 @@ export function isAuthenticated(): boolean {
   return getToken() !== null;
 }
 
+export interface RegisterOrderDeliveryPayload {
+  items: { index: number; delivered: number; lost: number }[];
+  lossReason?: string;
+  note?: string;
+}
+
+// Registra uma entrega (total ou parcial) do pedido; o que não for entregue
+// nem perdido fica pendente para a próxima entrega.
+export async function registerOrderDelivery(
+  orderId: string,
+  payload: RegisterOrderDeliveryPayload,
+): Promise<{ deliveryStatus: "partial" | "delivered" }> {
+  const response = await authenticatedFetch(
+    `${API_URL}/orders/${orderId}/deliveries`,
+    { method: "POST", body: JSON.stringify(payload) },
+  );
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.error || `Erro ao registrar entrega (${response.status})`);
+  }
+  return data;
+}
+
 /**
  * Um wrapper para o fetch que adiciona o token de autenticação automaticamente.
  * @param url - A URL da API para chamar.

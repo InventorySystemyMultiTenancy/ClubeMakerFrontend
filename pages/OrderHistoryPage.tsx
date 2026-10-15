@@ -11,6 +11,12 @@ import {
 import { useAuth } from "../contexts/AuthContext";
 import { formatCurrency, getOrderItemPricingInfo } from "../utils/orderPricing";
 import { getPaymentMethodLabel } from "../utils/paymentLabels";
+import {
+  getOrderDeliveryProgress,
+  getPendingUnits,
+  isOrderFullyDelivered,
+} from "../utils/orderDelivery";
+import OrderDeliveryModal from "../components/admin/OrderDeliveryModal";
 
 // Página de Histórico de Pedidos com filtro por data
 // (OrderHistoryPage)
@@ -29,6 +35,7 @@ const OrderHistoryPage: React.FC = () => {
   const [deletingOrderId, setDeletingOrderId] = useState<string | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [productFilter, setProductFilter] = useState("");
+  const [deliveringOrder, setDeliveringOrder] = useState<Order | null>(null);
 
   const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
   const isAdmin = currentUser?.role === "admin";
@@ -132,7 +139,7 @@ const OrderHistoryPage: React.FC = () => {
       !normalizedSearch ||
       order.id.toLowerCase().includes(normalizedSearch) ||
       (order.userName || "").toLowerCase().includes(normalizedSearch);
-    const isUndelivered = !order.entregueCliente;
+    const isUndelivered = !isOrderFullyDelivered(order);
     const isUnpaid = !["paid", "authorized"].includes(
       order.paymentStatus ?? "pending",
     );
@@ -337,6 +344,24 @@ const OrderHistoryPage: React.FC = () => {
                   );
                 })}
               </ul>
+              {(order.deliveries || []).length > 0 && (
+                <div className="mb-2 rounded bg-stone-50 p-2 text-xs text-stone-600">
+                  <span className="font-semibold">Entregas:</span>
+                  <ul>
+                    {getOrderDeliveryProgress(order).map((item) => (
+                      <li key={item.index}>
+                        {item.name}: entregue {item.delivered}/{item.quantity}
+                        {item.lost > 0 && (
+                          <span className="text-red-600"> · perda {item.lost}</span>
+                        )}
+                        {item.remaining > 0 && (
+                          <span className="text-amber-700"> · pendente {item.remaining}</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               {order.observation && (
                 <div className="mb-2 text-yellow-800 bg-yellow-100 rounded p-2">
                   <span className="font-semibold">Observação:</span>{" "}
@@ -371,32 +396,43 @@ const OrderHistoryPage: React.FC = () => {
                       </button>
                     </>
                   )}
-                {/* Botão entregar ao cliente */}
-                <button
-                  className={`px-3 py-1 rounded text-xs font-bold transition ${order.entregueCliente ? "bg-green-500 text-white" : "bg-yellow-400 text-stone-800 hover:bg-yellow-500"}`}
-                  onClick={async (e) => {
-                    e.stopPropagation();
-                    const resp = await authenticatedFetch(
-                      `${BACKEND_URL}/api/orders/${order.id}/mark-delivered`,
-                      { method: "PUT" },
-                    );
-                    if (resp.ok) {
-                      fetchOrders();
-                    } else {
-                      alert("Erro ao marcar como entregue");
-                    }
-                  }}
-                  disabled={order.entregueCliente}
-                  title={
-                    order.entregueCliente
-                      ? "Já entregue ao cliente"
-                      : "Marcar como entregue"
-                  }
-                >
-                  {order.entregueCliente
-                    ? "Entregue ao Cliente ✔"
-                    : "Entregar ao Cliente"}
-                </button>
+                {/* Entrega ao cliente (total ou parcial) */}
+                {isOrderFullyDelivered(order) ? (
+                  <button
+                    className="px-3 py-1 rounded text-xs font-bold bg-green-500 text-white"
+                    disabled
+                    title="Já entregue ao cliente"
+                  >
+                    Entregue ao Cliente ✔
+                  </button>
+                ) : order.deliveryStatus === "partial" ? (
+                  <>
+                    <span className="text-amber-700 text-xs font-bold">
+                      ENTREGA PARCIAL ({getPendingUnits(order)} pendente
+                      {getPendingUnits(order) === 1 ? "" : "s"})
+                    </span>
+                    <button
+                      className="px-3 py-1 rounded text-xs font-bold transition bg-amber-500 text-white hover:bg-amber-600"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDeliveringOrder(order);
+                      }}
+                    >
+                      Realizar resto da entrega
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    className="px-3 py-1 rounded text-xs font-bold transition bg-yellow-400 text-stone-800 hover:bg-yellow-500"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDeliveringOrder(order);
+                    }}
+                    title="Marcar como entregue"
+                  >
+                    Entregar ao Cliente
+                  </button>
+                )}
                 {isAdmin && (
                   <button
                     className="px-3 py-1 rounded bg-red-600 text-white text-xs font-bold hover:bg-red-700 transition disabled:bg-red-300 disabled:cursor-not-allowed"
@@ -411,6 +447,29 @@ const OrderHistoryPage: React.FC = () => {
             </div>
           ))}
         </div>
+      )}
+      {deliveringOrder && (
+        <OrderDeliveryModal
+          order={deliveringOrder}
+          products={products}
+          onClose={() => setDeliveringOrder(null)}
+          onDelivered={(deliveryStatus) => {
+            setDeliveringOrder(null);
+            fetchOrders();
+            Swal.fire({
+              toast: true,
+              position: "top-end",
+              icon: "success",
+              title:
+                deliveryStatus === "delivered"
+                  ? "Pedido entregue ao cliente"
+                  : "Entrega parcial registrada",
+              showConfirmButton: false,
+              timer: 2200,
+              timerProgressBar: true,
+            });
+          }}
+        />
       )}
     </div>
   );

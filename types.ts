@@ -83,7 +83,39 @@ export interface Order {
   fee?: number;
   paymentStatus?: "pending" | "paid" | "authorized" | "canceled";
   entregueCliente?: boolean; // Indica se o pedido foi entregue ao cliente
+  deliveryStatus?: OrderDeliveryStatus | null;
+  deliveries?: OrderDelivery[];
   projectQuote?: ProjectQuote;
+}
+
+// null = nada entregue, "partial" = entrega parcial (resto pendente),
+// "delivered" = tudo entregue ou baixado como perda
+export type OrderDeliveryStatus = "partial" | "delivered";
+
+// Quanto de um item do pedido (identificado pelo índice em order.items) foi
+// entregue/perdido num evento de entrega
+export interface OrderDeliveryItem {
+  index: number;
+  productId: string | null;
+  name: string;
+  delivered: number;
+  lost: number;
+  unitCost: number;
+  lossCost: number;
+}
+
+export interface OrderDelivery {
+  id: number;
+  orderId: string;
+  items: OrderDeliveryItem[];
+  deliveredUnits: number;
+  lostUnits: number;
+  lossCost: number;
+  lossReason: string | null;
+  note: string | null;
+  createdByRole: string | null;
+  createdByName: string | null;
+  createdAt: string;
 }
 
 export type UserRole =
@@ -291,6 +323,18 @@ export interface PrintFarmOperatorSummaryRow {
   onTime: number;
 }
 
+// Perda registrada ao entregar um pedido (entra como prejuízo junto com as impressoras)
+export interface OrderLossRow {
+  id: number;
+  order_id: string;
+  customer_name: string | null;
+  lost_units: number;
+  loss_cost: number;
+  loss_reason: string | null;
+  items: OrderDeliveryItem[];
+  created_at: string;
+}
+
 export interface PrintFarmSummary {
   totals: {
     jobs: number;
@@ -299,8 +343,11 @@ export interface PrintFarmSummary {
     lossCost: number;
     revenue: number;
     onTime: number;
+    orderLossUnits: number;
+    orderLossCost: number;
   };
   byPrinter: PrintFarmSummaryRow[];
   byOperator: PrintFarmOperatorSummaryRow[];
+  orderLosses: OrderLossRow[];
 }
 
