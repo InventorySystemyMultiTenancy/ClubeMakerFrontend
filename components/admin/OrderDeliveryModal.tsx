@@ -1,13 +1,18 @@
 import React, { useMemo, useState } from "react";
 import type { Order, Product } from "../../types";
-import { registerOrderDelivery } from "../../services/apiService";
+import {
+  registerOrderDelivery,
+  type RegisterOrderDeliveryPayload,
+} from "../../services/apiService";
 import { formatCurrency } from "../../utils/orderPricing";
 import { getOrderDeliveryProgress } from "../../utils/orderDelivery";
 
 // O que acontece com o que não foi entregue agora
 type ShortfallMode = "pending" | "loss" | "mixed";
 
-const SHORTFALL_OPTIONS: { value: ShortfallMode; label: string; hint: string }[] = [
+type ShortfallOption = { value: ShortfallMode; label: string; hint: string };
+
+const SHORTFALL_OPTIONS: ShortfallOption[] = [
   {
     value: "pending",
     label: "Cliente retirou menos / não estava pronto",
@@ -25,11 +30,70 @@ const SHORTFALL_OPTIONS: { value: ShortfallMode; label: string; hint: string }[]
   },
 ];
 
+// Mesmo formulário quando o próprio cliente confirma o recebimento (liberado pelo
+// admin na aba "Clientes"), só com os textos do ponto de vista de quem recebe.
+const CUSTOMER_SHORTFALL_OPTIONS: ShortfallOption[] = [
+  {
+    value: "pending",
+    label: "Ainda não recebi o restante",
+    hint: "O restante fica pendente e o pedido vira entrega parcial.",
+  },
+  {
+    value: "loss",
+    label: "O restante chegou com defeito / quebrado",
+    hint: "O restante é registrado como perda.",
+  },
+  {
+    value: "mixed",
+    label: "Parte chegou com defeito e parte ainda não recebi",
+    hint: "Informe a perda de cada item; o que sobrar fica pendente.",
+  },
+];
+
+const TEXTS = {
+  admin: {
+    title: "📦 Entregar ao cliente",
+    followUpTitle: "📦 Realizar resto da entrega",
+    ask: "Entregou toda a quantidade descrita no pedido?",
+    followUpAsk: "Entregou todo o restante?",
+    yes: "Sim, entreguei tudo",
+    no: "Não, entreguei menos",
+    whyLess: "Por que entregou menos?",
+    toDeliver: "A entregar",
+    deliveredNow: "Entregue agora",
+    lossReason: "Motivo da perda *",
+    pendingNotice: "até você realizar o resto da entrega",
+    confirm: "Confirmar entrega",
+    options: SHORTFALL_OPTIONS,
+  },
+  customer: {
+    title: "📦 Confirmar recebimento",
+    followUpTitle: "📦 Receber o resto do pedido",
+    ask: "Recebeu toda a quantidade descrita no pedido?",
+    followUpAsk: "Recebeu todo o restante?",
+    yes: "Sim, recebi tudo",
+    no: "Não, recebi menos",
+    whyLess: "Por que recebeu menos?",
+    toDeliver: "A receber",
+    deliveredNow: "Recebido agora",
+    lossReason: "O que aconteceu? *",
+    pendingNotice: "até o restante ser entregue",
+    confirm: "Confirmar recebimento",
+    options: CUSTOMER_SHORTFALL_OPTIONS,
+  },
+};
+
 interface OrderDeliveryModalProps {
   order: Order;
   products: Product[];
   onClose: () => void;
   onDelivered: (deliveryStatus: "partial" | "delivered") => void;
+  audience?: "admin" | "customer";
+  // Por padrão registra pela rota do admin/cozinha
+  submitDelivery?: (
+    orderId: string,
+    payload: RegisterOrderDeliveryPayload,
+  ) => Promise<{ deliveryStatus: "partial" | "delivered" }>;
 }
 
 const toQty = (value: string | undefined, max: number) =>
@@ -40,7 +104,10 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
   products,
   onClose,
   onDelivered,
+  audience = "admin",
+  submitDelivery = registerOrderDelivery,
 }) => {
+  const text = TEXTS[audience];
   const progress = useMemo(
     () => getOrderDeliveryProgress(order).filter((item) => item.remaining > 0),
     [order],
@@ -92,7 +159,7 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
     setSaving(true);
     setError(null);
     try {
-      const result = await registerOrderDelivery(order.id, {
+      const result = await submitDelivery(order.id, {
         items,
         lossReason: lossReason.trim() || undefined,
         note: note.trim() || undefined,
@@ -133,7 +200,7 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
     >
       <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
         <h3 className="mb-1 text-xl font-bold text-stone-800">
-          {isFollowUp ? "📦 Realizar resto da entrega" : "📦 Entregar ao cliente"}
+          {isFollowUp ? text.followUpTitle : text.title}
         </h3>
         <p className="mb-4 text-sm text-stone-500">
           Pedido #{order.id.slice(-4)} — {order.userName || order.externalBuyerName || "-"}
@@ -162,9 +229,7 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
         {step === "ask" ? (
           <>
             <p className="mb-4 font-semibold text-stone-800">
-              {isFollowUp
-                ? "Entregou todo o restante?"
-                : "Entregou toda a quantidade descrita no pedido?"}
+              {isFollowUp ? text.followUpAsk : text.ask}
             </p>
             {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
             <div className="flex flex-col gap-2 sm:flex-row">
@@ -181,7 +246,7 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
                 disabled={saving}
                 className="flex-1 rounded-lg bg-amber-500 px-4 py-2 font-semibold text-white hover:bg-amber-600 disabled:opacity-60"
               >
-                Não, entreguei menos
+                {text.no}
               </button>
               <button
                 type="button"
@@ -189,7 +254,7 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
                 disabled={saving}
                 className="flex-1 rounded-lg bg-green-600 px-4 py-2 font-semibold text-white hover:bg-green-700 disabled:opacity-60"
               >
-                {saving ? "Salvando..." : "Sim, entreguei tudo"}
+                {saving ? "Salvando..." : text.yes}
               </button>
             </div>
           </>
@@ -197,9 +262,9 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
           <form onSubmit={handleDetailsSubmit} className="space-y-4">
             <fieldset className="space-y-2">
               <legend className="mb-1 text-sm font-semibold text-stone-700">
-                Por que entregou menos?
+                {text.whyLess}
               </legend>
-              {SHORTFALL_OPTIONS.map((option) => (
+              {text.options.map((option) => (
                 <label
                   key={option.value}
                   className={`flex cursor-pointer gap-3 rounded-lg border-2 p-3 text-sm ${
@@ -228,8 +293,8 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
                 <thead>
                   <tr className="border-b border-stone-200 text-left text-xs uppercase tracking-wide text-stone-400">
                     <th className="py-2 pr-2">Item</th>
-                    <th className="px-2 py-2">A entregar</th>
-                    <th className="px-2 py-2">Entregue agora</th>
+                    <th className="px-2 py-2">{text.toDeliver}</th>
+                    <th className="px-2 py-2">{text.deliveredNow}</th>
                     {mode === "mixed" && <th className="px-2 py-2">Perda</th>}
                     <th className="px-2 py-2">{mode === "loss" ? "Perda" : "Fica pendente"}</th>
                   </tr>
@@ -286,12 +351,18 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
 
             {totals.lost > 0 && (
               <div className="space-y-2 rounded-lg bg-red-50 p-3 text-sm text-red-700">
-                <p className="font-semibold">
-                  Prejuízo estimado: {totals.lost} un. ≈ {formatCurrency(totals.lossCost)}
-                </p>
-                <p className="text-xs">Calculado pelo custo unitário de cada produto.</p>
+                {audience === "admin" ? (
+                  <>
+                    <p className="font-semibold">
+                      Prejuízo estimado: {totals.lost} un. ≈ {formatCurrency(totals.lossCost)}
+                    </p>
+                    <p className="text-xs">Calculado pelo custo unitário de cada produto.</p>
+                  </>
+                ) : (
+                  <p className="font-semibold">{totals.lost} un. registrada(s) como perda</p>
+                )}
                 <label className="block font-semibold">
-                  Motivo da perda *
+                  {text.lossReason}
                   <textarea
                     value={lossReason}
                     onChange={(e) => setLossReason(e.target.value)}
@@ -306,7 +377,7 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
             {totals.pending > 0 && (
               <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
                 <strong>{totals.pending}</strong> unidade(s) ficam pendentes — o pedido ficará como{" "}
-                <strong>entrega parcial</strong> até você realizar o resto da entrega.
+                <strong>entrega parcial</strong> {text.pendingNotice}.
               </p>
             )}
 
@@ -340,7 +411,7 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
                 disabled={saving || nothingToRegister || missingReason}
                 className="flex-1 rounded-lg bg-[var(--color-primary)] py-2 font-semibold text-white hover:bg-[var(--color-primary-active)] disabled:opacity-60"
               >
-                {saving ? "Salvando..." : "Confirmar entrega"}
+                {saving ? "Salvando..." : text.confirm}
               </button>
             </div>
           </form>

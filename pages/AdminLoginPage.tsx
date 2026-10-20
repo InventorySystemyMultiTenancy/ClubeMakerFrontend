@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { login as apiLogin, isAuthenticated } from "../services/apiService";
+import { adminUserLogin } from "../services/adminUsersService";
+import { getAdminHomePath } from "../utils/adminPermissions";
 
 const AdminLoginPage: React.FC = () => {
+  const location = useLocation();
+  // Chega pré-preenchido quando a tela de login de cliente detecta, pelo CPF,
+  // que a conta é de um administrador cadastrado.
+  const cpfFromQuery = new URLSearchParams(location.search).get("cpf") || "";
+  const [cpf, setCpf] = useState(cpfFromQuery);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -13,7 +20,7 @@ const AdminLoginPage: React.FC = () => {
   useEffect(() => {
     // Se já está logado como admin, redirecionar
     if (currentUser?.role === "admin" || isAuthenticated()) {
-      navigate("/admin");
+      navigate(getAdminHomePath(currentUser) || "/admin");
     }
   }, [currentUser, navigate]);
 
@@ -23,7 +30,27 @@ const AdminLoginPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // Usa o novo serviço de autenticação JWT
+      // Com CPF: administrador cadastrado, com acesso só às abas liberadas para ele
+      if (cpf.trim()) {
+        try {
+          const admin = await adminUserLogin(cpf, password);
+          const adminUser = {
+            id: admin.id,
+            name: admin.name,
+            historico: [],
+            role: "admin" as const,
+            permissions: admin.permissions,
+          };
+          login(adminUser);
+          navigate(getAdminHomePath(adminUser) || "/admin");
+        } catch (err: any) {
+          setError(err?.message || "CPF ou senha inválidos");
+          setPassword("");
+        }
+        return;
+      }
+
+      // Sem CPF: administrador principal (senha compartilhada, acesso total)
       const success = await apiLogin("admin", password);
 
       if (success) {
@@ -59,11 +86,37 @@ const AdminLoginPage: React.FC = () => {
           <h1 className="text-4xl font-bold text-[var(--color-primary-active)] mb-2">
             👑 Acesso Administrador
           </h1>
-          <p className="text-slate-600">Digite a senha para acessar</p>
+          <p className="text-slate-600">Digite seu CPF e senha para acessar</p>
           {/* Loja: single-tenant, não exibe mais storeId */}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label
+              htmlFor="cpf"
+              className="block text-sm font-semibold text-slate-700 mb-2"
+            >
+              CPF
+            </label>
+            <input
+              id="cpf"
+              type="text"
+              value={cpf}
+              onChange={(e) => {
+                setCpf(e.target.value);
+                setError("");
+              }}
+              placeholder="000.000.000-00"
+              autoFocus={!cpfFromQuery}
+              className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-[var(--color-primary)] transition-colors"
+              disabled={isLoading}
+              autoComplete="username"
+              inputMode="numeric"
+            />
+            <p className="text-xs text-slate-500 mt-1">
+              Administrador principal: deixe o CPF em branco e use a senha geral.
+            </p>
+          </div>
           <div>
             <label
               htmlFor="password"
@@ -81,7 +134,7 @@ const AdminLoginPage: React.FC = () => {
               }}
               placeholder="Digite a senha"
               className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-[var(--color-primary)] transition-colors"
-              autoFocus
+              autoFocus={Boolean(cpfFromQuery)}
               disabled={isLoading}
             />
             {error && <p className="text-red-600 text-sm mt-2">{error}</p>}

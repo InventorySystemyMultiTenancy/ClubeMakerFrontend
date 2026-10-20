@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { useAuth } from "../contexts/AuthContext";
+import { canManageAdmins, hasAdminPermission } from "../utils/adminPermissions";
+import AdminUsersPanel from "../components/admin/AdminUsersPanel";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -23,6 +26,12 @@ const formatDocument = (value: string) => {
 
 const AdminCreateCustomerPage: React.FC = () => {
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
+  const canCreateCustomer = hasAdminPermission(currentUser, "cadastro_cliente");
+  const canCreateAdmin = canManageAdmins(currentUser);
+  const [mode, setMode] = useState<"cliente" | "admin">(
+    canCreateCustomer ? "cliente" : "admin",
+  );
   const [documentInput, setDocumentInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -114,9 +123,36 @@ const AdminCreateCustomerPage: React.FC = () => {
           &larr; voltar
         </button>
         <h1 className="text-3xl font-bold text-[var(--color-primary-active)]">
-          Criar cadastro para cliente
+          {mode === "admin" ? "Administradores" : "Criar cadastro para cliente"}
         </h1>
+        {canCreateCustomer && canCreateAdmin && (
+          <div className="mt-4 inline-flex rounded-xl bg-white p-1 shadow">
+            {(
+              [
+                ["cliente", "👤 Cliente"],
+                ["admin", "👑 Administrador"],
+              ] as const
+            ).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setMode(value)}
+                className={`rounded-lg px-4 py-2 text-sm font-bold transition-colors ${
+                  mode === value
+                    ? "bg-[var(--color-primary)] text-white shadow"
+                    : "text-stone-600 hover:bg-[var(--color-primary-lighter)]"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
+
+      {mode === "admin" ? (
+        <AdminUsersPanel />
+      ) : (
 
       <div className="mx-auto max-w-md rounded-2xl border border-blue-500/20 bg-[#071226] p-8 shadow-2xl shadow-blue-950/40">
         <div className="mb-8 text-center">
@@ -206,6 +242,7 @@ const AdminCreateCustomerPage: React.FC = () => {
           </button>
         </form>
       </div>
+      )}
     </div>
   );
 };

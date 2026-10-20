@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import Swal from "sweetalert2";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import type { Order } from "../types";
@@ -8,6 +9,13 @@ import {
   getProjectOrderDetails,
   isProjectOrder,
 } from "../utils/projectOrder";
+import { getPendingUnits, isOrderFullyDelivered } from "../utils/orderDelivery";
+import {
+  getCustomerToken,
+  getMyCustomerAccess,
+  registerCustomerDelivery,
+} from "../services/customerService";
+import OrderDeliveryModal from "../components/admin/OrderDeliveryModal";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 const CONTACT_WHATSAPP = "5511947094271";
@@ -19,6 +27,9 @@ const CustomerOrdersPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [actionOrderId, setActionOrderId] = useState<string | null>(null);
+  // Liberado pelo admin na aba "Clientes": o cliente registra o que recebeu
+  const [canConfirmDelivery, setCanConfirmDelivery] = useState(false);
+  const [deliveringOrder, setDeliveringOrder] = useState<Order | null>(null);
 
   const handleContactOrder = (orderId: string) => {
     const message = encodeURIComponent(
@@ -86,29 +97,40 @@ const CustomerOrdersPage: React.FC = () => {
     }
   };
 
+  const fetchOrders = useCallback(async () => {
+    if (!currentUser) return;
+    setLoading(true);
+    setError("");
+    try {
+      const resp = await fetch(
+        `${BACKEND_URL}/api/users/${currentUser.id}/orders`,
+      );
+      if (!resp.ok) throw new Error("Erro ao buscar pedidos");
+      const data = await resp.json();
+      setOrders(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setError("Erro ao buscar pedidos. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
+  }, [currentUser]);
+
   useEffect(() => {
     if (!currentUser) {
       navigate("/login");
       return;
     }
-    const fetchOrders = async () => {
-      setLoading(true);
-      setError("");
-      try {
-        const resp = await fetch(
-          `${BACKEND_URL}/api/users/${currentUser.id}/orders`,
-        );
-        if (!resp.ok) throw new Error("Erro ao buscar pedidos");
-        const data = await resp.json();
-        setOrders(Array.isArray(data) ? data : []);
-      } catch (err) {
-        setError("Erro ao buscar pedidos. Tente novamente.");
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchOrders();
-  }, [currentUser, navigate]);
+  }, [currentUser, navigate, fetchOrders]);
+
+  // Consulta no servidor a cada abertura, assim o que o admin liberar/bloquear vale
+  // sem sair e entrar de novo. Sessões de antes do token não têm a funcionalidade.
+  useEffect(() => {
+    if (!currentUser || !getCustomerToken()) return;
+    getMyCustomerAccess()
+      .then((me) => setCanConfirmDelivery(me.permissions.includes("confirmar_entrega")))
+      .catch(() => setCanConfirmDelivery(false));
+  }, [currentUser]);
 
   return (
     <div className="min-h-screen bg-[#050604] bg-[radial-gradient(circle_at_16%_8%,rgba(37,99,235,0.24),transparent_24rem),radial-gradient(circle_at_86%_78%,rgba(239,36,36,0.14),transparent_22rem)] px-4 py-8 text-white">
@@ -129,6 +151,14 @@ const CustomerOrdersPage: React.FC = () => {
               isPending && order.status !== "active" && !isPresencial;
             const isProcessing = actionOrderId === order.id;
             const projectDetails = getProjectOrderDetails(order);
+            const isDelivered = isOrderFullyDelivered(order);
+            const isPartial = !isDelivered && order.deliveryStatus === "partial";
+            const isCanceled = ["canceled", "cancelled"].includes(order.status);
+            const canDeliver =
+              canConfirmDelivery &&
+              !isDelivered &&
+              !isCanceled &&
+              !(isPending && order.status !== "active");
 
             return (
             <li
@@ -151,6 +181,19 @@ const CustomerOrdersPage: React.FC = () => {
               <div className="mb-2">
                 <span className="font-semibold">Status:</span> {order.status}
               </div>
+              {(isDelivered || isPartial) && (
+                <div className="mb-2">
+                  <span className="font-semibold">Entrega:</span>{" "}
+                  {isDelivered ? (
+                    <span className="font-bold text-green-300">Entregue ✔</span>
+                  ) : (
+                    <span className="font-bold text-amber-300">
+                      Entrega parcial ({getPendingUnits(order)} pendente
+                      {getPendingUnits(order) === 1 ? "" : "s"})
+                    </span>
+                  )}
+                </div>
+              )}
               {isProjectOrder(order) && projectDetails && (
                 <div className="mb-3 rounded-lg border border-blue-400/30 bg-blue-950/35 p-3 text-sm text-blue-50">
                   <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
@@ -240,7 +283,20 @@ const CustomerOrdersPage: React.FC = () => {
                   )}
                 </div>
               )}
-              <div className="mt-4 flex justify-end">
+              <div className="mt-4 flex flex-col justify-end gap-2 sm:flex-row">
+                {canDeliver && (
+                  <button
+                    type="button"
+                    onClick={() => setDeliveringOrder(order)}
+                    className={`inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold shadow-sm transition-colors ${
+                      isPartial
+                        ? "bg-amber-500 text-white hover:bg-amber-600"
+                        : "bg-yellow-400 text-stone-800 hover:bg-yellow-500"
+                    }`}
+                  >
+                    {isPartial ? "Receber o resto do pedido" : "Confirmar recebimento"}
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={() => handleContactOrder(order.id)}
@@ -255,6 +311,31 @@ const CustomerOrdersPage: React.FC = () => {
         </ul>
       )}
       </div>
+      {deliveringOrder && (
+        <OrderDeliveryModal
+          order={deliveringOrder}
+          products={[]}
+          audience="customer"
+          submitDelivery={registerCustomerDelivery}
+          onClose={() => setDeliveringOrder(null)}
+          onDelivered={(deliveryStatus) => {
+            setDeliveringOrder(null);
+            fetchOrders();
+            Swal.fire({
+              toast: true,
+              position: "top-end",
+              icon: "success",
+              title:
+                deliveryStatus === "delivered"
+                  ? "Recebimento confirmado"
+                  : "Recebimento parcial registrado",
+              showConfirmButton: false,
+              timer: 2200,
+              timerProgressBar: true,
+            });
+          }}
+        />
+      )}
     </div>
   );
 };

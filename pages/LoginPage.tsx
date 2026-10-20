@@ -5,6 +5,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
 
 import type { User } from "../types";
+import { saveCustomerToken } from "../services/customerService";
 
 // --- Componente WelcomeScreen (Mantido conforme original) ---
 interface WelcomeScreenProps {
@@ -134,6 +135,11 @@ const CPFLogin: React.FC<CPFLoginProps> = ({ onBack, onLoginSuccess }) => {
           navigate(`/operador/login?cpf=${clean}`);
           return;
         }
+        if (data.user.role === "admin") {
+          // Administrador cadastrado também tem senha com hash e tela própria
+          navigate(`/admin/login?cpf=${clean}`);
+          return;
+        }
         setUserFound(data.user);
         setShowPassword(true);
       } else {
@@ -169,8 +175,10 @@ const CPFLogin: React.FC<CPFLoginProps> = ({ onBack, onLoginSuccess }) => {
         }),
       });
       const data = await response.json();
-      if (response.ok && data.user) onLoginSuccess(data.user);
-      else setError(data.error || "Erro ao cadastrar");
+      if (response.ok && data.user) {
+        saveCustomerToken(data.token);
+        onLoginSuccess(data.user);
+      } else setError(data.error || "Erro ao cadastrar");
     } catch (err) {
       setError("Erro de rede ao cadastrar.");
     } finally {
@@ -188,8 +196,10 @@ const CPFLogin: React.FC<CPFLoginProps> = ({ onBack, onLoginSuccess }) => {
         body: JSON.stringify({ cpf: cleanedDoc, password }),
       });
       const data = await response.json();
-      if (response.ok && data.user) onLoginSuccess(data.user);
-      else setError(data.error || "Senha incorreta.");
+      if (response.ok && data.user) {
+        saveCustomerToken(data.token);
+        onLoginSuccess(data.user);
+      } else setError(data.error || "Senha incorreta.");
     } catch (err) {
       setError("Erro ao autenticar.");
     } finally {

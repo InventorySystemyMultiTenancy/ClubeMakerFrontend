@@ -26,12 +26,14 @@ import AdminManagementReportPage from "./pages/AdminManagementReportPage";
 import AdminProjectQuotesPage from "./pages/AdminProjectQuotesPage";
 import AdminCategoriesPage from "./pages/AdminCategoriesPage"; // 🆕
 import AdminCreateCustomerPage from "./pages/AdminCreateCustomerPage";
+import AdminCustomersPage from "./pages/AdminCustomersPage";
 import AdminPrintFarmPage from "./pages/AdminPrintFarmPage";
 import PrinterOperatorLoginPage from "./pages/PrinterOperatorLoginPage";
 import Header from "./components/Header";
 import Chatbot from "./components/Chatbot";
 // import InactivityGuard from "./components/InactivityGuard";
 import type { UserRole } from "./types";
+import { canAccessAdminPath, getAdminHomePath } from "./utils/adminPermissions";
 
 import OrderDetailPage from "./pages/OrderDetailPage";
 import CustomerOrdersPage from "./pages/CustomerOrdersPage";
@@ -71,6 +73,7 @@ const RoleProtectedRoute: React.FC<{
   redirectTo?: string;
 }> = ({ children, allowedRoles, redirectTo = "/login" }) => {
   const { currentUser } = useAuth();
+  const location = useLocation();
 
   if (!currentUser) {
     return <Navigate to={redirectTo} replace />;
@@ -81,7 +84,34 @@ const RoleProtectedRoute: React.FC<{
     return <Navigate to={redirectTo} replace />;
   }
 
+  // Admin cadastrado só entra nas abas liberadas para ele
+  if (userRole === "admin" && !canAccessAdminPath(currentUser, location.pathname)) {
+    const home = getAdminHomePath(currentUser);
+    return home ? <Navigate to={home} replace /> : <NoAdminAccess />;
+  }
+
   return <>{children}</>;
+};
+
+const NoAdminAccess: React.FC = () => {
+  const { logout } = useAuth();
+  return (
+    <div className="mx-auto mt-20 max-w-md rounded-2xl bg-white p-8 text-center shadow-xl">
+      <div className="mb-4 text-5xl">🔒</div>
+      <h2 className="mb-2 text-xl font-bold text-stone-800">Nenhuma aba liberada</h2>
+      <p className="mb-6 text-stone-600">
+        Seu cadastro de administrador ainda não tem acesso a nenhuma aba. Peça ao administrador
+        principal para liberar.
+      </p>
+      <button
+        type="button"
+        onClick={() => logout()}
+        className="rounded-lg bg-[var(--color-primary)] px-6 py-2 font-bold text-white hover:bg-[var(--color-primary-active)]"
+      >
+        Sair
+      </button>
+    </div>
+  );
 };
 
 const App: React.FC = () => {
@@ -289,6 +319,22 @@ const RouterBody: React.FC = () => {
                 <div className="admin-modern-theme">
                   <AdminLayout>
                     <AdminCreateCustomerPage />
+                  </AdminLayout>
+                </div>
+              </RoleProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/clientes"
+            element={
+              <RoleProtectedRoute
+                allowedRoles={["admin"]}
+                redirectTo="/admin/login"
+              >
+                <div className="admin-modern-theme">
+                  <AdminLayout>
+                    <AdminCustomersPage />
                   </AdminLayout>
                 </div>
               </RoleProtectedRoute>

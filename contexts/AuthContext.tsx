@@ -1,6 +1,15 @@
-import React, { createContext, useState, useContext, ReactNode } from "react";
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  useCallback,
+  ReactNode,
+} from "react";
 import type { User, Order } from "../types";
 import { logout as apiLogout } from "../services/apiService";
+import { getMyAdminAccess } from "../services/adminUsersService";
+import { saveCustomerToken } from "../services/customerService";
 
 // Define o formato do contexto de autenticação: quais valores e funções estarão disponíveis
 interface AuthContextType {
@@ -8,6 +17,7 @@ interface AuthContextType {
   login: (user: User) => void; // função para setar o usuário como logado
   logout: () => Promise<void>; // função para deslogar (limpar o usuário e pagamentos)
   addOrderToHistory: (order: Order) => void; // adiciona um pedido ao histórico do usuário
+  refreshAdminAccess: () => Promise<void>; // recarrega as abas liberadas do admin cadastrado
 }
 
 // Cria o contexto com um valor inicial indefinido; será provido pelo AuthProvider
@@ -60,6 +70,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     } finally {
       // Limpar token JWT
       apiLogout();
+      saveCustomerToken(null);
       // Limpar usuário
       setCurrentUser(null);
       try {
@@ -89,10 +100,43 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     });
   };
 
+  // Admin cadastrado (login por CPF): busca as abas liberadas no servidor, para que
+  // mudanças de acesso feitas por outro admin valham sem sair e entrar de novo.
+  // Acesso revogado (desativado/excluído) desloga na hora.
+  const isRestrictedAdmin =
+    currentUser?.role === "admin" && Array.isArray(currentUser.permissions);
+  const refreshAdminAccess = useCallback(async () => {
+    if (!isRestrictedAdmin) return;
+    try {
+      const access = await getMyAdminAccess();
+      if (access.master || !("name" in access)) return;
+      const { name, permissions } = access;
+      setCurrentUser((prev) => {
+        if (!prev) return prev;
+        const next = { ...prev, name, permissions };
+        try {
+          localStorage.setItem("currentUser", JSON.stringify(next));
+        } catch (e) {
+          // ignore
+        }
+        return next;
+      });
+    } catch (err: any) {
+      if (err?.status === 401 || err?.status === 403) {
+        await logout();
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isRestrictedAdmin]);
+
+  useEffect(() => {
+    refreshAdminAccess();
+  }, [refreshAdminAccess]);
+
   // Providencia os valores/funções do contexto para os componentes filhos
   return (
     <AuthContext.Provider
-      value={{ currentUser, login, logout, addOrderToHistory }}
+      value={{ currentUser, login, logout, addOrderToHistory, refreshAdminAccess }}
     >
       {children}
     </AuthContext.Provider>

@@ -134,6 +134,47 @@ export interface User {
   historico: Order[];
   pontos?: number;
   role?: UserRole; // Tipo de usuário: customer (padrão), kitchen ou admin
+  // Só para administradores cadastrados (login por CPF). Ausente = admin principal, acesso total.
+  permissions?: AdminPermission[];
+}
+
+export type AdminPermission =
+  | "painel"
+  | "nova_venda"
+  | "categorias"
+  | "cadastro_cliente"
+  | "clientes"
+  | "historico"
+  | "orcamentos"
+  | "impressoras"
+  | "relatorio_gestao"
+  | "relatorios_ia"
+  | "admins";
+
+// Administrador cadastrado (tabela users, role "admin") com acesso por aba
+export interface AdminUser {
+  id: string;
+  name: string;
+  cpf: string;
+  email: string | null;
+  phone: string | null;
+  active: boolean;
+  permissions: AdminPermission[];
+}
+
+// Funcionalidades que o admin libera por cliente (aba "Clientes")
+export type CustomerPermission = "confirmar_entrega";
+
+// Cliente (tabela users, role "customer") como visto/editado pelo admin
+export interface Customer {
+  id: string;
+  name: string;
+  cpf: string;
+  email: string | null;
+  phone: string | null;
+  cep: string | null;
+  address: string | null;
+  permissions: CustomerPermission[];
 }
 
 export interface CartItem extends Product {

@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useCart } from "../../contexts/CartContext";
+import { canAccessAdminPath } from "../../utils/adminPermissions";
 
 type IconProps = { className?: string };
 
@@ -29,6 +30,12 @@ const TagIcon: React.FC<IconProps> = ({ className }) => (
 const UserPlusIcon: React.FC<IconProps> = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M13 20v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM19 8v6M22 11h-6" />
+  </svg>
+);
+
+const UsersIcon: React.FC<IconProps> = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M17 20v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1M10 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM21 20v-1a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
   </svg>
 );
 
@@ -87,7 +94,7 @@ const useNavItems = (): AdminNavItem[] => {
     return [{ to: "/admin/impressoras", label: "Impressoras 3D", icon: PrinterIcon }];
   }
 
-  return [
+  const allItems: AdminNavItem[] = [
     { to: "/admin", label: "Painel", icon: HomeIcon },
     {
       to: "/admin/nova-venda",
@@ -101,6 +108,7 @@ const useNavItems = (): AdminNavItem[] => {
       label: "Criar Cadastro Cliente",
       icon: UserPlusIcon,
     },
+    { to: "/admin/clientes", label: "Clientes", icon: UsersIcon },
     { to: "/historico", label: "Histórico de Pedidos", icon: ClockIcon },
     { to: "/admin/orcamentos", label: "Orçamentos", icon: DocumentIcon },
     { to: "/admin/impressoras", label: "Impressoras 3D", icon: PrinterIcon },
@@ -111,6 +119,9 @@ const useNavItems = (): AdminNavItem[] => {
     },
     { to: "/admin/reports", label: "Relatórios IA", icon: SparklesIcon },
   ];
+
+  // Admin cadastrado só vê as abas liberadas para ele
+  return allItems.filter((item) => canAccessAdminPath(currentUser, item.to));
 };
 
 const navLinkClasses = (isActive: boolean) =>
@@ -122,8 +133,12 @@ const navLinkClasses = (isActive: boolean) =>
 
 const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
-  const { logout, currentUser } = useAuth();
+  const { logout, currentUser, refreshAdminAccess } = useAuth();
   const navItems = useNavItems();
+
+  useEffect(() => {
+    refreshAdminAccess();
+  }, [refreshAdminAccess]);
   const isOperator = currentUser?.role === "print_operator";
 
   const handleLogout = async () => {
