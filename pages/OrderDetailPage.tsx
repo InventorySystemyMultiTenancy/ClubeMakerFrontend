@@ -218,6 +218,16 @@ const OrderDetailPage: React.FC = () => {
         <div className="mb-2 text-blue-100">
           <span className="font-semibold">Total:</span> R$
           {Number(currentOrder.total).toFixed(2) ?? "-"}
+          {Number(currentOrder.extraTotal) > 0 && (
+            <span className="block text-xs text-blue-200/80">
+              Inclui acréscimo de {formatCurrency(currentOrder.extraTotal)} por itens entregues a mais
+            </span>
+          )}
+          {Number(currentOrder.extraChargeDue) > 0 && (
+            <span className="block font-bold text-amber-300">
+              Acréscimo a pagar: {formatCurrency(currentOrder.extraChargeDue)}
+            </span>
+          )}
         </div>
         {isProjectOrder(currentOrder) && projectDetails && (
           <div className="mb-4 rounded-lg border border-blue-400/30 bg-blue-950/35 p-4 text-sm text-blue-50">
@@ -391,6 +401,11 @@ const OrderDetailPage: React.FC = () => {
                     <div>
                       {item.quantity}x {item.name} -{" "}
                       {formatCurrency(pricing.lineTotal)}
+                      {Number(item.extraQuantity) > 0 && (
+                        <span className="ml-1 text-xs text-blue-200/80">
+                          (+{item.extraQuantity} entregue a mais)
+                        </span>
+                      )}
                     </div>
                     {pricing.hasPricingDetails && (
                       <div className="text-xs text-blue-200/65">

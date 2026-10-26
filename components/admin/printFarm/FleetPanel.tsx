@@ -176,7 +176,7 @@ const FleetPanel: React.FC<FleetPanelProps> = ({ canManagePrinters = true }) => 
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-stone-500">{printers.length} impressora(s) cadastrada(s)</p>
         {canManagePrinters && (
           <button

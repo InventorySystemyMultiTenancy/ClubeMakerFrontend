@@ -98,7 +98,7 @@ const OperatorsPanel: React.FC = () => {
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-stone-500">
           {operators.length} operador(es) cadastrado(s) · entram pelo login do admin, mas só veem esta aba
         </p>

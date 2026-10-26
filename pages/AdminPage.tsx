@@ -41,8 +41,8 @@ const StockMovementModal: React.FC<{
     );
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
-      <div className="bg-white p-6 rounded-xl shadow-xl w-full max-w-md">
+    <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50 p-4">
+      <div className="bg-white p-6 rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         <h2 className="text-xl font-bold mb-4 text-[var(--color-primary-active)]">
           Movimentação de Estoque
         </h2>
@@ -369,7 +369,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
               className="mt-1 block w-full rounded-md border-stone-300 shadow-sm focus:border-[var(--color-primary)] focus:ring-[var(--color-primary-light)]"
             />
           </div>
-          <div className="flex gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row">
             <div className="flex-1">
               <label
                 htmlFor="price"
@@ -429,7 +429,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
               />
             </div>
           </div>
-          <div className="flex gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row">
             <div className="flex-1">
               <label
                 htmlFor="category"
@@ -843,6 +843,31 @@ const AdminPage: React.FC = () => {
     }
   };
 
+  const isLowStock = (product: Product) =>
+    product.minStock !== undefined &&
+    product.stock !== undefined &&
+    product.stock < product.minStock;
+
+  const stockBadgeClass = (product: Product) =>
+    (product.stock || 0) === 0
+      ? "bg-[var(--color-primary-light)] text-[var(--color-primary-active)]"
+      : isLowStock(product)
+        ? "bg-yellow-100 text-yellow-800 animate-pulse"
+        : "bg-green-100 text-green-800";
+
+  const toggleProductActive = async (product: Product) => {
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+    const resp = await authenticatedFetch(`${API_URL}/api/products/${product.id}`, {
+      method: "PUT",
+      body: JSON.stringify({ active: !product.active }),
+    });
+    if (resp.ok) {
+      await loadProducts();
+    } else {
+      alert("Erro ao atualizar status do produto");
+    }
+  };
+
   // Remove um produto pela id via API
   const handleDeleteProduct = async (productId: string) => {
     // Confirmação simples antes de remover
@@ -910,7 +935,7 @@ const AdminPage: React.FC = () => {
         <h1 className="text-4xl font-bold text-[var(--color-primary-active)]">
           Painel Administrativo
         </h1>
-        <div className="flex flex-wrap gap-2 sm:gap-3 w-full sm:w-auto">
+        <div className="grid grid-cols-1 gap-2 w-full sm:flex sm:flex-wrap sm:gap-3 sm:w-auto">
           <button
             onClick={() => setIsStockModalOpen(true)}
             className="bg-[var(--color-accent)] text-white font-bold py-2 px-6 rounded-lg hover:bg-[var(--color-secondary)] transition-colors shadow-md"
@@ -928,7 +953,7 @@ const AdminPage: React.FC = () => {
           <button
             onClick={handleGenerateAnalysis}
             disabled={isLoadingAnalysis}
-            className="bg-indigo-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-indigo-700 transition-colors shadow-md disabled:bg-indigo-300 flex items-center gap-2"
+            className="bg-indigo-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-indigo-700 transition-colors shadow-md disabled:bg-indigo-300 flex items-center justify-center gap-2"
           >
             {isLoadingAnalysis ? "⏳ Analisando..." : "🤖 Análise com IA"}
           </button>
@@ -945,7 +970,7 @@ const AdminPage: React.FC = () => {
       </div>
 
       {/* Cards de Estatísticas */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
         <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-[var(--color-primary)]">
           <div className="text-sm text-stone-500 mb-1">Total de Produtos</div>
           <div className="text-3xl font-bold text-[var(--color-primary)]">
@@ -975,7 +1000,7 @@ const AdminPage: React.FC = () => {
       {/* Área de Análise da IA */}
       {showAnalysis && (
         <div className="bg-gradient-to-r from-[var(--color-primary-lighter)] to-[var(--color-primary-light)] p-6 rounded-xl shadow-lg mb-6 border border-[var(--color-primary-light)]">
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex justify-between items-start gap-3 mb-4">
             <h2 className="text-2xl font-bold text-[var(--color-primary-active)] flex items-center gap-2">
               🤖 Análise Inteligente de Estoque
             </h2>
@@ -1017,8 +1042,79 @@ const AdminPage: React.FC = () => {
         📦 Gerenciar Produtos
       </h2>
 
-      {/* Tabela que lista os produtos */}
-      <div className="bg-white shadow-xl rounded-2xl overflow-x-auto">
+      {/* Celular: um cartão por produto */}
+      <div className="space-y-3 sm:hidden">
+        {menu.map((product) => (
+          <div
+            key={product.id}
+            className={`rounded-xl bg-white p-3 shadow-lg ${product.active === false ? "opacity-60" : ""}`}
+          >
+            <div className="flex items-center gap-3">
+              <img
+                className="h-12 w-12 shrink-0 rounded-full object-cover border border-stone-200"
+                src={product.images?.[0] || product.imageUrl}
+                alt={product.name}
+              />
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-bold text-stone-900">
+                  {product.name}
+                  {product.active === false && (
+                    <span className="ml-2 text-xs text-yellow-700 font-bold">(Inativo)</span>
+                  )}
+                </p>
+                <p className="text-xs text-stone-500">{product.category}</p>
+              </div>
+              <span
+                className={`shrink-0 px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${stockBadgeClass(product)}`}
+              >
+                {product.stock || 0} un.
+              </span>
+            </div>
+            <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-stone-600">
+              <span className="font-semibold text-stone-900">
+                R${Number(product.price)?.toFixed(2) ?? "-"}
+              </span>
+              {product.compareAtPrice && product.compareAtPrice > product.price && (
+                <span>Original: R${Number(product.compareAtPrice)?.toFixed(2) ?? "-"}</span>
+              )}
+              <span>Custo: R${Number(product.priceRaw)?.toFixed(2) ?? "-"}</span>
+              {isLowStock(product) && (
+                <span className="font-bold text-[var(--color-primary)] animate-pulse">
+                  Estoque baixo!
+                </span>
+              )}
+            </div>
+            <div className="mt-3 grid grid-cols-3 gap-2 text-xs font-semibold">
+              <button
+                onClick={() => {
+                  setEditingProduct(product);
+                  setIsFormOpen(true);
+                }}
+                className="rounded-lg border border-stone-300 py-2 text-[var(--color-primary)]"
+              >
+                Editar
+              </button>
+              <button
+                onClick={() => handleDeleteProduct(product.id)}
+                className="rounded-lg border border-stone-300 py-2 text-[var(--color-primary)]"
+              >
+                Remover
+              </button>
+              <button
+                onClick={() => toggleProductActive(product)}
+                className={`rounded-lg border border-stone-300 py-2 ${
+                  product.active ? "text-yellow-700" : "text-green-700"
+                }`}
+              >
+                {product.active ? "Desativar" : "Ativar"}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Tabela que lista os produtos (a partir de sm) */}
+      <div className="hidden sm:block bg-white shadow-xl rounded-2xl overflow-x-auto">
         <table className="min-w-full divide-y divide-stone-200 text-xs sm:text-sm">
           <thead className="bg-stone-50">
             <tr>
@@ -1098,21 +1194,11 @@ const AdminPage: React.FC = () => {
                 </td>
                 <td className="px-2 sm:px-4 py-2 whitespace-nowrap">
                   <span
-                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      (product.stock || 0) === 0
-                        ? "bg-[var(--color-primary-light)] text-[var(--color-primary-active)]"
-                        : product.minStock !== undefined &&
-                            product.stock !== undefined &&
-                            product.stock < product.minStock
-                          ? "bg-yellow-100 text-yellow-800 animate-pulse"
-                          : "bg-green-100 text-green-800"
-                    }`}
+                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${stockBadgeClass(product)}`}
                   >
                     {product.stock || 0} un.
                   </span>
-                  {product.minStock !== undefined &&
-                    product.stock !== undefined &&
-                    product.stock < product.minStock && (
+                  {isLowStock(product) && (
                       <span className="ml-1 text-[10px] sm:text-xs text-[var(--color-primary)] font-bold animate-pulse">
                         Estoque baixo!
                       </span>
@@ -1135,22 +1221,7 @@ const AdminPage: React.FC = () => {
                     Remover
                   </button>
                   <button
-                    onClick={async () => {
-                      const API_URL =
-                        import.meta.env.VITE_API_URL || "http://localhost:3001";
-                      const resp = await authenticatedFetch(
-                        `${API_URL}/api/products/${product.id}`,
-                        {
-                          method: "PUT",
-                          body: JSON.stringify({ active: !product.active }),
-                        },
-                      );
-                      if (resp.ok) {
-                        await loadProducts();
-                      } else {
-                        alert("Erro ao atualizar status do produto");
-                      }
-                    }}
+                    onClick={() => toggleProductActive(product)}
                     className={
                       product.active
                         ? "text-yellow-700 hover:text-yellow-900"
@@ -1165,31 +1236,31 @@ const AdminPage: React.FC = () => {
           </tbody>
         </table>
       </div>
-      <div className="mt-16 bg-white rounded-2xl shadow-lg px-6 py-8 mb-8">
+      <div className="mt-10 sm:mt-16 bg-white rounded-2xl shadow-lg px-4 py-6 sm:px-6 sm:py-8 mb-8">
         <h2 className="text-2xl font-bold text-stone-800 mb-6">
           Histórico de Movimentações de Estoque
         </h2>
-        <div className="flex flex-wrap gap-4 mb-6 items-end">
-          <div>
+        <div className="flex flex-wrap gap-3 sm:gap-4 mb-6 items-end">
+          <div className="flex-1 sm:flex-none">
             <label className="block text-xs font-medium mb-1">De</label>
             <input
               type="date"
               value={filterStart}
               onChange={(e) => setFilterStart(e.target.value)}
-              className="border rounded px-3 py-2 min-w-[140px]"
+              className="w-full border rounded px-3 py-2 min-w-[140px]"
             />
           </div>
-          <div>
+          <div className="flex-1 sm:flex-none">
             <label className="block text-xs font-medium mb-1">Até</label>
             <input
               type="date"
               value={filterEnd}
               onChange={(e) => setFilterEnd(e.target.value)}
-              className="border rounded px-3 py-2 min-w-[140px]"
+              className="w-full border rounded px-3 py-2 min-w-[140px]"
             />
           </div>
           <button
-            className="bg-[var(--color-primary)] text-white px-5 py-2 rounded-lg hover:bg-[var(--color-primary-active)] font-semibold"
+            className="flex-1 sm:flex-none bg-[var(--color-primary)] text-white px-5 py-2 rounded-lg hover:bg-[var(--color-primary-active)] font-semibold"
             onClick={() =>
               loadStockMovements(
                 filterStart || undefined,
@@ -1200,7 +1271,7 @@ const AdminPage: React.FC = () => {
             Filtrar
           </button>
           <button
-            className="bg-stone-200 px-5 py-2 rounded-lg font-semibold"
+            className="flex-1 sm:flex-none bg-stone-200 px-5 py-2 rounded-lg font-semibold"
             onClick={() => {
               setFilterStart("");
               setFilterEnd("");

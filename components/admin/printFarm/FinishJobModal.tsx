@@ -49,7 +49,7 @@ const FinishJobModal: React.FC<FinishJobModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+      <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
         <h3 className="mb-1 text-xl font-bold text-stone-800">✅ Finalizar produção</h3>
         <p className="mb-4 text-sm text-stone-500">{printerLabel}</p>
 

@@ -93,6 +93,18 @@ const RoleProtectedRoute: React.FC<{
   return <>{children}</>;
 };
 
+// Rotas compartilhadas com a cozinha (histórico de pedidos): o admin vê dentro do
+// layout do painel, com o menu de abas; a cozinha continua vendo a página sozinha.
+const AdminLayoutForAdmin: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { currentUser } = useAuth();
+  if (currentUser?.role !== "admin") return <>{children}</>;
+  return (
+    <div className="admin-modern-theme">
+      <AdminLayout>{children}</AdminLayout>
+    </div>
+  );
+};
+
 const NoAdminAccess: React.FC = () => {
   const { logout } = useAuth();
   return (
@@ -263,7 +275,9 @@ const RouterBody: React.FC = () => {
                 allowedRoles={["admin", "kitchen"]}
                 redirectTo="/admin/login"
               >
-                <OrderHistoryPage />
+                <AdminLayoutForAdmin>
+                  <OrderHistoryPage />
+                </AdminLayoutForAdmin>
               </RoleProtectedRoute>
             }
           />
@@ -276,7 +290,9 @@ const RouterBody: React.FC = () => {
                 allowedRoles={["admin", "kitchen"]}
                 redirectTo="/admin/login"
               >
-                <OrderDetailPage />
+                <AdminLayoutForAdmin>
+                  <OrderDetailPage />
+                </AdminLayoutForAdmin>
               </RoleProtectedRoute>
             }
           />

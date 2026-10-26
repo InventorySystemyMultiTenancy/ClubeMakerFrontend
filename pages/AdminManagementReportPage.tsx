@@ -370,7 +370,7 @@ const AdminManagementReportPage: React.FC = () => {
   // Formulário de senha extra
   if (!senhaCorreta) {
     return (
-      <div className="max-w-md mx-auto mt-16 p-6 bg-white rounded-xl shadow flex flex-col items-center">
+      <div className="max-w-md mx-3 sm:mx-auto mt-16 p-6 bg-white rounded-xl shadow flex flex-col items-center">
         <h2 className="text-2xl font-bold mb-4 text-slate-900">
           Acesso Restrito
         </h2>
@@ -419,7 +419,7 @@ const AdminManagementReportPage: React.FC = () => {
           <h1 className="text-3xl md:text-4xl font-bold text-slate-900">
             Relatorio de Gestao
           </h1>
-          <div className="mt-2 flex gap-2">
+          <div className="mt-2 flex flex-wrap gap-2">
             <button
               type="button"
               className="bg-emerald-700 text-white font-semibold px-4 py-2 rounded-lg hover:bg-emerald-800"
@@ -494,7 +494,7 @@ const AdminManagementReportPage: React.FC = () => {
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
           <div>
             <p className="text-sm font-semibold text-slate-700 mb-2">Periodo</p>
-            <div className="inline-flex rounded-lg bg-slate-100 p-1 gap-1">
+            <div className="inline-flex flex-wrap rounded-lg bg-slate-100 p-1 gap-1">
               <button
                 type="button"
                 onClick={handleSetGeneralFilter}
@@ -738,7 +738,7 @@ const AdminManagementReportPage: React.FC = () => {
                   </p>
                 </div>
 
-                <div className="inline-flex rounded-lg bg-slate-100 p-1 gap-1">
+                <div className="inline-flex flex-wrap rounded-lg bg-slate-100 p-1 gap-1">
                   {[
                     { value: "daily", label: "Diario" },
                     { value: "weekly", label: "Semanal" },

@@ -167,25 +167,31 @@ const OrderHistoryPage: React.FC = () => {
   });
 
   return (
-    <div className="container mx-auto px-4 py-6 min-h-screen bg-stone-100">
+    // Admin vê a página dentro do layout do painel (que já tem menu e "Sair");
+    // a cozinha vê a página sozinha, com fundo e botão de sair próprios.
+    <div
+      className={`container mx-auto px-4 py-6 ${isAdmin ? "" : "min-h-screen bg-stone-100"}`}
+    >
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <h1 className="text-3xl font-bold text-[var(--color-primary-active)]">
           Histórico de Pedidos
         </h1>
-        <button
-          onClick={async () => {
-            if (window.confirm("Deseja realmente sair?")) {
-              await logout();
-              navigate("/admin/login");
-            }
-          }}
-          className="bg-[var(--color-primary)] text-white font-bold py-2 px-6 rounded-lg hover:bg-[var(--color-primary-active)] transition-colors shadow-md"
-        >
-          🚪 Sair
-        </button>
+        {!isAdmin && (
+          <button
+            onClick={async () => {
+              if (window.confirm("Deseja realmente sair?")) {
+                await logout();
+                navigate("/admin/login");
+              }
+            }}
+            className="bg-[var(--color-primary)] text-white font-bold py-2 px-6 rounded-lg hover:bg-[var(--color-primary-active)] transition-colors shadow-md"
+          >
+            🚪 Sair
+          </button>
+        )}
       </div>
-      <div className="bg-white rounded-xl shadow-md p-4 mb-6 flex flex-wrap gap-4 items-end">
-        <div className="w-full sm:w-72">
+      <div className="bg-white rounded-xl shadow-md p-4 mb-6 grid grid-cols-2 gap-3 items-end sm:flex sm:flex-wrap sm:gap-4">
+        <div className="col-span-2 sm:w-72">
           <label className="block text-sm font-medium text-stone-700 mb-1">
             Buscar
           </label>
@@ -205,7 +211,7 @@ const OrderHistoryPage: React.FC = () => {
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="border rounded px-2 py-1"
+            className="w-full border rounded px-2 py-2 sm:py-1"
           />
         </div>
         <div>
@@ -216,10 +222,10 @@ const OrderHistoryPage: React.FC = () => {
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            className="border rounded px-2 py-1"
+            className="w-full border rounded px-2 py-2 sm:py-1"
           />
         </div>
-        <div className="w-full sm:w-64">
+        <div className="col-span-2 sm:w-64">
           <label className="block text-sm font-medium text-stone-700 mb-1">
             Produto
           </label>
@@ -256,7 +262,7 @@ const OrderHistoryPage: React.FC = () => {
         </label>
         <button
           onClick={fetchOrders}
-          className="bg-[var(--color-primary)] text-white font-bold py-2 px-4 rounded-lg hover:bg-[var(--color-primary-active)] transition-colors shadow-md"
+          className="w-full sm:w-auto bg-[var(--color-primary)] text-white font-bold py-2 px-4 rounded-lg hover:bg-[var(--color-primary-active)] transition-colors shadow-md"
         >
           Filtrar
         </button>
@@ -269,7 +275,7 @@ const OrderHistoryPage: React.FC = () => {
             setShowUnpaidOnly(false);
             setProductFilter("");
           }}
-          className="bg-stone-300 text-stone-700 font-bold py-2 px-4 rounded-lg hover:bg-stone-400 transition-colors shadow-md"
+          className="w-full sm:w-auto bg-stone-300 text-stone-700 font-bold py-2 px-4 rounded-lg hover:bg-stone-400 transition-colors shadow-md"
         >
           Limpar Filtros
         </button>
@@ -290,7 +296,7 @@ const OrderHistoryPage: React.FC = () => {
           </p>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {filteredOrders.map((order) => (
             <div
               key={order.id}
@@ -299,7 +305,7 @@ const OrderHistoryPage: React.FC = () => {
                 navigate("/historico/detalhes", { state: { order } })
               }
             >
-              <div className="flex flex-wrap justify-between items-center mb-2">
+              <div className="flex flex-wrap justify-between items-center gap-x-3 mb-2">
                 <div className="font-bold text-lg text-stone-800">
                   Pedido #{order.id.slice(-4)}
                 </div>
@@ -323,6 +329,11 @@ const OrderHistoryPage: React.FC = () => {
                     <li key={item.productId || item.id || idx} className="text-stone-800 mb-1">
                       <span className="font-semibold">{item.quantity}x</span>{" "}
                       {item.name} - {formatCurrency(pricing.lineTotal)}
+                      {Number(item.extraQuantity) > 0 && (
+                        <span className="ml-1 text-xs font-semibold text-blue-700">
+                          (+{item.extraQuantity} entregue a mais)
+                        </span>
+                      )}
                       {pricing.hasPricingDetails && (
                         <div className="text-xs text-stone-500 ml-5">
                           Unit.: {formatCurrency(pricing.unitPrice)}
@@ -371,13 +382,43 @@ const OrderHistoryPage: React.FC = () => {
               <div className="flex flex-wrap justify-between items-end mt-2 gap-2">
                 <div className="text-stone-500 text-xs">
                   Total: R${Number(order.total)?.toFixed(2) ?? "-"}
+                  {Number(order.extraTotal) > 0 && (
+                    <span className="block text-blue-700">
+                      inclui acréscimo de {formatCurrency(order.extraTotal)}
+                    </span>
+                  )}
                 </div>
+                {/* Acréscimo de unidades entregues a mais num pedido que já estava pago */}
+                {Number(order.extraChargeDue) > 0 && (
+                  <>
+                    <span className="text-blue-700 text-xs font-bold">
+                      ACRÉSCIMO A PAGAR {formatCurrency(order.extraChargeDue)}
+                    </span>
+                    <button
+                      className="px-3 py-2 sm:py-1 rounded bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition"
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        const resp = await authenticatedFetch(
+                          `${BACKEND_URL}/api/orders/${order.id}/mark-extra-paid`,
+                          { method: "PUT" },
+                        );
+                        if (resp.ok) {
+                          fetchOrders();
+                        } else {
+                          alert("Erro ao marcar acréscimo como pago");
+                        }
+                      }}
+                    >
+                      Marcar acréscimo como pago
+                    </button>
+                  </>
+                )}
                 {/* Exibe status do pagamento */}
                 {order.paymentStatus === "pending" && (
                     <>
                       <span className="text-[var(--color-primary)] font-bold">A PAGAR</span>
                       <button
-                        className="px-3 py-1 rounded bg-green-600 text-white text-xs font-bold hover:bg-green-700 transition"
+                        className="px-3 py-2 sm:py-1 rounded bg-green-600 text-white text-xs font-bold hover:bg-green-700 transition"
                         onClick={async (e) => {
                           e.stopPropagation();
                           // Chama endpoint para marcar como pago
@@ -399,7 +440,7 @@ const OrderHistoryPage: React.FC = () => {
                 {/* Entrega ao cliente (total ou parcial) */}
                 {isOrderFullyDelivered(order) ? (
                   <button
-                    className="px-3 py-1 rounded text-xs font-bold bg-green-500 text-white"
+                    className="px-3 py-2 sm:py-1 rounded text-xs font-bold bg-green-500 text-white"
                     disabled
                     title="Já entregue ao cliente"
                   >
@@ -412,7 +453,7 @@ const OrderHistoryPage: React.FC = () => {
                       {getPendingUnits(order) === 1 ? "" : "s"})
                     </span>
                     <button
-                      className="px-3 py-1 rounded text-xs font-bold transition bg-amber-500 text-white hover:bg-amber-600"
+                      className="px-3 py-2 sm:py-1 rounded text-xs font-bold transition bg-amber-500 text-white hover:bg-amber-600"
                       onClick={(e) => {
                         e.stopPropagation();
                         setDeliveringOrder(order);
@@ -423,7 +464,7 @@ const OrderHistoryPage: React.FC = () => {
                   </>
                 ) : (
                   <button
-                    className="px-3 py-1 rounded text-xs font-bold transition bg-yellow-400 text-stone-800 hover:bg-yellow-500"
+                    className="px-3 py-2 sm:py-1 rounded text-xs font-bold transition bg-yellow-400 text-stone-800 hover:bg-yellow-500"
                     onClick={(e) => {
                       e.stopPropagation();
                       setDeliveringOrder(order);
@@ -435,7 +476,7 @@ const OrderHistoryPage: React.FC = () => {
                 )}
                 {isAdmin && (
                   <button
-                    className="px-3 py-1 rounded bg-red-600 text-white text-xs font-bold hover:bg-red-700 transition disabled:bg-red-300 disabled:cursor-not-allowed"
+                    className="px-3 py-2 sm:py-1 rounded bg-red-600 text-white text-xs font-bold hover:bg-red-700 transition disabled:bg-red-300 disabled:cursor-not-allowed"
                     onClick={(e) => handleDeleteFromHistory(order, e)}
                     disabled={deletingOrderId === order.id}
                     title="Excluir pedido do histórico"
@@ -453,7 +494,7 @@ const OrderHistoryPage: React.FC = () => {
           order={deliveringOrder}
           products={products}
           onClose={() => setDeliveringOrder(null)}
-          onDelivered={(deliveryStatus) => {
+          onDelivered={(deliveryStatus, extraAmount) => {
             setDeliveringOrder(null);
             fetchOrders();
             Swal.fire({
@@ -461,9 +502,11 @@ const OrderHistoryPage: React.FC = () => {
               position: "top-end",
               icon: "success",
               title:
-                deliveryStatus === "delivered"
-                  ? "Pedido entregue ao cliente"
-                  : "Entrega parcial registrada",
+                extraAmount && extraAmount > 0
+                  ? `Entregue com acréscimo de ${formatCurrency(extraAmount)}`
+                  : deliveryStatus === "delivered"
+                    ? "Pedido entregue ao cliente"
+                    : "Entrega parcial registrada",
               showConfirmButton: false,
               timer: 2200,
               timerProgressBar: true,

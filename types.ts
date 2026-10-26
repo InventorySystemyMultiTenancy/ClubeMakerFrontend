@@ -35,6 +35,8 @@ export interface OrderItem {
   name: string;
   quantity: number;
   price: number;
+  // Unidades entregues além do pedido original (já somadas em quantity)
+  extraQuantity?: number;
   originalUnitPrice?: number | null;
   customUnitPrice?: number | null;
   discountPercent?: number | null;
@@ -85,6 +87,10 @@ export interface Order {
   entregueCliente?: boolean; // Indica se o pedido foi entregue ao cliente
   deliveryStatus?: OrderDeliveryStatus | null;
   deliveries?: OrderDelivery[];
+  // Acréscimo por unidades entregues a mais: extraTotal já está somado em total;
+  // extraChargeDue é a parte ainda não paga quando o pedido já estava pago.
+  extraTotal?: number;
+  extraChargeDue?: number;
   projectQuote?: ProjectQuote;
 }
 
@@ -98,10 +104,13 @@ export interface OrderDeliveryItem {
   index: number;
   productId: string | null;
   name: string;
-  delivered: number;
+  delivered: number; // inclui as unidades a mais (extra)
   lost: number;
   unitCost: number;
   lossCost: number;
+  extra?: number;
+  unitPrice?: number;
+  extraAmount?: number;
 }
 
 export interface OrderDelivery {
@@ -112,6 +121,8 @@ export interface OrderDelivery {
   lostUnits: number;
   lossCost: number;
   lossReason: string | null;
+  extraUnits?: number;
+  extraAmount?: number;
   note: string | null;
   createdByRole: string | null;
   createdByName: string | null;

@@ -4,12 +4,24 @@ import React, {
   useContext,
   useEffect,
   useCallback,
+  useRef,
   ReactNode,
 } from "react";
+import Swal from "sweetalert2";
 import type { User, Order } from "../types";
-import { logout as apiLogout } from "../services/apiService";
+import { logout as apiLogout, getToken } from "../services/apiService";
 import { getMyAdminAccess } from "../services/adminUsersService";
-import { saveCustomerToken } from "../services/customerService";
+import { getCustomerToken, saveCustomerToken } from "../services/customerService";
+import {
+  SESSION_EXPIRED_EVENT,
+  getLoginPathForRole,
+  getTokenExpiry,
+} from "../utils/session";
+
+// Perfis que só funcionam com o jwt_token (login do admin, cozinha e operador)
+const TOKEN_ROLES = ["admin", "kitchen", "print_operator"];
+// Limite do setTimeout (~24,8 dias); prazos maiores são reagendados ao disparar
+const MAX_TIMEOUT_MS = 2_147_483_647;
 
 // Define o formato do contexto de autenticação: quais valores e funções estarão disponíveis
 interface AuthContextType {
@@ -100,6 +112,92 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     });
   };
 
+  // ========== Sessão expirada ==========
+  // Desloga, leva para a tela de login do perfil e avisa o usuário. O AuthProvider
+  // fica fora do HashRouter, por isso a navegação é pelo hash da URL.
+  const currentUserRef = useRef(currentUser);
+  currentUserRef.current = currentUser;
+  const expiringRef = useRef(false);
+
+  const expireSession = useCallback(async () => {
+    const user = currentUserRef.current;
+    if (!user || expiringRef.current) return;
+    expiringRef.current = true;
+    try {
+      const loginPath = getLoginPathForRole(user.role);
+      await logout();
+      // Espera o React redesenhar sem usuário: as rotas protegidas redirecionam
+      // sozinhas para /admin/login, e o login certo do perfil precisa vir depois.
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      window.location.hash = `#${loginPath}`;
+      await Swal.fire({
+        icon: "warning",
+        title: "Sessão expirada",
+        text: "Por segurança, sua sessão expirou. Faça login novamente para continuar.",
+        confirmButtonText: "Fazer login",
+        allowOutsideClick: false,
+      });
+    } finally {
+      expiringRef.current = false;
+    }
+    // logout só mexe em estado/localStorage; não depende de props
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 401 de qualquer chamada à API (token vencido ou acesso revogado)
+  useEffect(() => {
+    const onExpired = () => {
+      expireSession();
+    };
+    window.addEventListener(SESSION_EXPIRED_EVENT, onExpired);
+    return () => window.removeEventListener(SESSION_EXPIRED_EVENT, onExpired);
+  }, [expireSession]);
+
+  // Desloga sozinho no instante em que o token vence, sem esperar uma chamada falhar
+  useEffect(() => {
+    if (!currentUser) return;
+    const isCustomer = !currentUser.role || currentUser.role === "customer";
+    const usesStaffToken = TOKEN_ROLES.includes(currentUser.role || "");
+    if (!isCustomer && !usesStaffToken) return;
+
+    const token = usesStaffToken ? getToken() : getCustomerToken();
+    if (!token) {
+      // Admin/cozinha/operador sem token já perdeu o acesso: pede login de novo.
+      // Cliente sem token (sessão antiga) continua navegando normalmente.
+      if (usesStaffToken) expireSession();
+      return;
+    }
+    const expiresAt = getTokenExpiry(token);
+    if (!expiresAt) return;
+
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const check = () => {
+      if (Date.now() >= expiresAt) {
+        expireSession();
+        return true;
+      }
+      return false;
+    };
+    const schedule = () => {
+      if (check()) return;
+      timer = setTimeout(schedule, Math.min(expiresAt - Date.now(), MAX_TIMEOUT_MS));
+    };
+    schedule();
+
+    // Com a tela bloqueada ou a aba em segundo plano o timer pode atrasar:
+    // confere de novo quando o usuário volta para o app.
+    const onVisible = () => {
+      if (document.visibilityState === "visible") check();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", check);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", check);
+    };
+  }, [currentUser, expireSession]);
+
   // Admin cadastrado (login por CPF): busca as abas liberadas no servidor, para que
   // mudanças de acesso feitas por outro admin valham sem sair e entrar de novo.
   // Acesso revogado (desativado/excluído) desloga na hora.
@@ -123,7 +221,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       });
     } catch (err: any) {
       if (err?.status === 401 || err?.status === 403) {
-        await logout();
+        await expireSession();
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

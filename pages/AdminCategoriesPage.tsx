@@ -135,15 +135,15 @@ const AdminCategoriesPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[var(--color-primary-lighter)] to-[var(--color-primary-light)] p-6">
+    <div className="min-h-screen bg-gradient-to-br from-[var(--color-primary-lighter)] to-[var(--color-primary-light)] p-2 sm:p-6">
       <div className="container mx-auto max-w-6xl">
         {/* Header */}
         <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3 sm:items-center sm:gap-4">
               <button
                 onClick={() => navigate("/admin")}
-                className="text-[var(--color-primary)] hover:bg-[var(--color-primary-light)] p-2 rounded-full transition-colors"
+                className="hidden sm:inline-flex text-[var(--color-primary)] hover:bg-[var(--color-primary-light)] p-2 rounded-full transition-colors"
               >
                 ← Voltar
               </button>
@@ -162,7 +162,7 @@ const AdminCategoriesPage: React.FC = () => {
                 setEditingCategory(null);
                 setShowForm(true);
               }}
-              className="bg-[var(--color-primary)] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[var(--color-primary-active)] transition-all shadow-lg hover:scale-105"
+              className="w-full sm:w-auto bg-[var(--color-primary)] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[var(--color-primary-active)] transition-all shadow-lg hover:scale-105"
             >
               ➕ Nova Categoria
             </button>

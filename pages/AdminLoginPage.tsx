@@ -11,6 +11,10 @@ const AdminLoginPage: React.FC = () => {
   // que a conta é de um administrador cadastrado.
   const cpfFromQuery = new URLSearchParams(location.search).get("cpf") || "";
   const [cpf, setCpf] = useState(cpfFromQuery);
+  // A tela pede só a senha (administrador principal). O campo de CPF só aparece
+  // para administrador cadastrado: vindo da tela de login com o CPF já detectado,
+  // ou se ele pedir pelo link "Entrar com CPF".
+  const [useCpf, setUseCpf] = useState(Boolean(cpfFromQuery));
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -26,12 +30,16 @@ const AdminLoginPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (useCpf && !cpf.trim()) {
+      setError("Informe o CPF");
+      return;
+    }
     setError("");
     setIsLoading(true);
 
     try {
       // Com CPF: administrador cadastrado, com acesso só às abas liberadas para ele
-      if (cpf.trim()) {
+      if (useCpf && cpf.trim()) {
         try {
           const admin = await adminUserLogin(cpf, password);
           const adminUser = {
@@ -76,47 +84,48 @@ const AdminLoginPage: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-[var(--color-primary-active)] to-[var(--color-primary)] p-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8">
-        <div className="text-center mb-8">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 sm:p-8">
+        <div className="text-center mb-6 sm:mb-8">
           <img
             src="/selfMachine.jpg"
             alt="Self Machine"
-            className="w-32 h-auto mx-auto mb-4 rounded-lg"
+            className="w-24 sm:w-32 h-auto mx-auto mb-4 rounded-lg"
           />
-          <h1 className="text-4xl font-bold text-[var(--color-primary-active)] mb-2">
+          <h1 className="text-2xl sm:text-4xl font-bold text-[var(--color-primary-active)] mb-2">
             👑 Acesso Administrador
           </h1>
-          <p className="text-slate-600">Digite seu CPF e senha para acessar</p>
+          <p className="text-slate-600">
+            {useCpf ? "Digite seu CPF e senha para acessar" : "Digite a senha para acessar"}
+          </p>
           {/* Loja: single-tenant, não exibe mais storeId */}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label
-              htmlFor="cpf"
-              className="block text-sm font-semibold text-slate-700 mb-2"
-            >
-              CPF
-            </label>
-            <input
-              id="cpf"
-              type="text"
-              value={cpf}
-              onChange={(e) => {
-                setCpf(e.target.value);
-                setError("");
-              }}
-              placeholder="000.000.000-00"
-              autoFocus={!cpfFromQuery}
-              className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-[var(--color-primary)] transition-colors"
-              disabled={isLoading}
-              autoComplete="username"
-              inputMode="numeric"
-            />
-            <p className="text-xs text-slate-500 mt-1">
-              Administrador principal: deixe o CPF em branco e use a senha geral.
-            </p>
-          </div>
+          {useCpf && (
+            <div>
+              <label
+                htmlFor="cpf"
+                className="block text-sm font-semibold text-slate-700 mb-2"
+              >
+                CPF
+              </label>
+              <input
+                id="cpf"
+                type="text"
+                value={cpf}
+                onChange={(e) => {
+                  setCpf(e.target.value);
+                  setError("");
+                }}
+                placeholder="000.000.000-00"
+                autoFocus={!cpfFromQuery}
+                className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-[var(--color-primary)] transition-colors"
+                disabled={isLoading}
+                autoComplete="username"
+                inputMode="numeric"
+              />
+            </div>
+          )}
           <div>
             <label
               htmlFor="password"
@@ -134,7 +143,8 @@ const AdminLoginPage: React.FC = () => {
               }}
               placeholder="Digite a senha"
               className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-[var(--color-primary)] transition-colors"
-              autoFocus={Boolean(cpfFromQuery)}
+              autoFocus={!useCpf || Boolean(cpfFromQuery)}
+              autoComplete="current-password"
               disabled={isLoading}
             />
             {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
@@ -150,8 +160,22 @@ const AdminLoginPage: React.FC = () => {
         </form>
 
         <button
+          type="button"
+          onClick={() => {
+            setUseCpf((value) => !value);
+            setCpf("");
+            setError("");
+          }}
+          className="w-full mt-4 py-2 text-sm text-slate-500 underline hover:text-slate-700 transition-colors"
+        >
+          {useCpf
+            ? "Entrar só com a senha do administrador principal"
+            : "Sou administrador cadastrado (entrar com CPF)"}
+        </button>
+
+        <button
           onClick={() => navigate("/")}
-          className="w-full mt-4 py-2 text-sm text-slate-600 hover:text-slate-800 transition-colors"
+          className="w-full mt-1 py-2 text-sm text-slate-600 hover:text-slate-800 transition-colors"
         >
           ← Voltar ao início
         </button>

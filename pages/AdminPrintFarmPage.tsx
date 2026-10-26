@@ -26,7 +26,7 @@ const AdminPrintFarmPage: React.FC = () => {
   const [tab, setTab] = useState<Tab>("frota");
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[var(--color-primary-lighter)] to-[var(--color-primary-light)] p-6">
+    <div className="min-h-screen bg-gradient-to-br from-[var(--color-primary-lighter)] to-[var(--color-primary-light)] p-2 sm:p-6">
       <div className="container mx-auto max-w-7xl">
         <div className="mb-6 rounded-2xl bg-white p-6 shadow-xl">
           <h1 className="text-3xl font-bold text-[var(--color-primary-active)]">

@@ -253,7 +253,7 @@ Seja direto e focado em ações práticas. Use emojis para deixar mais visual.`;
   }, [orders]);
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
+    <div className="max-w-7xl mx-auto p-3 sm:p-6">
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-[var(--color-primary-active)] mb-2">
           📊 Recomendações IA
@@ -268,7 +268,7 @@ Seja direto e focado em ações práticas. Use emojis para deixar mais visual.`;
         <button
           onClick={generateAIReport}
           disabled={isLoading || orders.length === 0}
-          className="bg-[var(--color-primary)] text-white font-bold py-3 px-8 rounded-lg hover:bg-[var(--color-primary-active)] transition-colors disabled:bg-[var(--color-primary-light)] disabled:cursor-not-allowed"
+          className="w-full sm:w-auto bg-[var(--color-primary)] text-white font-bold py-3 px-8 rounded-lg hover:bg-[var(--color-primary-active)] transition-colors disabled:bg-[var(--color-primary-light)] disabled:cursor-not-allowed"
         >
           {isLoading ? "🤖 Gerando Análise..." : "🚀 Gerar Relatório com IA"}
         </button>
@@ -480,9 +480,9 @@ Seja direto e focado em ações práticas. Use emojis para deixar mais visual.`;
               {recommendation.topProducts.map((product, index) => (
                 <div
                   key={product.name}
-                  className="flex items-center justify-between p-4 bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg hover:shadow-md transition-shadow"
+                  className="flex items-center justify-between gap-3 p-3 sm:p-4 bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg hover:shadow-md transition-shadow"
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex min-w-0 items-center gap-3 sm:gap-4">
                     <span className="text-3xl font-bold text-slate-400">
                       #{index + 1}
                     </span>

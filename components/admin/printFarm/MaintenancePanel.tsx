@@ -98,7 +98,7 @@ const MaintenancePanel: React.FC = () => {
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-stone-500">{parts.length} peça(s) cadastrada(s) na frota</p>
         <button
           onClick={() => setShowAddPart(true)}

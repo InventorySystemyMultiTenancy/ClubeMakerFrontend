@@ -632,6 +632,9 @@ body {
   min-height: calc(100vh - 68px);
   position: relative;
   overflow: hidden;
+  /* clip corta o excesso lateral sem virar contêiner de rolagem: mantém o
+     position: sticky do menu do admin funcionando */
+  overflow: clip;
 }
 
 .admin-modern-theme::before,
@@ -654,6 +657,13 @@ body {
 .checkout-modern-theme > * {
   position: relative;
   z-index: 1;
+}
+
+/* No admin, z-index: 1 criava um contexto de empilhamento que prendia os modais
+   (fixed, z-50) por baixo do cabeçalho do app. Com auto o conteúdo continua acima
+   da faixa de bichinhos (::before vem antes na ordem do documento). */
+.admin-modern-theme > * {
+  z-index: auto;
 }
 
 .admin-modern-theme .bg-white,
@@ -1169,5 +1179,70 @@ body {
   .monster-buy-button,
   .monster-checkout {
     font-size: 0.95rem !important;
+  }
+}
+
+/* ========== Painel admin no celular ==========
+   Ajustes globais para todas as abas do admin em telas pequenas: espaçamentos
+   menores, títulos menores e nada vazando para os lados. Seletores com
+   .admin-modern-theme vencem as utilities do Tailwind sem precisar de !important. */
+@media (max-width: 640px) {
+  .admin-modern-theme::before {
+    font-size: 1.25rem;
+    letter-spacing: 1rem;
+  }
+
+  .admin-modern-theme .container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .admin-modern-theme .p-6 {
+    padding: 1rem;
+  }
+
+  .admin-modern-theme .p-8 {
+    padding: 1.25rem;
+  }
+
+  .admin-modern-theme .p-12 {
+    padding: 2rem 1.25rem;
+  }
+
+  .admin-modern-theme .px-6 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .admin-modern-theme h1 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+
+  .admin-modern-theme h2 {
+    font-size: 1.2rem;
+    line-height: 1.6rem;
+  }
+
+  .admin-modern-theme .text-6xl {
+    font-size: 3rem;
+  }
+
+  .admin-modern-theme .text-3xl {
+    font-size: 1.5rem;
+  }
+
+  /* Textos longos (e-mails, IDs, nomes) quebram em vez de alargar a página */
+  .admin-modern-theme p,
+  .admin-modern-theme li,
+  .admin-modern-theme td {
+    overflow-wrap: anywhere;
+  }
+
+  /* Evita o zoom automático do iOS ao focar campos com fonte < 16px */
+  .admin-modern-theme input,
+  .admin-modern-theme select,
+  .admin-modern-theme textarea {
+    font-size: 16px;
   }
 }

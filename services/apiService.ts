@@ -9,6 +9,7 @@ export async function updateUser(userId: string, userData: any) {
 // Serviço de API com autenticação JWT e Multi-tenant
 
 import api from "./api";
+import { notifySessionExpired } from "../utils/session";
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 const API_URL = `${BASE_URL}/api`;
@@ -75,6 +76,7 @@ export async function deleteOrderFromHistory(
   }
 
   if (!response.ok) {
+    if (response.status === 401) notifySessionExpired();
     const error: ApiHttpError = new Error(
       data.message || `Erro ao excluir pedido (${response.status})`,
     );
@@ -137,7 +139,8 @@ export function isAuthenticated(): boolean {
 }
 
 export interface RegisterOrderDeliveryPayload {
-  items: { index: number; delivered: number; lost: number }[];
+  // extra: unidades entregues além do pedido (só a loja; vira acréscimo no valor)
+  items: { index: number; delivered: number; lost: number; extra?: number }[];
   lossReason?: string;
   note?: string;
 }
@@ -147,7 +150,7 @@ export interface RegisterOrderDeliveryPayload {
 export async function registerOrderDelivery(
   orderId: string,
   payload: RegisterOrderDeliveryPayload,
-): Promise<{ deliveryStatus: "partial" | "delivered" }> {
+): Promise<{ deliveryStatus: "partial" | "delivered"; extraAmount?: number }> {
   const response = await authenticatedFetch(
     `${API_URL}/orders/${orderId}/deliveries`,
     { method: "POST", body: JSON.stringify(payload) },
@@ -183,16 +186,16 @@ export async function authenticatedFetch(
   // console.log removido: storeId não é mais usado
   const response = await fetch(url, { ...options, headers });
 
-  // Se o token for inválido/expirado (401 ou 403), limpa o token e desconecta
-  if (response.status === 401 || response.status === 403) {
-    console.error("Acesso negado. Token inválido ou expirado.");
-    logout();
-    // Redireciona para a página de login (se necessário)
-    if (window.location.pathname.includes("/admin")) {
-      window.location.href = "/admin/login";
-    } else if (window.location.pathname.includes("/kitchen")) {
-      window.location.href = "/kitchen/login";
-    }
+  // Token inválido/expirado/revogado: o AuthContext desloga, avisa o usuário e
+  // manda para a tela de login certa (ver utils/session.ts)
+  if (response.status === 401) {
+    console.error("Sessão expirada ou token inválido.");
+    if (token) notifySessionExpired();
+    throw new Error("Sua sessão expirou. Faça login novamente.");
+  }
+
+  // 403 = logado, mas sem permissão para esta ação: não derruba a sessão
+  if (response.status === 403) {
     throw new Error("Acesso não autorizado");
   }
 

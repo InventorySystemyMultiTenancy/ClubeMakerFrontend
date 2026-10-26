@@ -87,13 +87,13 @@ interface OrderDeliveryModalProps {
   order: Order;
   products: Product[];
   onClose: () => void;
-  onDelivered: (deliveryStatus: "partial" | "delivered") => void;
+  onDelivered: (deliveryStatus: "partial" | "delivered", extraAmount?: number) => void;
   audience?: "admin" | "customer";
   // Por padrão registra pela rota do admin/cozinha
   submitDelivery?: (
     orderId: string,
     payload: RegisterOrderDeliveryPayload,
-  ) => Promise<{ deliveryStatus: "partial" | "delivered" }>;
+  ) => Promise<{ deliveryStatus: "partial" | "delivered"; extraAmount?: number }>;
 }
 
 const toQty = (value: string | undefined, max: number) =>
@@ -114,10 +114,12 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
   );
   const isFollowUp = (order.deliveries || []).length > 0;
 
-  const [step, setStep] = useState<"ask" | "details">("ask");
+  // details = entregou menos; more = entregou tudo e mais algumas unidades (só a loja)
+  const [step, setStep] = useState<"ask" | "details" | "more">("ask");
   const [mode, setMode] = useState<ShortfallMode>("pending");
   const [deliveredInput, setDeliveredInput] = useState<Record<number, string>>({});
   const [lostInput, setLostInput] = useState<Record<number, string>>({});
+  const [extraInput, setExtraInput] = useState<Record<number, string>>({});
   const [lossReason, setLossReason] = useState("");
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
@@ -153,9 +155,26 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
     { delivered: 0, lost: 0, pending: 0, lossCost: 0 },
   );
   const nothingToRegister = totals.delivered + totals.lost === 0;
+
+  // "Entreguei mais": todo o restante sai e cada unidade a mais é cobrada pelo
+  // mesmo preço unitário do item no pedido
+  const stockByProduct = useMemo(() => {
+    const map: Record<string, number | undefined> = {};
+    for (const p of products) map[p.id] = p.stock;
+    return map;
+  }, [products]);
+  const moreRows = progress.map((item) => {
+    const extra = Math.max(0, parseInt(extraInput[item.index] || "0", 10) || 0);
+    const unitPrice = Number(order.items[item.index]?.price) || 0;
+    const stock = item.productId ? stockByProduct[item.productId] : undefined;
+    return { ...item, extra, unitPrice, extraAmount: extra * unitPrice, stock };
+  });
+  const moreTotal = moreRows.reduce((sum, row) => sum + row.extraAmount, 0);
+  const moreUnits = moreRows.reduce((sum, row) => sum + row.extra, 0);
+  const isPaid = order.paymentStatus === "paid" || order.paymentStatus === "authorized";
   const missingReason = totals.lost > 0 && !lossReason.trim();
 
-  const submit = async (items: { index: number; delivered: number; lost: number }[]) => {
+  const submit = async (items: RegisterOrderDeliveryPayload["items"]) => {
     setSaving(true);
     setError(null);
     try {
@@ -164,7 +183,7 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
         lossReason: lossReason.trim() || undefined,
         note: note.trim() || undefined,
       });
-      onDelivered(result.deliveryStatus);
+      onDelivered(result.deliveryStatus, result.extraAmount);
     } catch (err: any) {
       setError(err?.message || "Erro ao registrar entrega");
     } finally {
@@ -183,6 +202,25 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
     setStep("details");
   };
 
+  const openMore = () => {
+    setExtraInput({});
+    setError(null);
+    setStep("more");
+  };
+
+  const handleMoreSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (moreUnits === 0) return;
+    submit(
+      moreRows.map((row) => ({
+        index: row.index,
+        delivered: row.remaining,
+        lost: 0,
+        ...(row.extra > 0 ? { extra: row.extra } : {}),
+      })),
+    );
+  };
+
   const handleDetailsSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (nothingToRegister || missingReason) return;
@@ -192,6 +230,46 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
         .map((row) => ({ index: row.index, delivered: row.delivered, lost: row.lost })),
     );
   };
+
+  type DeliveryRow = (typeof rows)[number];
+  const fieldClass =
+    "rounded-lg border border-stone-300 px-2 py-1 focus:border-[var(--color-primary)] focus:outline-none";
+
+  const renderDeliveredInput = (row: DeliveryRow, className: string) => (
+    <input
+      type="number"
+      min={0}
+      max={row.remaining}
+      value={deliveredInput[row.index] ?? ""}
+      onChange={(e) =>
+        setDeliveredInput((prev) => ({ ...prev, [row.index]: e.target.value }))
+      }
+      className={`${fieldClass} ${className}`}
+    />
+  );
+
+  const renderLostInput = (row: DeliveryRow, className: string) => (
+    <input
+      type="number"
+      min={0}
+      max={row.remaining - row.delivered}
+      value={lostInput[row.index] ?? ""}
+      onChange={(e) => setLostInput((prev) => ({ ...prev, [row.index]: e.target.value }))}
+      className={`${fieldClass} ${className}`}
+    />
+  );
+
+  // Última coluna: no modo "perda" mostra a perda, nos outros o que fica pendente
+  const outcomeLabel = mode === "loss" ? "Perda" : "Fica pendente";
+  const outcomeValue = (row: DeliveryRow) => (mode === "loss" ? row.lost : row.pending);
+  const outcomeClass = (row: DeliveryRow) =>
+    mode === "loss"
+      ? row.lost > 0
+        ? "text-red-600"
+        : ""
+      : row.pending > 0
+        ? "text-amber-600"
+        : "";
 
   return (
     <div
@@ -232,7 +310,7 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
               {isFollowUp ? text.followUpAsk : text.ask}
             </p>
             {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
-            <div className="flex flex-col gap-2 sm:flex-row">
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
               <button
                 type="button"
                 onClick={onClose}
@@ -248,6 +326,16 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
               >
                 {text.no}
               </button>
+              {audience === "admin" && (
+                <button
+                  type="button"
+                  onClick={openMore}
+                  disabled={saving}
+                  className="flex-1 rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+                >
+                  Entreguei mais
+                </button>
+              )}
               <button
                 type="button"
                 onClick={deliverEverything}
@@ -258,6 +346,104 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
               </button>
             </div>
           </>
+        ) : step === "more" ? (
+          <form onSubmit={handleMoreSubmit} className="space-y-4">
+            <div>
+              <p className="font-semibold text-stone-800">Quanto entregou a mais de cada item?</p>
+              <p className="text-sm text-stone-500">
+                Todo o restante do pedido é marcado como entregue. As unidades a mais saem do
+                estoque e são cobradas do cliente pelo preço unitário do pedido.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              {moreRows.map((row) => (
+                <div
+                  key={row.index}
+                  className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border border-stone-200 p-3"
+                >
+                  <div className="min-w-0 flex-1 basis-48">
+                    <p className="font-semibold text-stone-800">{row.name}</p>
+                    <p className="text-xs text-stone-500">
+                      Entregando {row.remaining} do pedido · {formatCurrency(row.unitPrice)} / un.
+                      {row.stock !== undefined && row.stock !== null && ` · estoque: ${row.stock}`}
+                    </p>
+                    {row.stock !== undefined && row.stock !== null && row.extra > row.stock && (
+                      <p className="text-xs font-semibold text-amber-600">
+                        Mais do que o estoque disponível — o estoque ficará zerado.
+                      </p>
+                    )}
+                  </div>
+                  <label className="text-xs font-semibold text-stone-600">
+                    A mais
+                    <input
+                      type="number"
+                      min={0}
+                      value={extraInput[row.index] ?? ""}
+                      onChange={(e) =>
+                        setExtraInput((prev) => ({ ...prev, [row.index]: e.target.value }))
+                      }
+                      placeholder="0"
+                      className="mt-1 block w-20 rounded-lg border border-stone-300 px-2 py-1 text-base font-normal focus:border-[var(--color-primary)] focus:outline-none"
+                    />
+                  </label>
+                  <div className="w-24 text-right text-sm">
+                    <span className="block text-xs text-stone-500">Acréscimo</span>
+                    <span className={`font-semibold ${row.extra > 0 ? "text-blue-700" : "text-stone-400"}`}>
+                      {formatCurrency(row.extraAmount)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {moreUnits > 0 && (
+              <div className="rounded-lg bg-blue-50 p-3 text-sm text-blue-900">
+                <p className="font-semibold">
+                  Acréscimo: {moreUnits} un. = {formatCurrency(moreTotal)}
+                </p>
+                <p className="text-xs">
+                  {isPaid
+                    ? "O pedido já está pago: o acréscimo fica pendente para o cliente pagar."
+                    : `O valor do pedido passa de ${formatCurrency(order.total)} para ${formatCurrency(
+                        Number(order.total) + moreTotal,
+                      )}.`}
+                </p>
+              </div>
+            )}
+
+            <label className="block text-sm font-semibold text-stone-700">
+              Observação (opcional)
+              <input
+                type="text"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 font-normal focus:border-[var(--color-primary)] focus:outline-none"
+              />
+            </label>
+
+            {moreUnits === 0 && (
+              <p className="text-sm text-stone-500">Informe quantas unidades entregou a mais.</p>
+            )}
+            {error && <p className="text-sm text-red-600">{error}</p>}
+
+            <div className="flex gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setStep("ask")}
+                className="flex-1 rounded-lg border border-stone-300 py-2 font-semibold text-stone-600 hover:bg-stone-50"
+              >
+                Voltar
+              </button>
+              <button
+                type="submit"
+                disabled={saving || moreUnits === 0}
+                className="flex-1 rounded-lg bg-blue-600 py-2 font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+              >
+                {saving ? "Salvando..." : "Confirmar entrega"}
+              </button>
+            </div>
+          </form>
         ) : (
           <form onSubmit={handleDetailsSubmit} className="space-y-4">
             <fieldset className="space-y-2">
@@ -288,7 +474,35 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
               ))}
             </fieldset>
 
-            <div className="overflow-x-auto">
+            {/* Celular: um cartão por item, com os campos rotulados */}
+            <div className="space-y-2 sm:hidden">
+              {rows.map((row) => (
+                <div key={row.index} className="rounded-lg border border-stone-200 p-3">
+                  <p className="font-semibold text-stone-800">{row.name}</p>
+                  <p className="text-xs text-stone-500">
+                    {text.toDeliver}: {row.remaining}
+                  </p>
+                  <div className={`mt-2 grid gap-2 ${mode === "mixed" ? "grid-cols-3" : "grid-cols-2"}`}>
+                    <label className="text-xs font-semibold text-stone-600">
+                      {text.deliveredNow}
+                      {renderDeliveredInput(row, "mt-1 w-full")}
+                    </label>
+                    {mode === "mixed" && (
+                      <label className="text-xs font-semibold text-stone-600">
+                        Perda
+                        {renderLostInput(row, "mt-1 w-full")}
+                      </label>
+                    )}
+                    <div className="text-xs font-semibold text-stone-600">
+                      {outcomeLabel}
+                      <p className={`mt-1 py-1 text-base ${outcomeClass(row)}`}>{outcomeValue(row)}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="hidden overflow-x-auto sm:block">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-stone-200 text-left text-xs uppercase tracking-wide text-stone-400">
@@ -296,7 +510,7 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
                     <th className="px-2 py-2">{text.toDeliver}</th>
                     <th className="px-2 py-2">{text.deliveredNow}</th>
                     {mode === "mixed" && <th className="px-2 py-2">Perda</th>}
-                    <th className="px-2 py-2">{mode === "loss" ? "Perda" : "Fica pendente"}</th>
+                    <th className="px-2 py-2">{outcomeLabel}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -305,43 +519,15 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
                       <td className="py-2 pr-2 font-semibold text-stone-800">{row.name}</td>
                       <td className="px-2 py-2">{row.remaining}</td>
                       <td className="px-2 py-2">
-                        <input
-                          type="number"
-                          min={0}
-                          max={row.remaining}
-                          value={deliveredInput[row.index] ?? ""}
-                          onChange={(e) =>
-                            setDeliveredInput((prev) => ({ ...prev, [row.index]: e.target.value }))
-                          }
-                          className="w-20 rounded-lg border border-stone-300 px-2 py-1 focus:border-[var(--color-primary)] focus:outline-none"
-                        />
+                        {renderDeliveredInput(row, "w-20")}
                       </td>
                       {mode === "mixed" && (
                         <td className="px-2 py-2">
-                          <input
-                            type="number"
-                            min={0}
-                            max={row.remaining - row.delivered}
-                            value={lostInput[row.index] ?? ""}
-                            onChange={(e) =>
-                              setLostInput((prev) => ({ ...prev, [row.index]: e.target.value }))
-                            }
-                            className="w-20 rounded-lg border border-stone-300 px-2 py-1 focus:border-[var(--color-primary)] focus:outline-none"
-                          />
+                          {renderLostInput(row, "w-20")}
                         </td>
                       )}
-                      <td
-                        className={`px-2 py-2 font-semibold ${
-                          mode === "loss"
-                            ? row.lost > 0
-                              ? "text-red-600"
-                              : ""
-                            : row.pending > 0
-                              ? "text-amber-600"
-                              : ""
-                        }`}
-                      >
-                        {mode === "loss" ? row.lost : row.pending}
+                      <td className={`px-2 py-2 font-semibold ${outcomeClass(row)}`}>
+                        {outcomeValue(row)}
                       </td>
                     </tr>
                   ))}

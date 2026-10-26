@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useCart } from "../../contexts/CartContext";
 import { canAccessAdminPath } from "../../utils/adminPermissions";
@@ -77,6 +77,18 @@ const LogoutIcon: React.FC<IconProps> = ({ className }) => (
   </svg>
 );
 
+const MenuIcon: React.FC<IconProps> = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+  </svg>
+);
+
+const CloseIcon: React.FC<IconProps> = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6 6 18" />
+  </svg>
+);
+
 interface AdminNavItem {
   to: string;
   label: string;
@@ -124,8 +136,11 @@ const useNavItems = (): AdminNavItem[] => {
   return allItems.filter((item) => canAccessAdminPath(currentUser, item.to));
 };
 
-const navLinkClasses = (isActive: boolean) =>
-  `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-bold transition-colors whitespace-nowrap ${
+// wrap: no menu do celular os rótulos quebram linha em vez de estourar a grade
+const navLinkClasses = (isActive: boolean, wrap = false) =>
+  `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-bold transition-colors ${
+    wrap ? "leading-tight" : "whitespace-nowrap"
+  } ${
     isActive
       ? "bg-[var(--color-primary)] text-white shadow"
       : "text-stone-600 hover:bg-[var(--color-primary-lighter)] hover:text-[var(--color-primary-active)]"
@@ -133,13 +148,31 @@ const navLinkClasses = (isActive: boolean) =>
 
 const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { logout, currentUser, refreshAdminAccess } = useAuth();
   const navItems = useNavItems();
+  // Menu do celular (abaixo de lg): barra com a aba atual + grade com todas as abas
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     refreshAdminAccess();
   }, [refreshAdminAccess]);
+
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
   const isOperator = currentUser?.role === "print_operator";
+
+  // Aba atual (a rota mais específica que bate com a URL, ex.: /historico/detalhes)
+  const currentItem =
+    [...navItems]
+      .sort((a, b) => b.to.length - a.to.length)
+      .find((item) =>
+        item.to === "/admin"
+          ? location.pathname === "/admin"
+          : location.pathname === item.to || location.pathname.startsWith(`${item.to}/`),
+      ) || null;
+  const CurrentIcon = currentItem?.icon;
 
   const handleLogout = async () => {
     if (!window.confirm("Deseja realmente sair?")) return;
@@ -148,9 +181,57 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   };
 
   return (
-    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:gap-6">
-      <nav className="lg:sticky lg:top-4 lg:w-56 lg:shrink-0">
-        <div className="flex gap-1 overflow-x-auto rounded-xl bg-white p-2 shadow lg:flex-col lg:gap-1 lg:overflow-visible">
+    <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:gap-6">
+      {/* Celular/tablet: barra fixa com a aba atual e botão de menu */}
+      <div className="sticky top-16 z-40 px-2 pt-2 lg:hidden">
+        <div className="rounded-xl bg-white shadow-lg">
+          <button
+            type="button"
+            onClick={() => setMenuOpen((open) => !open)}
+            aria-expanded={menuOpen}
+            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left"
+          >
+            {CurrentIcon && (
+              <CurrentIcon className="h-5 w-5 shrink-0 text-[var(--color-primary)]" />
+            )}
+            <span className="min-w-0 flex-1 truncate text-sm font-bold text-stone-800">
+              {currentItem?.label || "Menu"}
+            </span>
+            <span className="flex items-center gap-1 rounded-lg bg-[var(--color-primary)] px-3 py-1.5 text-xs font-bold text-white">
+              {menuOpen ? <CloseIcon className="h-4 w-4" /> : <MenuIcon className="h-4 w-4" />}
+              Menu
+            </span>
+          </button>
+          {menuOpen && (
+            <div className="grid max-h-[70vh] grid-cols-2 gap-1 overflow-y-auto border-t border-stone-200 p-2 sm:grid-cols-3">
+              {navItems.map(({ to, label, icon: Icon, onClick }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  end={to === "/admin"}
+                  onClick={onClick}
+                  className={({ isActive }) => navLinkClasses(isActive, true)}
+                >
+                  <Icon className="h-4 w-4 shrink-0" />
+                  {label}
+                </NavLink>
+              ))}
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-bold text-red-600 transition-colors hover:bg-red-50"
+              >
+                <LogoutIcon className="h-4 w-4 shrink-0" />
+                Sair
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Desktop: barra lateral */}
+      <nav className="hidden lg:sticky lg:top-20 lg:block lg:w-56 lg:shrink-0">
+        <div className="flex flex-col gap-1 rounded-xl bg-white p-2 shadow">
           {navItems.map(({ to, label, icon: Icon, onClick }) => (
             <NavLink
               key={to}
@@ -163,7 +244,7 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               {label}
             </NavLink>
           ))}
-          <div className="my-1 hidden border-t border-stone-200 lg:block" />
+          <div className="my-1 border-t border-stone-200" />
           <button
             type="button"
             onClick={handleLogout}

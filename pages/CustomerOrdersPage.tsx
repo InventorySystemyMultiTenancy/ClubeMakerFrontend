@@ -177,7 +177,20 @@ const CustomerOrdersPage: React.FC = () => {
                 {order.paymentStatus === "pending" && (
                   <span className="ml-2 font-bold text-red-300">A pagar</span>
                 )}
+                {Number(order.extraTotal) > 0 && (
+                  <span className="block text-xs text-blue-200/80">
+                    Inclui acréscimo de {formatCurrency(order.extraTotal)} por itens entregues a mais
+                  </span>
+                )}
               </div>
+              {Number(order.extraChargeDue) > 0 && (
+                <div className="mb-2 rounded-lg border border-amber-400/40 bg-amber-500/10 p-2 text-sm font-semibold text-amber-200">
+                  Acréscimo a pagar: {formatCurrency(order.extraChargeDue)}
+                  <span className="block text-xs font-normal text-amber-100/80">
+                    Recebeu mais unidades do que o pedido original. Entre em contato para pagar a diferença.
+                  </span>
+                </div>
+              )}
               <div className="mb-2">
                 <span className="font-semibold">Status:</span> {order.status}
               </div>
@@ -237,6 +250,11 @@ const CustomerOrdersPage: React.FC = () => {
                       <div>
                         {item.name} x {item.quantity} -{" "}
                         {formatCurrency(pricing.lineTotal)}
+                        {Number(item.extraQuantity) > 0 && (
+                          <span className="ml-1 text-xs text-blue-200/80">
+                            (+{item.extraQuantity} entregue a mais)
+                          </span>
+                        )}
                       </div>
                       {pricing.hasPricingDetails && (
                         <div className="text-xs text-blue-200/65">

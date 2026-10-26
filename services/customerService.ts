@@ -3,6 +3,7 @@
 import { authenticatedFetch } from "./apiService";
 import type { Customer, CustomerPermission } from "../types";
 import type { RegisterOrderDeliveryPayload } from "./apiService";
+import { notifySessionExpired } from "../utils/session";
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 const API_URL = `${BASE_URL}/api`;
@@ -44,14 +45,19 @@ async function handle<T>(response: Response): Promise<T> {
   return response.json();
 }
 
-const customerFetch = (url: string, options: RequestInit = {}) =>
-  fetch(url, {
+const customerFetch = async (url: string, options: RequestInit = {}) => {
+  const token = getCustomerToken();
+  const response = await fetch(url, {
     ...options,
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${getCustomerToken() || ""}`,
+      Authorization: `Bearer ${token || ""}`,
     },
   });
+  // Token do cliente vencido: o AuthContext desloga e pede login de novo
+  if (response.status === 401 && token) notifySessionExpired();
+  return response;
+};
 
 // ========== Cliente logado ==========
 export async function getMyCustomerAccess(): Promise<Customer> {
