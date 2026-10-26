@@ -37,7 +37,7 @@ import { canAccessAdminPath, getAdminHomePath } from "./utils/adminPermissions";
 
 import OrderDetailPage from "./pages/OrderDetailPage";
 import CustomerOrdersPage from "./pages/CustomerOrdersPage";
-import AdminLayout from "./components/admin/AdminLayout";
+import AdminThemeShell, { type AdminTheme } from "./components/admin/AdminThemeShell";
 
 // 1. Configuração do Cliente React Query
 const queryClient = new QueryClient({
@@ -95,14 +95,14 @@ const RoleProtectedRoute: React.FC<{
 
 // Rotas compartilhadas com a cozinha (histórico de pedidos): o admin vê dentro do
 // layout do painel, com o menu de abas; a cozinha continua vendo a página sozinha.
-const AdminLayoutForAdmin: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+// theme="light" mantém o visual claro original da página (com fade ao entrar/sair).
+const AdminLayoutForAdmin: React.FC<{ children: React.ReactNode; theme?: AdminTheme }> = ({
+  children,
+  theme,
+}) => {
   const { currentUser } = useAuth();
   if (currentUser?.role !== "admin") return <>{children}</>;
-  return (
-    <div className="admin-modern-theme">
-      <AdminLayout>{children}</AdminLayout>
-    </div>
-  );
+  return <AdminThemeShell theme={theme}>{children}</AdminThemeShell>;
 };
 
 const NoAdminAccess: React.FC = () => {
@@ -275,7 +275,7 @@ const RouterBody: React.FC = () => {
                 allowedRoles={["admin", "kitchen"]}
                 redirectTo="/admin/login"
               >
-                <AdminLayoutForAdmin>
+                <AdminLayoutForAdmin theme="light">
                   <OrderHistoryPage />
                 </AdminLayoutForAdmin>
               </RoleProtectedRoute>
@@ -315,11 +315,9 @@ const RouterBody: React.FC = () => {
                 allowedRoles={["admin"]}
                 redirectTo="/admin/login"
               >
-                <div className="admin-modern-theme">
-                  <AdminLayout>
-                    <AdminPage />
-                  </AdminLayout>
-                </div>
+                <AdminThemeShell>
+                  <AdminPage />
+                </AdminThemeShell>
               </RoleProtectedRoute>
             }
           />
@@ -332,11 +330,9 @@ const RouterBody: React.FC = () => {
                 allowedRoles={["admin"]}
                 redirectTo="/admin/login"
               >
-                <div className="admin-modern-theme">
-                  <AdminLayout>
-                    <AdminCreateCustomerPage />
-                  </AdminLayout>
-                </div>
+                <AdminThemeShell>
+                  <AdminCreateCustomerPage />
+                </AdminThemeShell>
               </RoleProtectedRoute>
             }
           />
@@ -348,11 +344,9 @@ const RouterBody: React.FC = () => {
                 allowedRoles={["admin"]}
                 redirectTo="/admin/login"
               >
-                <div className="admin-modern-theme">
-                  <AdminLayout>
-                    <AdminCustomersPage />
-                  </AdminLayout>
-                </div>
+                <AdminThemeShell>
+                  <AdminCustomersPage />
+                </AdminThemeShell>
               </RoleProtectedRoute>
             }
           />
@@ -364,11 +358,9 @@ const RouterBody: React.FC = () => {
                 allowedRoles={["admin"]}
                 redirectTo="/admin/login"
               >
-                <div className="admin-modern-theme">
-                  <AdminLayout>
-                    <AdminCategoriesPage />
-                  </AdminLayout>
-                </div>
+                <AdminThemeShell>
+                  <AdminCategoriesPage />
+                </AdminThemeShell>
               </RoleProtectedRoute>
             }
           />
@@ -381,11 +373,9 @@ const RouterBody: React.FC = () => {
                 allowedRoles={["admin"]}
                 redirectTo="/admin/login"
               >
-                <div className="admin-modern-theme">
-                  <AdminLayout>
-                    <AdminReportsPage />
-                  </AdminLayout>
-                </div>
+                <AdminThemeShell>
+                  <AdminReportsPage />
+                </AdminThemeShell>
               </RoleProtectedRoute>
             }
           />
@@ -398,11 +388,9 @@ const RouterBody: React.FC = () => {
                 allowedRoles={["admin"]}
                 redirectTo="/admin/login"
               >
-                <div className="admin-modern-theme">
-                  <AdminLayout>
-                    <AdminProjectQuotesPage />
-                  </AdminLayout>
-                </div>
+                <AdminThemeShell>
+                  <AdminProjectQuotesPage />
+                </AdminThemeShell>
               </RoleProtectedRoute>
             }
           />
@@ -414,11 +402,9 @@ const RouterBody: React.FC = () => {
                 allowedRoles={["admin", "print_operator"]}
                 redirectTo="/admin/login"
               >
-                <div className="admin-modern-theme">
-                  <AdminLayout>
-                    <AdminPrintFarmPage />
-                  </AdminLayout>
-                </div>
+                <AdminThemeShell>
+                  <AdminPrintFarmPage />
+                </AdminThemeShell>
               </RoleProtectedRoute>
             }
           />
@@ -432,11 +418,9 @@ const RouterBody: React.FC = () => {
                 allowedRoles={["admin"]}
                 redirectTo="/admin/login"
               >
-                <div className="admin-modern-theme">
-                  <AdminLayout>
-                    <AdminManagementReportPage />
-                  </AdminLayout>
-                </div>
+                <AdminThemeShell>
+                  <AdminManagementReportPage />
+                </AdminThemeShell>
               </RoleProtectedRoute>
             }
           />

@@ -1192,57 +1192,144 @@ body {
     letter-spacing: 1rem;
   }
 
-  .admin-modern-theme .container {
+  :is(.admin-modern-theme, .admin-shell) .container {
     padding-left: 0.75rem;
     padding-right: 0.75rem;
   }
 
-  .admin-modern-theme .p-6 {
+  :is(.admin-modern-theme, .admin-shell) .p-6 {
     padding: 1rem;
   }
 
-  .admin-modern-theme .p-8 {
+  :is(.admin-modern-theme, .admin-shell) .p-8 {
     padding: 1.25rem;
   }
 
-  .admin-modern-theme .p-12 {
+  :is(.admin-modern-theme, .admin-shell) .p-12 {
     padding: 2rem 1.25rem;
   }
 
-  .admin-modern-theme .px-6 {
+  :is(.admin-modern-theme, .admin-shell) .px-6 {
     padding-left: 1rem;
     padding-right: 1rem;
   }
 
-  .admin-modern-theme h1 {
+  :is(.admin-modern-theme, .admin-shell) h1 {
     font-size: 1.5rem;
     line-height: 2rem;
   }
 
-  .admin-modern-theme h2 {
+  :is(.admin-modern-theme, .admin-shell) h2 {
     font-size: 1.2rem;
     line-height: 1.6rem;
   }
 
-  .admin-modern-theme .text-6xl {
+  :is(.admin-modern-theme, .admin-shell) .text-6xl {
     font-size: 3rem;
   }
 
-  .admin-modern-theme .text-3xl {
+  :is(.admin-modern-theme, .admin-shell) .text-3xl {
     font-size: 1.5rem;
   }
 
   /* Textos longos (e-mails, IDs, nomes) quebram em vez de alargar a página */
-  .admin-modern-theme p,
-  .admin-modern-theme li,
-  .admin-modern-theme td {
+  :is(.admin-modern-theme, .admin-shell) p,
+  :is(.admin-modern-theme, .admin-shell) li,
+  :is(.admin-modern-theme, .admin-shell) td {
     overflow-wrap: anywhere;
   }
 
   /* Evita o zoom automático do iOS ao focar campos com fonte < 16px */
-  .admin-modern-theme input,
-  .admin-modern-theme select,
-  .admin-modern-theme textarea {
+  :is(.admin-modern-theme, .admin-shell) input,
+  :is(.admin-modern-theme, .admin-shell) select,
+  :is(.admin-modern-theme, .admin-shell) textarea {
     font-size: 16px;
+  }
+}
+
+/* ========== Shell do painel admin: tema escuro x claro com fade ==========
+   (components/admin/AdminThemeShell.tsx) O gradiente escuro fica numa camada
+   própria (.admin-shell-bg) que some/aparece com opacidade — gradiente não anima.
+   No tema claro (Histórico de Pedidos) a classe .admin-modern-theme sai, e as
+   utilities do Tailwind voltam ao visual original: fundo claro, cartões brancos e
+   botões coloridos. */
+.admin-shell {
+  position: relative;
+  min-height: calc(100vh - 68px);
+  color: #292524;
+  overflow: hidden;
+  overflow: clip;
+}
+
+/* Vence o background !important de .admin-modern-theme (mesma especificidade, vem depois) */
+.admin-shell,
+.admin-shell.admin-modern-theme {
+  background: #f5f5f4 !important;
+}
+
+.admin-shell.admin-modern-theme {
+  color: #eaf2ff;
+}
+
+/* A faixa de bichinhos passa para a camada de fundo, para sumir junto com ela */
+.admin-shell::before {
+  content: none !important;
+}
+
+.admin-shell > * {
+  position: relative;
+}
+
+.admin-shell > .admin-shell-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: clip;
+  opacity: 1;
+  transition: opacity 0.6s ease;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(96, 165, 250, 0.32), transparent 24rem),
+    radial-gradient(circle at 82% 8%, rgba(37, 99, 235, 0.28), transparent 25rem),
+    linear-gradient(135deg, #02132f, #022859 48%, #050604);
+}
+
+.admin-shell > .admin-shell-bg::before {
+  content: "🧸 🐻 🐰 🐼 🧸 🐻 🐰 🐼";
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 5rem;
+  color: rgba(191, 219, 254, 0.22);
+  font-size: 2rem;
+  letter-spacing: 2rem;
+  white-space: nowrap;
+  animation: plushHeaderFloat 28s linear infinite;
+}
+
+.admin-shell.admin-light-theme > .admin-shell-bg {
+  opacity: 0;
+}
+
+/* Navegador sem View Transitions: cores e fundos acompanham o fade */
+.admin-theme-animating,
+.admin-theme-animating * {
+  transition:
+    background-color 0.6s ease,
+    color 0.6s ease,
+    border-color 0.6s ease,
+    opacity 0.6s ease !important;
+}
+
+/* Navegador com View Transitions: crossfade da tela inteira, no mesmo ritmo */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.6s;
+}
+
+@media (max-width: 640px) {
+  .admin-shell > .admin-shell-bg::before {
+    font-size: 1.25rem;
+    letter-spacing: 1rem;
   }
 }
