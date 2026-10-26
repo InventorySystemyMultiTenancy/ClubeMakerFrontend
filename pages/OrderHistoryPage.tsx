@@ -17,6 +17,7 @@ import {
   isOrderFullyDelivered,
 } from "../utils/orderDelivery";
 import OrderDeliveryModal from "../components/admin/OrderDeliveryModal";
+import OrderItemDeliveryNote from "../components/OrderItemDeliveryNote";
 
 // Página de Histórico de Pedidos com filtro por data
 // (OrderHistoryPage)
@@ -324,16 +325,16 @@ const OrderHistoryPage: React.FC = () => {
               <ul className="mb-2">
                 {order.items.map((item, idx) => {
                   const pricing = getOrderItemPricingInfo(item);
+                  const deliveryProgress = getOrderDeliveryProgress(order)[idx];
 
                   return (
                     <li key={item.productId || item.id || idx} className="text-stone-800 mb-1">
                       <span className="font-semibold">{item.quantity}x</span>{" "}
                       {item.name} - {formatCurrency(pricing.lineTotal)}
-                      {Number(item.extraQuantity) > 0 && (
-                        <span className="ml-1 text-xs font-semibold text-blue-700">
-                          (+{item.extraQuantity} entregue a mais)
-                        </span>
-                      )}
+                      <OrderItemDeliveryNote
+                        progress={deliveryProgress}
+                        extraQuantity={item.extraQuantity}
+                      />
                       {pricing.hasPricingDetails && (
                         <div className="text-xs text-stone-500 ml-5">
                           Unit.: {formatCurrency(pricing.unitPrice)}

@@ -9,13 +9,18 @@ import {
   getProjectOrderDetails,
   isProjectOrder,
 } from "../utils/projectOrder";
-import { getPendingUnits, isOrderFullyDelivered } from "../utils/orderDelivery";
+import {
+  getOrderDeliveryProgress,
+  getPendingUnits,
+  isOrderFullyDelivered,
+} from "../utils/orderDelivery";
 import {
   getCustomerToken,
   getMyCustomerAccess,
   registerCustomerDelivery,
 } from "../services/customerService";
 import OrderDeliveryModal from "../components/admin/OrderDeliveryModal";
+import OrderItemDeliveryNote from "../components/OrderItemDeliveryNote";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 const CONTACT_WHATSAPP = "5511947094271";
@@ -250,11 +255,11 @@ const CustomerOrdersPage: React.FC = () => {
                       <div>
                         {item.name} x {item.quantity} -{" "}
                         {formatCurrency(pricing.lineTotal)}
-                        {Number(item.extraQuantity) > 0 && (
-                          <span className="ml-1 text-xs text-blue-200/80">
-                            (+{item.extraQuantity} entregue a mais)
-                          </span>
-                        )}
+                        <OrderItemDeliveryNote
+                          progress={getOrderDeliveryProgress(order)[idx]}
+                          extraQuantity={item.extraQuantity}
+                          tone="dark"
+                        />
                       </div>
                       {pricing.hasPricingDetails && (
                         <div className="text-xs text-blue-200/65">

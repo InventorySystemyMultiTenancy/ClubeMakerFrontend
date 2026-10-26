@@ -6,6 +6,8 @@ import { useAuth } from "../contexts/AuthContext";
 import { authenticatedFetch, getProducts } from "../services/apiService";
 import { formatCurrency, getOrderItemPricingInfo } from "../utils/orderPricing";
 import { buildReceiptPdfUrl } from "../utils/receiptPdf";
+import { getOrderDeliveryProgress } from "../utils/orderDelivery";
+import OrderItemDeliveryNote from "../components/OrderItemDeliveryNote";
 import {
   downloadProjectOrderFile,
   getProjectOrderDetails,
@@ -401,11 +403,11 @@ const OrderDetailPage: React.FC = () => {
                     <div>
                       {item.quantity}x {item.name} -{" "}
                       {formatCurrency(pricing.lineTotal)}
-                      {Number(item.extraQuantity) > 0 && (
-                        <span className="ml-1 text-xs text-blue-200/80">
-                          (+{item.extraQuantity} entregue a mais)
-                        </span>
-                      )}
+                      <OrderItemDeliveryNote
+                        progress={getOrderDeliveryProgress(currentOrder)[idx]}
+                        extraQuantity={item.extraQuantity}
+                        tone="dark"
+                      />
                     </div>
                     {pricing.hasPricingDetails && (
                       <div className="text-xs text-blue-200/65">
