@@ -188,6 +188,14 @@ const CustomerOrdersPage: React.FC = () => {
                   </span>
                 )}
               </div>
+              {Number(order.refundDue) > 0 && (
+                <div className="mb-2 rounded-lg border border-green-400/40 bg-green-500/10 p-2 text-sm font-semibold text-green-200">
+                  Valor a receber de volta: {formatCurrency(order.refundDue)}
+                  <span className="block text-xs font-normal text-green-100/80">
+                    O pedido foi finalizado com menos itens do que você pagou.
+                  </span>
+                </div>
+              )}
               {Number(order.extraChargeDue) > 0 && (
                 <div className="mb-2 rounded-lg border border-amber-400/40 bg-amber-500/10 p-2 text-sm font-semibold text-amber-200">
                   Acréscimo a pagar: {formatCurrency(order.extraChargeDue)}
@@ -258,6 +266,7 @@ const CustomerOrdersPage: React.FC = () => {
                         <OrderItemDeliveryNote
                           progress={getOrderDeliveryProgress(order)[idx]}
                           extraQuantity={item.extraQuantity}
+                          orderedQuantity={item.orderedQuantity}
                           tone="dark"
                         />
                       </div>

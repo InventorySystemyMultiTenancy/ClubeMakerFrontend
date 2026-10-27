@@ -15,18 +15,18 @@ type ShortfallOption = { value: ShortfallMode; label: string; hint: string };
 const SHORTFALL_OPTIONS: ShortfallOption[] = [
   {
     value: "pending",
-    label: "Cliente retirou menos / não estava pronto",
-    hint: "O restante fica pendente e o pedido vira entrega parcial.",
+    label: "Não foi entregue (cliente retirou menos / não estava pronto)",
+    hint: "O que faltou sai do pedido e volta ao estoque. O cliente paga só o que recebeu.",
   },
   {
     value: "loss",
-    label: "O restante foi perda",
-    hint: "O restante é baixado como perda e entra como prejuízo.",
+    label: "O que faltou foi perda",
+    hint: "Baixado como perda (prejuízo). O cliente não paga por ele.",
   },
   {
     value: "mixed",
-    label: "Parte foi perda e parte fica pendente",
-    hint: "Informe a perda de cada item; o que sobrar fica pendente.",
+    label: "Parte foi perda e parte não foi entregue",
+    hint: "Informe a perda de cada item; o resto sai do pedido e volta ao estoque.",
   },
 ];
 
@@ -35,18 +35,18 @@ const SHORTFALL_OPTIONS: ShortfallOption[] = [
 const CUSTOMER_SHORTFALL_OPTIONS: ShortfallOption[] = [
   {
     value: "pending",
-    label: "Ainda não recebi o restante",
-    hint: "O restante fica pendente e o pedido vira entrega parcial.",
+    label: "Não recebi o restante",
+    hint: "O que faltou sai do pedido. Você paga só o que recebeu.",
   },
   {
     value: "loss",
     label: "O restante chegou com defeito / quebrado",
-    hint: "O restante é registrado como perda.",
+    hint: "Registrado como perda. Você não paga por ele.",
   },
   {
     value: "mixed",
-    label: "Parte chegou com defeito e parte ainda não recebi",
-    hint: "Informe a perda de cada item; o que sobrar fica pendente.",
+    label: "Parte chegou com defeito e parte não recebi",
+    hint: "Informe a perda de cada item; o resto sai do pedido.",
   },
 ];
 
@@ -65,7 +65,9 @@ const TEXTS = {
     toDeliver: "A entregar",
     deliveredNow: "Entregue agora",
     lossReason: "Motivo da perda *",
-    pendingNotice: "até você realizar o resto da entrega",
+    pendingNotice: "saem do pedido e voltam ao estoque",
+    finalizeNotice:
+      "Ao confirmar, o pedido é finalizado com os itens entregues e não poderá mais ser editado.",
     confirm: "Confirmar entrega",
     options: SHORTFALL_OPTIONS,
   },
@@ -82,7 +84,8 @@ const TEXTS = {
     toDeliver: "A receber",
     deliveredNow: "Recebido agora",
     lossReason: "O que aconteceu? *",
-    pendingNotice: "até o restante ser entregue",
+    pendingNotice: "saem do pedido",
+    finalizeNotice: "Ao confirmar, o pedido é finalizado só com os itens que você recebeu.",
     confirm: "Confirmar recebimento",
     options: CUSTOMER_SHORTFALL_OPTIONS,
   },
@@ -92,13 +95,17 @@ interface OrderDeliveryModalProps {
   order: Order;
   products: Product[];
   onClose: () => void;
-  onDelivered: (deliveryStatus: "partial" | "delivered", extraAmount?: number) => void;
+  onDelivered: (
+    deliveryStatus: "partial" | "delivered",
+    extraAmount?: number,
+    total?: number,
+  ) => void;
   audience?: "admin" | "customer";
   // Por padrão registra pela rota do admin/cozinha
   submitDelivery?: (
     orderId: string,
     payload: RegisterOrderDeliveryPayload,
-  ) => Promise<{ deliveryStatus: "partial" | "delivered"; extraAmount?: number }>;
+  ) => Promise<{ deliveryStatus: "partial" | "delivered"; extraAmount?: number; total?: number }>;
 }
 
 const toQty = (value: string | undefined, max: number) =>
@@ -168,6 +175,7 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
       lossCost: lost * unitCost,
       unitPrice,
       extraAmount: extra * unitPrice,
+      shortAmount: short * unitPrice,
       stock,
     };
   });
@@ -177,13 +185,28 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
       fromOrder: acc.fromOrder + row.fromOrder,
       extra: acc.extra + row.extra,
       extraAmount: acc.extraAmount + row.extraAmount,
+      shortAmount: acc.shortAmount + row.shortAmount,
       short: acc.short + row.short,
       lost: acc.lost + row.lost,
       pending: acc.pending + row.pending,
       lossCost: acc.lossCost + row.lossCost,
     }),
-    { fromOrder: 0, extra: 0, extraAmount: 0, short: 0, lost: 0, pending: 0, lossCost: 0 },
+    {
+      fromOrder: 0,
+      extra: 0,
+      extraAmount: 0,
+      shortAmount: 0,
+      short: 0,
+      lost: 0,
+      pending: 0,
+      lossCost: 0,
+    },
   );
+  // A entrega finaliza o pedido: cobra o entregue (com as unidades a mais) e tira o
+  // que faltou (não entregue ou perda)
+  const currentTotal = Number(order.total) || 0;
+  const finalTotal = Math.max(0, currentTotal + totals.extraAmount - totals.shortAmount);
+  const balance = finalTotal - currentTotal;
   const nothingToRegister = totals.fromOrder + totals.extra + totals.lost === 0;
   const missingReason = totals.lost > 0 && !lossReason.trim();
   const isPaid = order.paymentStatus === "paid" || order.paymentStatus === "authorized";
@@ -197,7 +220,7 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
         lossReason: lossReason.trim() || undefined,
         note: note.trim() || undefined,
       });
-      onDelivered(result.deliveryStatus, result.extraAmount);
+      onDelivered(result.deliveryStatus, result.extraAmount, result.total);
     } catch (err: any) {
       setError(err?.message || "Erro ao registrar entrega");
     } finally {
@@ -279,7 +302,7 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
         <span className="font-semibold">
           {row.lost > 0 && <span className="text-red-600">perda {row.lost}</span>}
           {row.lost > 0 && row.pending > 0 && " · "}
-          {row.pending > 0 && <span className="text-amber-600">{row.pending} pendente</span>}
+          {row.pending > 0 && <span className="text-amber-600">{row.pending} não entregue</span>}
         </span>
       );
     }
@@ -326,6 +349,7 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
             <p className="mb-4 font-semibold text-stone-800">
               {isFollowUp ? text.followUpAsk : text.ask}
             </p>
+            <p className="mb-3 text-xs text-stone-500">{text.finalizeNotice}</p>
             {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
             <div className="flex flex-col gap-2 sm:flex-row">
               <button
@@ -460,20 +484,37 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
               </fieldset>
             )}
 
-            {totals.extra > 0 && (
-              <div className="rounded-lg bg-blue-50 p-3 text-sm text-blue-900">
-                <p className="font-semibold">
-                  Acréscimo: {totals.extra} un. a mais = {formatCurrency(totals.extraAmount)}
+            {/* Valor final: o pedido é finalizado cobrando só o que foi entregue */}
+            <div className="space-y-1 rounded-lg bg-blue-50 p-3 text-sm text-blue-900">
+              {totals.extra > 0 && (
+                <p>
+                  Acréscimo: {totals.extra} un. a mais = +{formatCurrency(totals.extraAmount)}
                 </p>
+              )}
+              {totals.short > 0 && (
+                <p>
+                  Não entregue: {totals.short} un. = −{formatCurrency(totals.shortAmount)}
+                </p>
+              )}
+              <p className="font-semibold">
+                Valor final do pedido: {formatCurrency(finalTotal)}
+                {balance !== 0 && (
+                  <span className="font-normal"> (antes {formatCurrency(currentTotal)})</span>
+                )}
+              </p>
+              {isPaid && balance > 0 && (
                 <p className="text-xs">
-                  {isPaid
-                    ? "O pedido já está pago: o acréscimo fica pendente para o cliente pagar."
-                    : `O valor do pedido passa de ${formatCurrency(order.total)} para ${formatCurrency(
-                        Number(order.total) + totals.extraAmount,
-                      )}.`}
+                  O pedido já está pago: {formatCurrency(balance)} ficam como acréscimo a pagar.
                 </p>
-              </div>
-            )}
+              )}
+              {isPaid && balance < 0 && (
+                <p className="text-xs">
+                  O pedido já está pago: {formatCurrency(-balance)} ficam como valor a devolver ao
+                  cliente.
+                </p>
+              )}
+              <p className="text-xs text-blue-700">{text.finalizeNotice}</p>
+            </div>
 
             {totals.lost > 0 && (
               <div className="space-y-2 rounded-lg bg-red-50 p-3 text-sm text-red-700">
@@ -502,8 +543,7 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
 
             {totals.pending > 0 && (
               <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
-                <strong>{totals.pending}</strong> unidade(s) ficam pendentes — o pedido ficará como{" "}
-                <strong>entrega parcial</strong> {text.pendingNotice}.
+                <strong>{totals.pending}</strong> unidade(s) não entregue(s) {text.pendingNotice}.
               </p>
             )}
 

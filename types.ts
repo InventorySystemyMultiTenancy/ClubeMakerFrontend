@@ -37,6 +37,9 @@ export interface OrderItem {
   price: number;
   // Unidades entregues além do pedido original (já somadas em quantity)
   extraQuantity?: number;
+  // Quantidade pedida originalmente; gravada quando a entrega finaliza o pedido
+  // (a partir daí quantity passa a ser o que foi entregue e cobrado)
+  orderedQuantity?: number;
   originalUnitPrice?: number | null;
   customUnitPrice?: number | null;
   discountPercent?: number | null;
@@ -91,6 +94,8 @@ export interface Order {
   // extraChargeDue é a parte ainda não paga quando o pedido já estava pago.
   extraTotal?: number;
   extraChargeDue?: number;
+  // Pedido já pago finalizado com menos itens: valor a devolver ao cliente
+  refundDue?: number;
   projectQuote?: ProjectQuote;
 }
 

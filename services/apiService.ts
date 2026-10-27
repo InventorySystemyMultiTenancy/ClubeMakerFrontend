@@ -150,7 +150,12 @@ export interface RegisterOrderDeliveryPayload {
 export async function registerOrderDelivery(
   orderId: string,
   payload: RegisterOrderDeliveryPayload,
-): Promise<{ deliveryStatus: "partial" | "delivered"; extraAmount?: number }> {
+): Promise<{
+  deliveryStatus: "partial" | "delivered";
+  extraAmount?: number;
+  total?: number;
+  previousTotal?: number;
+}> {
   const response = await authenticatedFetch(
     `${API_URL}/orders/${orderId}/deliveries`,
     { method: "POST", body: JSON.stringify(payload) },

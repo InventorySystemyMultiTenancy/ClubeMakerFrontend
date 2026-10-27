@@ -328,12 +328,16 @@ const OrderHistoryPage: React.FC = () => {
                   const deliveryProgress = getOrderDeliveryProgress(order)[idx];
 
                   return (
-                    <li key={item.productId || item.id || idx} className="text-stone-800 mb-1">
+                    <li
+                      key={item.productId || item.id || idx}
+                      className="text-stone-800 mb-1"
+                    >
                       <span className="font-semibold">{item.quantity}x</span>{" "}
                       {item.name} - {formatCurrency(pricing.lineTotal)}
                       <OrderItemDeliveryNote
                         progress={deliveryProgress}
                         extraQuantity={item.extraQuantity}
+                        orderedQuantity={item.orderedQuantity}
                       />
                       {pricing.hasPricingDetails && (
                         <div className="text-xs text-stone-500 ml-5">
@@ -360,17 +364,30 @@ const OrderHistoryPage: React.FC = () => {
                 <div className="mb-2 rounded bg-stone-50 p-2 text-xs text-stone-600">
                   <span className="font-semibold">Entregas:</span>
                   <ul>
-                    {getOrderDeliveryProgress(order).map((item) => (
-                      <li key={item.index}>
-                        {item.name}: entregue {item.delivered}/{item.quantity}
-                        {item.lost > 0 && (
-                          <span className="text-red-600"> · perda {item.lost}</span>
-                        )}
-                        {item.remaining > 0 && (
-                          <span className="text-amber-700"> · pendente {item.remaining}</span>
-                        )}
-                      </li>
-                    ))}
+                    {getOrderDeliveryProgress(order).map((item) => {
+                      // Pedido finalizado guarda a quantidade pedida original
+                      const ordered = order.items[item.index]?.orderedQuantity;
+                      return (
+                        <li key={item.index}>
+                          {item.name}:{" "}
+                          {ordered !== undefined && ordered !== null
+                            ? `pedido ${ordered} · entregue ${item.delivered}`
+                            : `entregue ${item.delivered}/${item.quantity}`}
+                          {item.lost > 0 && (
+                            <span className="text-red-600">
+                              {" "}
+                              · perda {item.lost}
+                            </span>
+                          )}
+                          {item.remaining > 0 && (
+                            <span className="text-amber-700">
+                              {" "}
+                              · pendente {item.remaining}
+                            </span>
+                          )}
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
               )}
@@ -389,6 +406,31 @@ const OrderHistoryPage: React.FC = () => {
                     </span>
                   )}
                 </div>
+                {/* Pedido pago finalizado com menos itens: devolver a diferença ao cliente */}
+                {Number(order.refundDue) > 0 && (
+                  <>
+                    <span className="text-amber-700 text-xs font-bold">
+                      A DEVOLVER {formatCurrency(order.refundDue)}
+                    </span>
+                    <button
+                      className="px-3 py-2 sm:py-1 rounded bg-amber-600 text-white text-xs font-bold hover:bg-amber-700 transition"
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        const resp = await authenticatedFetch(
+                          `${BACKEND_URL}/api/orders/${order.id}/mark-refunded`,
+                          { method: "PUT" },
+                        );
+                        if (resp.ok) {
+                          fetchOrders();
+                        } else {
+                          alert("Erro ao registrar devolução");
+                        }
+                      }}
+                    >
+                      Marcar como devolvido
+                    </button>
+                  </>
+                )}
                 {/* Acréscimo de unidades entregues a mais num pedido que já estava pago */}
                 {Number(order.extraChargeDue) > 0 && (
                   <>
@@ -416,28 +458,30 @@ const OrderHistoryPage: React.FC = () => {
                 )}
                 {/* Exibe status do pagamento */}
                 {order.paymentStatus === "pending" && (
-                    <>
-                      <span className="text-[var(--color-primary)] font-bold">A PAGAR</span>
-                      <button
-                        className="px-3 py-2 sm:py-1 rounded bg-green-600 text-white text-xs font-bold hover:bg-green-700 transition"
-                        onClick={async (e) => {
-                          e.stopPropagation();
-                          // Chama endpoint para marcar como pago
-                          const resp = await authenticatedFetch(
-                            `${BACKEND_URL}/api/orders/${order.id}/mark-paid`,
-                            { method: "PUT" },
-                          );
-                          if (resp.ok) {
-                            fetchOrders();
-                          } else {
-                            alert("Erro ao marcar como pago");
-                          }
-                        }}
-                      >
-                        Marcar como pago
-                      </button>
-                    </>
-                  )}
+                  <>
+                    <span className="text-[var(--color-primary)] font-bold">
+                      A PAGAR
+                    </span>
+                    <button
+                      className="px-3 py-2 sm:py-1 rounded bg-green-600 text-white text-xs font-bold hover:bg-green-700 transition"
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        // Chama endpoint para marcar como pago
+                        const resp = await authenticatedFetch(
+                          `${BACKEND_URL}/api/orders/${order.id}/mark-paid`,
+                          { method: "PUT" },
+                        );
+                        if (resp.ok) {
+                          fetchOrders();
+                        } else {
+                          alert("Erro ao marcar como pago");
+                        }
+                      }}
+                    >
+                      Marcar como pago
+                    </button>
+                  </>
+                )}
                 {/* Entrega ao cliente (total ou parcial) */}
                 {isOrderFullyDelivered(order) ? (
                   <button
@@ -495,7 +539,7 @@ const OrderHistoryPage: React.FC = () => {
           order={deliveringOrder}
           products={products}
           onClose={() => setDeliveringOrder(null)}
-          onDelivered={(deliveryStatus, extraAmount) => {
+          onDelivered={(deliveryStatus, extraAmount, total) => {
             setDeliveringOrder(null);
             fetchOrders();
             Swal.fire({
@@ -503,11 +547,13 @@ const OrderHistoryPage: React.FC = () => {
               position: "top-end",
               icon: "success",
               title:
-                extraAmount && extraAmount > 0
-                  ? `Entregue com acréscimo de ${formatCurrency(extraAmount)}`
-                  : deliveryStatus === "delivered"
-                    ? "Pedido entregue ao cliente"
-                    : "Entrega parcial registrada",
+                total !== undefined
+                  ? `Pedido entregue e finalizado: ${formatCurrency(total)}`
+                  : extraAmount && extraAmount > 0
+                    ? `Entregue com acréscimo de ${formatCurrency(extraAmount)}`
+                    : deliveryStatus === "delivered"
+                      ? "Pedido entregue ao cliente"
+                      : "Entrega parcial registrada",
               showConfirmButton: false,
               timer: 2200,
               timerProgressBar: true,

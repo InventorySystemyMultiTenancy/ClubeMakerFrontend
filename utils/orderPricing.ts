@@ -4,7 +4,13 @@ export const formatCurrency = (value: number | null | undefined) =>
   `R$ ${Number(value || 0).toFixed(2)}`;
 
 export const getOrderItemPricingInfo = (item: OrderItem) => {
-  const quantity = Number(item.quantity) || 1;
+  // Quantidade ausente conta como 1; 0 é válido (item do pedido finalizado sem
+  // nenhuma unidade entregue, que não é cobrado)
+  const rawQuantity = Number(item.quantity);
+  const quantity =
+    item.quantity === undefined || item.quantity === null || Number.isNaN(rawQuantity)
+      ? 1
+      : rawQuantity;
   const unitPrice = Number(item.price) || 0;
   const customUnitPrice = Number(item.customUnitPrice ?? unitPrice);
   const originalUnitPrice = Number(item.originalUnitPrice ?? customUnitPrice);

@@ -6,7 +6,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { authenticatedFetch, getProducts } from "../services/apiService";
 import { formatCurrency, getOrderItemPricingInfo } from "../utils/orderPricing";
 import { buildReceiptPdfUrl } from "../utils/receiptPdf";
-import { getOrderDeliveryProgress } from "../utils/orderDelivery";
+import { getOrderDeliveryProgress, isOrderFullyDelivered } from "../utils/orderDelivery";
 import OrderItemDeliveryNote from "../components/OrderItemDeliveryNote";
 import {
   downloadProjectOrderFile,
@@ -230,6 +230,11 @@ const OrderDetailPage: React.FC = () => {
               Acréscimo a pagar: {formatCurrency(currentOrder.extraChargeDue)}
             </span>
           )}
+          {Number(currentOrder.refundDue) > 0 && (
+            <span className="block font-bold text-amber-300">
+              Valor a devolver ao cliente: {formatCurrency(currentOrder.refundDue)}
+            </span>
+          )}
         </div>
         {isProjectOrder(currentOrder) && projectDetails && (
           <div className="mb-4 rounded-lg border border-blue-400/30 bg-blue-950/35 p-4 text-sm text-blue-50">
@@ -273,7 +278,12 @@ const OrderDetailPage: React.FC = () => {
         <div className="mb-2 text-blue-100">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <span className="font-semibold">Itens:</span>
-            {isAdmin && (
+            {isAdmin && isOrderFullyDelivered(currentOrder) && (
+              <span className="text-xs font-semibold text-blue-200/80">
+                Pedido entregue e finalizado — não pode mais ser editado
+              </span>
+            )}
+            {isAdmin && !isOrderFullyDelivered(currentOrder) && (
               <div className="flex flex-wrap gap-2">
                 {isEditing ? (
                   <>
@@ -406,6 +416,7 @@ const OrderDetailPage: React.FC = () => {
                       <OrderItemDeliveryNote
                         progress={getOrderDeliveryProgress(currentOrder)[idx]}
                         extraQuantity={item.extraQuantity}
+                        orderedQuantity={item.orderedQuantity}
                         tone="dark"
                       />
                     </div>
