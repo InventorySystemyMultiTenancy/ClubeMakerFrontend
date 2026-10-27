@@ -389,6 +389,37 @@ const OrderHistoryPage: React.FC = () => {
                       );
                     })}
                   </ul>
+                  {/* Observações e motivos de perda digitados ao registrar a entrega */}
+                  {(order.deliveries || [])
+                    .filter((delivery) => delivery.note || delivery.lossReason)
+                    .map((delivery) => (
+                      <div
+                        key={delivery.id}
+                        className="mt-2 border-t border-stone-200 pt-1"
+                      >
+                        <span className="text-stone-400">
+                          {new Date(delivery.createdAt).toLocaleString("pt-BR")}
+                          {delivery.createdByName &&
+                            ` · ${delivery.createdByName}`}
+                        </span>
+                        {delivery.lossReason && (
+                          <div className="text-red-700">
+                            <span className="font-semibold">
+                              Motivo da perda:
+                            </span>{" "}
+                            {delivery.lossReason}
+                          </div>
+                        )}
+                        {delivery.note && (
+                          <div>
+                            <span className="font-semibold">
+                              Observação da entrega:
+                            </span>{" "}
+                            {delivery.note}
+                          </div>
+                        )}
+                      </div>
+                    ))}
                 </div>
               )}
               {order.observation && (
