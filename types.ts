@@ -96,6 +96,8 @@ export interface Order {
   extraChargeDue?: number;
   // Pedido já pago finalizado com menos itens: valor a devolver ao cliente
   refundDue?: number;
+  // Custo do pedido (custo dos itens + perdas na entrega), vindo do histórico
+  cost?: number;
   projectQuote?: ProjectQuote;
 }
 

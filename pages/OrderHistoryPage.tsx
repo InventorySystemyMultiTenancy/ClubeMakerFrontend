@@ -167,6 +167,26 @@ const OrderHistoryPage: React.FC = () => {
     return true;
   });
 
+  // Resumo de vendas dos pedidos listados (período e demais filtros aplicados)
+  const salesSummary = filteredOrders.reduce(
+    (acc, order) => {
+      acc.gross += Number(order.total) || 0;
+      acc.cost += Number(order.cost) || 0;
+      return acc;
+    },
+    { gross: 0, cost: 0 },
+  );
+  const netSales = salesSummary.gross - salesSummary.cost;
+  const formatDateBr = (value: string) => value.split("-").reverse().join("/");
+  const periodLabel =
+    startDate && endDate
+      ? `${formatDateBr(startDate)} a ${formatDateBr(endDate)}`
+      : startDate
+        ? `desde ${formatDateBr(startDate)}`
+        : endDate
+          ? `até ${formatDateBr(endDate)}`
+          : "todo o período";
+
   return (
     // Admin vê a página dentro do layout do painel (que já tem menu e "Sair");
     // a cozinha vê a página sozinha, com fundo e botão de sair próprios.
@@ -281,6 +301,42 @@ const OrderHistoryPage: React.FC = () => {
           Limpar Filtros
         </button>
       </div>
+      {isAdmin && !loading && (
+        <div className="mb-6">
+          <p className="text-sm text-stone-500 mb-2">
+            Vendas de {periodLabel} · {filteredOrders.length} pedido
+            {filteredOrders.length === 1 ? "" : "s"}
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="bg-white rounded-xl shadow-md p-4 border-l-4 border-blue-600">
+              <div className="text-sm font-semibold text-stone-500">
+                Vendas brutas
+              </div>
+              <div className="text-2xl sm:text-3xl font-extrabold text-stone-800">
+                {formatCurrency(salesSummary.gross)}
+              </div>
+            </div>
+            <div className="bg-white rounded-xl shadow-md p-4 border-l-4 border-red-500">
+              <div className="text-sm font-semibold text-stone-500">
+                Custos (produtos + perdas)
+              </div>
+              <div className="text-2xl sm:text-3xl font-extrabold text-red-600">
+                {formatCurrency(salesSummary.cost)}
+              </div>
+            </div>
+            <div className="bg-white rounded-xl shadow-md p-4 border-l-4 border-green-600">
+              <div className="text-sm font-semibold text-stone-500">
+                Vendas líquidas
+              </div>
+              <div
+                className={`text-2xl sm:text-3xl font-extrabold ${netSales < 0 ? "text-red-600" : "text-green-700"}`}
+              >
+                {formatCurrency(netSales)}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20">
           <div className="animate-spin rounded-full h-16 w-16 border-4 border-[var(--color-primary-light)] border-t-[var(--color-primary)] mb-4"></div>
@@ -306,12 +362,24 @@ const OrderHistoryPage: React.FC = () => {
                 navigate("/historico/detalhes", { state: { order } })
               }
             >
-              <div className="flex flex-wrap justify-between items-center gap-x-3 mb-2">
-                <div className="font-bold text-lg text-stone-800">
-                  Pedido #{order.id.slice(-4)}
+              <div className="flex flex-wrap justify-between items-start gap-x-3 mb-2">
+                <div>
+                  <div className="font-bold text-lg text-stone-800">
+                    Pedido #{order.id.slice(-4)}
+                  </div>
+                  <div className="text-sm text-stone-500">
+                    {new Date(order.timestamp).toLocaleString()}
+                  </div>
                 </div>
-                <div className="text-sm text-stone-500">
-                  {new Date(order.timestamp).toLocaleString()}
+                <div className="text-right">
+                  <div className="text-3xl sm:text-4xl font-extrabold text-stone-900">
+                    {formatCurrency(Number(order.total) || 0)}
+                  </div>
+                  {Number(order.extraTotal) > 0 && (
+                    <div className="text-xs text-blue-700">
+                      inclui acréscimo de {formatCurrency(order.extraTotal)}
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="mb-2 text-stone-700">
@@ -429,14 +497,8 @@ const OrderHistoryPage: React.FC = () => {
                 </div>
               )}
               <div className="flex flex-wrap justify-between items-end mt-2 gap-2">
-                <div className="text-stone-500 text-xs">
-                  Total: R${Number(order.total)?.toFixed(2) ?? "-"}
-                  {Number(order.extraTotal) > 0 && (
-                    <span className="block text-blue-700">
-                      inclui acréscimo de {formatCurrency(order.extraTotal)}
-                    </span>
-                  )}
-                </div>
+                <div />
+
                 {/* Pedido pago finalizado com menos itens: devolver a diferença ao cliente */}
                 {Number(order.refundDue) > 0 && (
                   <>
