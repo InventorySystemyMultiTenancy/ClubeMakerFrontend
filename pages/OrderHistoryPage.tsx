@@ -172,9 +172,14 @@ const OrderHistoryPage: React.FC = () => {
     (acc, order) => {
       acc.gross += Number(order.total) || 0;
       acc.cost += Number(order.cost) || 0;
+      // Pedido finalizado já tem quantity = unidades entregues
+      acc.items += order.items.reduce(
+        (sum, item) => sum + (Number(item.quantity) || 0),
+        0,
+      );
       return acc;
     },
-    { gross: 0, cost: 0 },
+    { gross: 0, cost: 0, items: 0 },
   );
   const netSales = salesSummary.gross - salesSummary.cost;
   const formatDateBr = (value: string) => value.split("-").reverse().join("/");
@@ -310,10 +315,10 @@ const OrderHistoryPage: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="bg-white rounded-xl shadow-md p-4 border-l-4 border-blue-600">
               <div className="text-sm font-semibold text-stone-500">
-                Vendas brutas
+                Itens vendidos
               </div>
               <div className="text-2xl sm:text-3xl font-extrabold text-stone-800">
-                {formatCurrency(salesSummary.gross)}
+                {salesSummary.items.toLocaleString("pt-BR")}
               </div>
             </div>
             <div className="bg-white rounded-xl shadow-md p-4 border-l-4 border-red-500">
@@ -326,7 +331,7 @@ const OrderHistoryPage: React.FC = () => {
             </div>
             <div className="bg-white rounded-xl shadow-md p-4 border-l-4 border-green-600">
               <div className="text-sm font-semibold text-stone-500">
-                Vendas líquidas
+                Lucro líquido
               </div>
               <div
                 className={`text-2xl sm:text-3xl font-extrabold ${netSales < 0 ? "text-red-600" : "text-green-700"}`}
